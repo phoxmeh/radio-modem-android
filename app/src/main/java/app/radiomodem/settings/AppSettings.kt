@@ -50,6 +50,13 @@ class AppSettings private constructor(ctx: Context) {
     var logEnabled by flag("log_enabled", true)
     var logKeep by num("log_keep", 50f)                   // number of session logs kept
 
+    // ---- Fax schedule ----------------------------------------------------------------------------
+    var scheduleStations by str("sched_stations", "boston,new_orleans,pt_reyes,northwood,hamburg")  // station ids
+    var scheduleTypes by str("sched_types", "Analysis,Forecast,Satellite,Waves,Ice,Ocean,Other")    // chart types shown
+    var scheduleUtc by flag("sched_utc", true)
+    var scheduleDpPerHour by num("sched_zoom", 120f)
+    var scheduleLastCheck by str("sched_checked", "")  // epoch millis of the last Update
+
     // ---- Startup ---------------------------------------------------------------------------------
     var restoreState by flag("restore_state", true)
     var autoReconnect by flag("auto_reconnect", true)

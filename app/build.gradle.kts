@@ -43,6 +43,7 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("com.google.oboe:oboe:1.11.0")
     implementation("com.github.mik3y:usb-serial-for-android:3.11.0")
+    implementation("com.tom-roush:pdfbox-android:2.0.27.0")  // text from NOAA's schedule PDF (Apache 2.0)
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303")
     implementation("androidx.activity:activity-compose:1.13.0")

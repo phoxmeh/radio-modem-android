@@ -78,6 +78,15 @@ fun RadioApp(
                 "rig" -> RigSetupScreen(rig, ::pop)
                 "logs" -> LogsScreen(audio.logger, ::pop) { logPath = it.absolutePath; push("log_view") }
                 "log_view" -> if (logPath.isNotEmpty() && File(logPath).exists()) LogViewScreen(File(logPath), audio.logger, ::pop) else LaunchedEffect(Unit) { pop() }
+                "schedule" -> ScheduleScreen(viewModel(), ::pop) { station, freq ->
+                    // Tune the radio and decoder to this frequency (USB, weather fax, 1900 Hz subcarrier), then show the receiver.
+                    recall(
+                        app.radiomodem.data.Memory(name = "${station.title} · ${freq.kHz} kHz", freqHz = Math.round(station.dialKHz(freq) * 1000),
+                            mode = "USB", modem = "WEFAX", carrierHz = 1900),
+                        rig, audio,
+                    )
+                    pop()
+                }
                 "about" -> AboutScreen(::pop)
                 "help" -> HelpScreen(micGranted, files.requestMic, { push("audio") }, { push("rig") }) { settings.onboardingDone = true; pop() }
                 else -> MainScreen(audio, rig, mem, files, settings, ::push)
@@ -208,6 +217,7 @@ private fun MenuDrawer(
         style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(bottom = 8.dp),
     )
     item("Saved frequencies", onMemories)
+    item("Fax schedule") { go("schedule") }
     item("Rig setup") { go("rig") }
     item("Audio setup") { go("audio") }
     item("Session logs") { go("logs") }

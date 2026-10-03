@@ -1,0 +1,1376 @@
+#snapshot NOAA worldwide marine radiofax schedules, published March 7, 2025
+TOKYO, JAPAN
+CALL SIGNS           FREQUENCIES          TIMES                           EMISSION           POWER
+JMH                   3622.5 kHz          ALL BROADCAST TIMES               J3C               5 kW
+JMH2                  7795   kHz          ALL BROADCAST TIMES               J3C               5 kW
+JMH4                 13988.5 kHz          ALL BROADCAST TIMES               J3C               5 kW
+
+TIME           CONTENTS OF TRANSMISSION                                   RPM/IOC    VALID     MAP
+                                                                                     TIME      AREA
+0000/1200      RETRANSMISSION OF 2200/0750 (1)                            120/576    12/06
+0020/------    96HR SURFACE PRESSURE, PRECIP PROGS                        120/576    1200       C
+0040/------    120HR SURFACE PRESSURE, PRECIP PROGS                       120/576    1200       C
+-------/1220   12/24/48/72HR OCEAN WAVE PROG                              120/576    0000
+-------/1240   24 HR 500hPa TEMPERATURE AND 700hPa DEWPOINT               120/576    0000
+               DEPRESSION PROG
+               24HR 850hPa TEMPERATURE WIND AND 700hPa VERTICAL
+               P-VELOCITY PROG
+-------/1251   36 HR 500hPa TEMPERATURE AND 700hPa DEWPOINT               120/576    0000
+               DEPRESSION PROG
+               36HR 850hPa TEMPERATURE WIND AND 700hPa VERTICAL
+               P-VELOCITY PROG
+0103/1303      TEST CHART                                                 120/576
+0110/1310      METEOROLOGICAL SATELLITE PICTURE (MSAT)                    120/576    00/12      C'
+0130/1330      RETRANSMISSION OF 1019/0730                                120/576    00/00
+0150/1350      TROPICAL CYCLONE FORECAST(1)                               120/576    00/12      C’
+0210/------    SEA SURFACE CURRENT, WATER TEMPERATURE AT 100M DEPTH (2)   120/576
+0229/-------   RADIO PREDICTION (3)                                       120/576
+-------/1420   RETRANSMISSION OF 0210 (2)
+0240/1440      SURFACE ANALYSIS                                           120/576    00/12      C’
+0300/-------   SEA SURFACE WATER TEMPERATURE (2)                          120/576
+0320/1520      THE FIRST RETRANSMISSION OF 0240/1440                      120/576    00/12
+0340/-------   BROADCAST SCHEDULE and MANUAL AMENDMENTS                   120/576
+0400/1540      TROPICAL CYCLONE FORECAST (6)                              120/576    00/12
+------/1600    SEA SURFACE WATER TEMPERATURE (2)                          120/576
+0421/1620      OCEAN WAVE ANALYSIS                                        120/576    00/12      C'’
+0440/-------   COASTAL WAVE ANALYSIS                                      120/576    0000       X
+0459/1640      500 hPa HEIGHT, TEMPERATURE                                120/576    00/12      C
+0518/1700      850 hPa HEIGHT, TEMPERATURE, DEW POINT DEPRESSION          120/576    00/12      C
+-------/1719   COASTAL WAVE ANALYSIS                                      120/576    1200       X
+0537/1739      24HR 500 hPa HEIGHT, VORTICITY PROGNOSIS                   120/576    00/12
+               24 HR SURFACE PRESSURE, PRECIPITATION PROGNOSIS
+0548/-------   24HR SURFACE PRESSURE, WIND, FOG, ICING, SEA ICE PROG      120/576    0000       C’
+0610/1750      RETRANSMISSION OF 0150/1350 (1)                            120/576    00/12
+0630/-------   48/72 HR SURFACE PRESSURE, PRECIPITATION PROGNOSIS         120/576    00/00
+------/1810    36HR 500 hPa HEIGHT, VORTICITY PROGNOSIS                   120/576    1200
+               36HR SURFACE PRESSURE, PRECIPITATION PROGNOSIS
+------/1821    24 HR 500 hPa TEMPERATURE AND 700 hPa DEWPOINT             120/576    1200
+               DEPRESSION PROG
+               24HR 850 hPa TEMPERATURE WIND AND 700 hPa VERTICAL
+               P-VELOCITY PROG
+------/1832    36 HR 500 hPa TEMPERATURE AND 700 hPa DEWPOINT             120/576    1200
+               DEPRESSION PROG
+               36HR 850 hPa TEMPERATURE WIND AND 700 hPa VERTICAL
+               P-VELOCITY PROG
+------/1850    12/24/48/72HR OCEAN WAVE PROG                              120/576    1200
+0651/------    24HR WAVE PROG (NORTH PACIFIC)                             120/576    0000       C’’
+0710/1910      METEOROLOGICAL SATELLITE PICTURE (MSAT)                    120/576    06/18      C'
+0730/------    24HR COASTAL WAVE PROG                                     120/576    0000       X
+-------/1930   24HR SURFACE PRESSURE, WIND, FOG, ICING, SEA ICE PROG      120/576    1200       C’
+0750/1950      TROPICAL CYCLONE FORECAST (1)                              120/576    06/18      C’
+------/2010    24HR COASTAL WAVE PROG (1)                                 120/576    1200       X
+0809/-------   36HR 500 hPa HEIGHT, VORTICITY PROGNOSIS                   120/576    0000
+               36HR SURFACE PRESSURE, PRECIPITATION PROGNOSIS
+0820/------    48HR SURFACE PRESSURE, WIND, FOG, ICING, SEA ICE PROG      120/576    0000       C’
+0840/2040      SURFACE ANALYSIS                                           120/576    06/18      C'
+-------/2100   48HR SURFACE PRESSURE, WIND, FOG, ICING, SEA ICE PROG      120/576    1200       C
+0900/------    TROPICAL CYCLONE FORECAST (6)                              120/576    0600
+0920/2120      THE FIRST RETRANSMISSION OF 0840/2040                      120/576    06/18
+0940/------    RETRANSMISSION OF 0630/1950                                120/576    00/18
+------/2140    TROPICAL CYCLONE FORECAST(6)                               120/576    1800       C’
+1000/------    RETRANSMISSION OF 0820                                     120/576    0000
+
+                                           I-1
+
+     TOKYO, JAPAN
+     TIME           CONTENTS OF TRANSMISSION                                          RPM/IOC     VALID   MAP
+     ------/2200    48/72HR SURFACE PRESSURE, PRECIPITATION PROGNOSIS                 120/576     1200
+     1019/-------   SEA ICE CONDITION ANAL(4), 48HR & 168 HR PROGS(5)                 120/576     0000    L/L'
+     ------/2220    24HR OCEAN WAVE PROG                                              120/576     1200
+     1040/2240      RETRANSMISSION OF 0548/1950                                       120/576     00/18
+     1100/2300      RETRANSMISSION OF 0421/1930                                       120/576     00/12
+     1119/2320      RETRANSMISSION OF 0440/1719                                       120/576     00/12
+     1140/2340      RETRANSMISSION OF 0651/2100                                       120/576     00/12
+
+     NOTES: (1)     IN CASE OF TROPICAL CYCLONE
+            (2)     EVERY TUESDAY AND FRIDAY
+            (3)     ON THE 20TH AND 21ST.
+            (4)     EVERY TUESDAY AND FRIDAY (SEASONAL) RETRANSMISSION: AT 0130 ON THE NEXT DAY
+            (5)     EVERY WEDNESDAY AND SATURDAY (SEASONAL). RETRANSMISSION: AT 0130 ON THE NEXT DAY
+            (6)     IF A TROPICAL CYCLONE IS EXPECTED IN 4 DAYS
+
+
+
+
+      MAP AREAS: C - 1:20,000,000       27N 062E, 51N      152W, 05S       106E, 02N 160E
+                C' - 1:20,000,000       39N 066E, 39N      146W, 01S       113E, 01S 167E
+                C'’ - 1:20,000,000      38N 067E, 39N      148W, 01S      112E, 01S 167E
+                L - 1:10,000,000        SEA OF OKHOTSK, NORTHERN SEA OF JAPAN, BO HAI, AND
+                                             ADJACENT WATERS OF THE NORTH PACIFIC.
+                    L' - 1:05,000,000 49N 140E 49N 151E, 41N           140E 40N 149E X
+                    - 1: 6,000,000 46N 107E, 43N 160E, 18N 118E, 17N 147E
+
+     (INFORMATION DATED 122 Jan 2014) http://www.jma-net.go.jp/common/177jmh/JMH-ENG.pdf
+
+
+
+
+JFX Kagoshima, Japan
+Marine Radiofax Broadcast Schedule
+
+Frequency - 4274 kHz
+
+UTC
+0700 SEA SURFACE TEMPERATURE AROUND JAPAN (4)
+0730 WEATHER INFORMATION (4)
+1100 NOTIFICATIONS FROM RADIO STATIONS
+
+Frequency - 8658 kHz
+
+UTC
+0020 SURFACE PRESSURE FORECAST
+0110 BROADCAST SCHEDULE (1)
+0330 FISH MARKET INFORMATION
+0400 SURFACE PRESSURE FORECAST (REBROADCAST)
+0440 TROPICAL CYCLONE INFORMATION (2)
+0830 TUNA MARKET INFORMATION
+0930 COAST GUARD NAVIGATIONAL WARNINGS
+1100 NOTIFICATIONS FROM RADIO STATIONS
+1800 JFX NOAA INFORMATION
+2200 GENERAL NAVIGATIONAL WARNINGS
+2240 MARINE WEATHER (KAGOSHIMA, NAGASAKI, OKINAWA)
+
+
+
+
+                                                           I-2
+
+Frequency - 13074 kHz
+
+UTC
+0020 SURFACE PRESSURE FORECAST
+0110 BROADCAST SCHEDULE (1)
+0330 FISH MARKET INFORMATION
+0440 TROPICAL CYCLONE INFORMATION (2)
+0700 SEA SURFACE TEMPERATURE AROUND JAPAN (4)
+0730 WEATHER INFORMATION (4)
+0800 PACIFIC SAURY FISHING INFORMATION (5)
+0830 TUNA MARKET INFORMATION
+0930 COAST GUARD NAVIGATIONAL WARNINGS
+
+Frequency - 16907.5 kHz
+
+UTC
+0310 SURFACE ANALYSIS JMH ASAS
+0400 SURFACE PRESSURE FORECAST (REBROADCAST)
+0610 JFX NOAA INFORMATION (REBROADCAST)
+0700 MISAKI FISHING PORT FROZEN TUNA MARKET (3)
+0800 PACIFIC SAURY FISHING INFORMATION (5)
+1030 MARITIME SECURITY INTELLIGENCE
+
+Frequency - 22559.6 kHz
+
+UTC
+0700 MISAKI FISHING PORT FROZEN TUNA MARKET (3)
+
+NOTES:
+(1) MONDAY ONLY
+(2) IN CASE OF TROPICAL CYCLONE
+(3) MONDAY AND WEDNESDAY ONLY
+(4) TUESDAY AND FRIDAY ONLY
+(5) AUGUST TO DECEMBER
+
+
+     Kagoshima schedule updated 1/29/2025
+
+
+
+     PEVEK, CHUKOTKA PENINSULA
+     CALL SIGNS           FREQUENCIES       TIMES                 EMISSION       POWER
+                            148 kHz         ALL BROADCAST TIMES     J3C
+
+     TIME         CONTENTS OF TRANSMISSION                        RPM/IOC    VALID   MAP
+                                                                             TIME    AREA
+     0530-0730    ICE                                             90/576
+     1130-1330    ICE                                             90/576
+     1430-1630    ICE                                             90/576
+     (INFORMATION DATED 11/97)
+
+
+
+
+                                                  I-3
+
+SEOUL, REPUBLIC OF KOREA
+CALL SIGN             FREQUENCIES                     TIMES             EMISSION                    POWER
+HLL2                   3585   kHz                     1200-0000 UTC       J3C                        3 kW
+HLL2                   5857.5 kHz                     ALL BROADCAST TIMES J3C                        3 kW
+HLL2                   7433.5 kHz                     ALL BROADCAST TIMES J3C                        3 kW
+HLL2                   9165   kHz                     ALL BROADCAST TIMES J3C                        3 kW
+HLL2                  13570   kHz                     0000-1200 UTC       J3C                        3 kW
+
+
+TIME           CONTENTS OF TRANSMISSION                                          RPM/IOC      VALID   MAP
+                                                                                              TIME    AREA
+0000/1200      SPECIAL WEATHER REPORT                                            120/576
+0033/1233      SEA-SHORE WEATHER OBSERVATION REPORT                              120/576
+0047/1247      FISHERY WEATHER OBSERVATION REPORT                                120/576
+0100/-------   MANAM                                                             120/576
+0133/-------   LIGHTHOUSE WEATHER OBSERVATION REPORT                             120/576              B
+0147/1347      SURFACE ANALYSIS FAR EAST                                         120/576
+0200/1400      WARNING TYPHOON REPORT                                            120/576
+0214/------    GENERAL WEATHER CONDITIONS REPORT                                 120/576
+------/1500    SPECIAL WEATHER REPORT                                            120/576
+------/1530    SST OBSERVATION CHART OF NEAR KOREAN PENINSULA AREA               120/576
+0314/1547      LIGHTHOUSE SIGN WEATHER OBSERVATION REPORT                        120/576
+0333/-------   LIGHTHOUSE WEATHER OBSERVATION REPORT                             120/576
+0400/1600      SURFACE ANALYSIS FAR ASIA                                         120/576
+0447/1647      SURFACE ANALYSIS FAR EAST                                         120/576              B
+0500/1700      500 hPa UPPER AIR WEATHER CHART                                   120/576              A
+0513/1713      650 hPa UPPER AIR WEATHER CHART                                   120/576              A
+0526/1726      700 hPa UPPER AIR WEATHER CHART                                   120/576              A
+0539/1739      300 hPa UPPER AIR WEATHER CHART                                   120/576              A
+0600/1800      SPECIAL WEATHER REPORT                                            120/576
+0633/-------   LIGHTHOUSE WEATHER OBSERVATION REPORT                             120/576
+------/1833    SEA-SHORE WEATHER OBSERVATION REPORT                              120/576
+0647/1847      FISHERY WEATHER OBSERVATION REPORT                                120/576
+0700/1900      12HR WAVE HEIGHT & SEA SURFACE WIND FORECAST                      120/576              C
+0714/1914      24HR WAVE HEIGHT & SEA SURFACE WIND FORECAST                      120/576              C
+0728/1928      36HR WAVE HEIGHT & SEA SURFACE WIND FORECAST                      120/576              C
+0747/1947      SURFACE ANALYSIS FAR EAST                                         120/576
+0800/2000      WARNING TYPHOON REPORT                                            120/576
+0814/2014      GENERAL WEATHER CONDITIONS REPORT                                 120/576
+0828/-------   SST OBSERVATION CHART OF NEAR KOREAN PENINSULA AREA               120/576
+0846/2046      MAIN SEASHORE WEATHER FORECAST FOR SHIP ROUTE                     120/576
+0900/2100      SEA FORECAST                                                      120/576
+0914/2114      LIGHTHOUSE SIGN WEATHER OBSERVATION REPORT                        120/576
+0933/2133      LIGHTHOUSE WEATHER OBSERVATION REPORT                             120/576
+0947/2147      WEEKLY SEA WEATHER FORECAST                                       120/576
+------/2233    LIGHTHOUSE WEATHER OBSERVATION REPORT                             120/576
+1047/2247      SURFACE ANALYSIS FAR EAST                                         120/576              B
+NOTES:         1.     IN CASE OF TYPHOON.
+               2.     NOVEMBER TO APRIL.
+               3.     MAY TO SEPTEMBER
+               4.     ALTERNATING BLACK AND WHITE SIGNALS WITH FREQUENCY OF 300 Hz WILL BE
+                      TRANSMITTED FOR 10 SECONDS PRIOR TO THE PHASING SIGNAL.
+               5.     PHASING SIGNALS WILL BE TRANSMITTED FOR 30 SECONDS PRIOR TO TRANSMISSION
+                      OF EACH CHART.
+               6.     STOP SIGNALS WILL BE TRANSMITTED FOR 15 SECONDS AFTER EACH TRANSMISSION.
+               7.     “TSUNAMI WARNING” IS TANSMITTED WITHOUT DELAY
+
+MAP AREA:      A – Lambert Conformal Conic 01.1N, 084.0E, 39.7N 41.9E, 06.5N 156.8E, 55.1N 199.4E
+               B – Lambert Conformal Conic 16.3N,100.7E, 49.5 N 82.6E, 17.8N 145.5E, 52.4N 160.4E
+               C – Lambert Conformal Conic 20-50N, 115-150E
+(INFORMATION DATED Jan 01, 2009) Many of these reports may be in Korean
+
+
+
+
+                                               I-4
+
+BANGKOK, THAILAND
+CALL SIGNS             FREQUENCIES               TIMES                      EMISSION           POWER
+HSW64                   7395.0 kHz *                                          J3C               3 kW
+
+TIME    CONTENTS OF TRANSMISSION                                            RPM/IOC    VALID     MAP
+                                                                                       TIME      AREA
+0050/------   TEST CHART                                                    120/576
+0100/0700     FORECAST FOR SHIPPING (IN ENGLISH)                            120/576    00/06      A
+0120/------   SURFACE PRESSURE                                              120/576    1200       A
+0140------    SURFACE ANALYSIS                                              120/576    1800       A
+0200/------   BROADCAST SCHEDULE                                            120/576
+0300/0720     24 HR SURFACE PROG                                            120/576    12/12      A
+0320/0740     48 HR SURFACE PROG                                            120/576    12/12      A
+0340/0800     72 HR SURFACE PROG                                            120/576    12/12      A
+------/0820   24 HR 850 mb WIND/TEMP PROG                                   120/576    1200       A
+0400/1000     FORECAST FOR SHIPPING (IN ENGLISH)                            120/576    03/09      A
+0420/------   24 HR 850 mb WIND/TEMP PROG                                   120/576    1200       A
+0500/1020     SURFACE ANALYSIS                                              120/576    00/06      A
+0520/------   850 mb ANALYSIS                                               120/576    0000       A
+0540/------   700 mb ANALYSIS                                               120/576    0000       A
+0600/------   500 mb ANALYSIS                                               120/576    0000       A
+------/1300   FORECAST FOR SHIPPING (IN ENGLISH)                            120/576    1200       A
+------/1700   FORECAST FOR SHIPPING (IN ENGLISH)                            120/576    1700       A
+------/1720   SURFACE ANALYSIS                                              120/576    1200
+------/2300   FORECAST FOR SHIPPING (IN ENGLISH)                            120/576    1700       A
+------/2320   SURFACE ANALYSIS                                              120/576    1800       A
+
+MAP AREA:     A - 1:20,000,000     50N 045E, 50N 160E, 30S 045E, 30S 160E
+* May refer to carrier frequency, for center frequency add 1.9 kHz
+(INFORMATION DATED JAN 2009)
+
+
+
+
+                                                 I-5
+
+JJC Kyodo News Japan/Singapore
+Marine Radiofax Broadcast Schedule
+
+Frequency - 16971.0 kHz
+
+UTC
+
+0200 KYODO NEWS (EVENING) (1)
+0200 KYODO FURUSATO NEWS (2)
+
+0300 KYODO NEWS (MORNING), KYODO NEWS SPORTS (MORNING), JAPAN NAVIGATIONAL WARNINGS
+0700 OCEAN CURRENT FORECASTING (MAP) (3) Sunday, Monday
+0710 KYODO NEWS (ENGLISH EDITION) (4) Tue Wed Thu Fri? Sat
+0730 MARINE ADMINISTRATION NEWS (5) Sat
+0745 KYODO NEWS (EVENING), KYODO KAIUN-SUISAN NEWS (6)
+0745 KYODO FURUSATO NEWS, MARINE ADMINISTRATION NEWS (7)
+0940 SUMO MATCH TABLE
+1000 KYODO FURUSATO NEWS (7)
+1020 KYODO NEWS SPORTS (MORNING), KYODO NEWS (MORNING)
+1130 JAPAN NAVIGATIONAL WARNINGS, SUMO MATCH TABLE
+1200 KYODO NEWS (ENGLISH EDITION) Mon Tue Wed Thu Fri? Sat?
+1400 KYODO KAIUN-SUISAN NEWS Mon Tue Wed Thu Fri Sat?
+1500 KYODO NEWS (MORNING), KYODO NEWS SPORTS (MORNING), JAPAN NAVIGATIONAL WARNINGS
+1645 KYODO NEWS (EVENING)
+2030 JAPAN NAVIGATIONAL WARNINGS, MARINE ADMINISTRATION NEWS (5)
+2300 KYODO NEWS (MORNING), KYODO NEWS SPORTS (MORNING), JAPAN NAVIGATIONAL WARNINGS, KYODO
+KAIUN-SUISAN NEWS
+
+NOTES:
+(1) Tuesday – Sunday
+(2) Monday
+(3) Sunday, Monday
+(4) Tuesday – Saturday
+(5) Saturday
+(6) Monday – Saturday
+
+(7) Sunday
+
+Information Updated January 30, 2025
+
+
+
+
+                                        I-6
+
+     GUANGZHOU COAST RADIO STATION, CHINA
+     Guangdong Meteorological Observatory, South China Sea Weather Forecast Center
+     CALL SIGNS            FREQUENCIES         TIMES                               EMISSION     POWER
+     XSQ                    4199.75 kHz        ALL BROADCAST TIMES                   F3C        5 kW
+     XSQ                    8412.5 kHz         ALL BROADCAST TIMES                   F3C        5 kW
+     XSQ                  12629.25 kHz         ALL BROADCAST TIMES                   F3C        5 kW
+     XSQ                  16826.25 kHz         ALL BROADCAST TIMES                   F3C        5 kW
+Schedule Effective 23ST 2022 August
+
+     TIME          OBS
+                             HEADING                 CONTENT OF CHART                   传真图内容           NOTES
+ （UTC（LT））     （UTC（LT））
+
+                                                                                       广播时间表和
+  0000（0800）                 MANAM     XSQ BROADCAST SCHEDULE AND MANUAL AMENDMENTS    手册修订时间
+                                                                                       海平面、降水
+                                                                                       、风力预报（
+  0025（0825）     00（08）      FSAS024               24H SURFACE FORECAST                24h）
+                                                                                       海平面、降水
+                                                                                       、风力预报（
+  0050（0850）     00（08）      FSAS048               48H SURFACE FORECAST                48h）
+                                                                                       海平面、降水
+                                                                                       、风力预报（
+  0115（0915）     00（08）      FSAS072               72H SURFACE FORECAST                72h）
+                                                                                       南海海区预报
+  0140（0940）     22（06）      FSSS024            24H SOUTH CHINA SEA FORECAST           （24h）            （1）
+                                                                                       台风预报（
+  0215（1015）     00（08）      FTPW120           120H TROPICAL CYCLONE FORECAST          120h）
+                                                                                       南海海区预报
+  0240（1040）     22（06）      FSSS048            48H SOUTH CHINA SEA FORECAST           （48h）
+                                                                                       南海海区预报
+  0305（1105）     22（06）      FSSS072            72H SOUTH CHINA SEA FORECAST           （72h）
+                                                                                       海浪预报（
+  0330（1130）     00（08）      FWEA024       24H WAVE HEIGHT,SURFACE WIND FORECAST       24h）
+  0400（1200）     00（08）       ASPN                   SURFACE ANALYSIS                  地面实况分析
+                                                                                       海浪预报（
+  0425（1225）     00（08）      FWEA048       48H WAVE HEIGHT,SURFACE WIND FORECAST       48h）
+                                                                                       海浪预报（
+  0450（1250）     00（08）      FWEA072       72H WAVE HEIGHT,SURFACE WIND FORECAST       72h）             （2）
+
+  0515（1315）                                           REISSUE CHART                   补发传真图            （1）
+
+                                                                                       台风预报（
+  0815（1615）     06（14）      FTPW120           120H TROPICAL CYCLONE FORECAST          120h）
+
+                                                                                海平面、降水
+                                                                                、风力预报（
+ 1225（2025）     12（20）      FSAS024              24H SURFACE FORECAST           24h）
+                                                                                海平面、降水
+                                                                                、风力预报（
+ 1250（2050）     12（20）      FSAS048              48H SURFACE FORECAST           48h）
+                                                                                海平面、降水
+                                                                                、风力预报（
+ 1315（2115）     12（20）      FSAS072              72H SURFACE FORECAST           72h）
+                                                                                南海海区预报
+ 1340（2140）     08（16）      FSSS024         24H SOUTH CHINA SEA FORECAST        （24h）    （1）
+
+                                                                                台风预报（
+ 1415（2215）     12（20）      FTPW120        120H TROPICAL CYCLONE FORECAST       120h）
+                                                                                南海海区预报
+ 1440（2240）     08（16）      FSSS048         48H SOUTH CHINA SEA FORECAST        （48h）
+                                                                                南海海区预报
+ 1505（2305）     08（16）      FSSS072         72H SOUTH CHINA SEA FORECAST        （72h）
+                                                                                海浪预报（
+ 1600（0000）     12（20）      FWEA024     24H WAVE HEIGHT,SURFACE WIND FORECAST   24h）
+                                                                                海浪预报（
+ 1625（0025）     12（20）      FWEA048     48H WAVE HEIGHT,SURFACE WIND FORECAST   48h）
+                                                                                海浪预报（
+ 1650（0050）     12（20）      FWEA072     72H WAVE HEIGHT,SURFACE WIND FORECAST   72h）     （1）
+
+                                                                                台风预报（
+ 2015（0415）     18（02）      FTPW120        120H TROPICAL CYCLONE FORECAST       120h）
+NOTES：（1）IN CASE OF TROPICAL CYCLONE
+       （2）IN CASE CHARTS NOT BROADCAST IN TIME
+
+
+
+
+                                                    I-8
+
+
+VALPARAISO PLAYA ANCHA, CHILE (CBV)
+PUNTA ARENAS MAGALLANES, CHILE (CBM)
+CALL SIGNS             FREQUENCIES               TIMES                                EMISSION              POWER
+CBV                     4228.0 kHz               ALL BROADCAST TIMES                    J3C                 1 kW
+CBV                     8677.0 kHz               ALL BROADCAST TIMES                    J3C                 1 kW
+CBV                    17146.4 kHz               ALL BROADCAST TIMES                    J3C                 1 kW
+CBM                    4322.0 kHz                ALL BROADCAST TIMES                    J3C                 1 kW
+CBM                    8696.0 kHz                ALL BROADCAST TIMES                    J3C                 1 kW
+TIME          CONTENTS OF TRANSMISSION (CBV)                                          RPM/IOC        VALID      MAP
+                                                                                                     TIME       AREA
+1100          TEST CHART CBV CBM SCHEDULES                                            120/576
+1115          SURFACE CHART                                                           120/576        0600         A
+1130          SATELLITE IMAGE                                                         120/576        0900         A
+1630          24 HR SURFACE FORECAST                                                  120/576        1200         A
+1645          SATELLITE IMAGE                                                         120/576        1500         A
+1915          SURFACE CHART                                                           120/576        1200         A
+1930          SATELLITE IMAGE                                                         120/576        1800         A
+2200          36 HR SURFACE FORECAST                                                  120/576        0000         A
+2215          SURFACE CHART                                                           120/576        1800         B
+2230          WINDS BARB ISOTACHS FORECAST                                            120/576        1200         A
+2310          48 HR SURFACE FORECAST                                                  120/576        1200         A
+2325          SATELLITE IMAGE                                                         120/576        2100         A
+TIME          CONTENTS OF TRANSMISSION (CBM)                                          RPM/IOC        VALID      MAP
+                                                                                                     TIME       AREA
+1550          TEST CHART CBV CBM SCHEDULES                                            120/576
+1605          12HR SURFACE FORECAST                                                    120/576       0000         A
+1620          SATELLITE IMAGE                                                          120/576       1200         A
+1730          SURFACE CHART                                                           120/576        1200         A
+1745          SATELLITE IMAGE                                                          120/576       1500         A
+2005          SIGNIFICANT WAVE MAP FORECAST                                            120/576       1200         A
+2020          SATELLITE IMAGE                                                          120/576       1800         A
+2240          36 HR SURFACE FORECAST                                                   120/576       0000         A
+2255          SURFACE CHART                                                           120/576        1800         B
+2310          WINDS BARB ISOTACHS FORECAST                                             120/576       1200         A
+0350          48 HR SURFACE FORECAST                                                   120/576       1200         A
+0405          SATELLITE IMAGE                                                          120/576       2400         A
+MAP AREA: A: 10S-120W, 10S-50W, 80S-130W, 80S-30W
+MAP AREA: B: 50S-90W, 50S-30W, 85S-90W, 85S-30W
+The Antarctic Ice Limit Charts have been replaced with more surface charts and forecasts and have been removed
+from the radiofacsimile broadcasting to the web page at: http://web.directemar.cl/met/jturno/indice/english.htm (see
+point 4) including satellite pictures, iceberg report and automated station.
+(INFORMATION DATED Sep 23, 2010)
+http://meteoarmada.directemar.cl/prontus_meteo/site/artic/20100817/pags/20100817162223.html
+                                               II-1
+
+
+IQALUIT, CANADA
+
+(INFORMATION DATED August 2024) Services Discontinued in 2019. Please refer to the CCG publication: Radio Aids to
+Marine Navigation 2024 (https://www.ccg-gcc.gc.ca/publications/mcts-sctm/ramn-arnm/index-eng.html) for more
+information.
+
+
+
+
+RESOLUTE, CANADA
+
+(INFORMATION DATED August 2024) Services Discontinued in 2019. Please refer to the CCG publication: Radio Aids to
+Marine Navigation 2024 (https://www.ccg-gcc.gc.ca/publications/mcts-sctm/ramn-arnm/index-eng.html) for more
+information.
+
+
+
+
+INUVIK, CANADA
+
+(INFORMATION DATED August 2024) Services Discontinued in 2019. Please refer to the CCG publication: Radio Aids to
+Marine Navigation 2024 (https://www.ccg-gcc.gc.ca/publications/mcts-sctm/ramn-arnm/index-eng.html) for more
+information.
+
+
+
+
+SYDNEY - NOVA SCOTIA, CANADA
+CALL SIGN             FREQUENCIES            TIMES                              EMISSION           POWER
+VCO                   4416   kHz             2200-2331                          J3C
+VCO                   6915.1 kHz             1121-1741                          J3C
+
+TIME         CONTENTS OF TRANSMISSION                                           RPM/IOC      VALID      MAP
+                                                                                             TIME       AREA
+1121         ICE ANALYSIS GULF OF ST. LAWRENCE                  120/576
+1142         ICE ANALYSIS EAST OR SOUTHEAST NEWFOUNDLAND WATERS 120/576
+1741         ICE ANALYSIS ICEBERG LIMIT                         120/576
+2200         ICE ANALYSIS GULF OF ST. LAWRENCE                  120/576
+2331         ICE ANALYSIS EAST OR SOUTHEAST NEWFOUNDLAND WATERS 120/576
+
+(INFORMATION DATED 2014)        http://www.ccg-gcc.gc.ca/folios/01133/docs/RAMN-2014-ATLANTIC-eng.pdf
+
+
+
+
+                                             III-1
+
+KODIAK, ALASKA, U.S.A.
+CALL SIGN            FREQUENCIES            TIMES                           EMISSION           POWER
+NOJ                   2054   kHz            ALL BROADCAST TIMES             J3C                4 kW
+                      4298   kHz            ALL BROADCAST TIMES             J3C                4 kW
+                      8459   kHz            ALL BROADCAST TIMES             J3C                4 kW
+                     12412.5 kHz            ALL BROADCAST TIMES             J3C                4 kW
+TRANS                                                                      VALID        MAP
+TIME (UTC)     CONTENTS OF TRANSMISSION                            RPM/IOC TIME         AREA
+
+0340/1540      TEST PATTERN                                        120/576
+0343/1543      SEA ICE ANALYSIS/REBROADCAST 1057                   120/576 LATEST         6
+0403/1603      SURFACE ANALYSIS                                    120/576 00/12          2
+0427/1627      REBROADCAST 24HR SURFACE F'CAST 2203/1017           120/576 12/00          3
+0437/1637      REBROADCAST 48HR SURFACE F'CAST 2227/1037           120/576 12/00          1
+0447/1647      REBROADCAST 96HR SURFACE F'CAST 2348                120/576 12/12          1
+0456/1656      SEA STATE ANALYSIS/REBROADCAST                      120/576 00/00          1
+0506/1706      GOES IR SATELLITE IMAGE                             120/576 00/12          5
+0517/1717      500 MB ANALYSIS                                     120/576 00/12          1
+0527/1727      SYMBOLS AND CONTRACTIONS/SCHEDULE                   120/576
+0548/1748      REQUEST FOR COMMENTS/PRODUCT NOTICE                 120/576
+0558/1758      24HR 500 MB FORECAST                                120/576 00/12          1
+----/1808      48HR 500 MB FORECAST                                120/576 1200
+0950/2150      TEST PATTERN                                        120/576
+0953/2153      SURFACE ANALYSIS                                    120/576 06/18          2
+1017/2203      24HR SURFACE FORECAST                               120/576 00/12          3
+1027/2217      24HR WIND/WAVE FORECAST                             120/576 00/12          3
+1037/2227      48HR SURFACE FORECAST                               120/576 00/12          1
+1047/2237      48HR WIND/WAVE FORECAST                             120/576 00/12          1
+----/2247      48HR WAVE PERIOD, SWELL DIRECTION                   120/576 1200           1
+1057/2257      5-DAY SEA ICE FORECAST/REBROADCAST 0343             120/576 LATEST         6
+1117/2307      GOES IR SATELLITE IMAGE                             120/576 06/18          5
+1128/----      48HR WAVE PERIOD, SWELL DIRECTION                   120/576 0000           1
+1138/----      48HR 500 MB FORECAST                                120/576 0000           1
+1148/----      SEA SURFACE TEMPERATURE ANALYSIS                    120/576 LATEST         4
+1159/----      COOK INLET SEA ICE FORECAST                         120/576 LATEST         7
+----/2317      72HR SURFACE FORECAST                               120/576 1200           1
+----/2328      72HR WIND/WAVE FORECAST                             120/576 1200           1
+----/2338      72HR WAVE PERIOD, SWELL DIRECTION                   120/576 1200           1
+----/2348      96HR SURFACE FORECAST                               120/576 1200           1
+----/2358      96HR WIND/WAVE FORECAST                             120/576 1200           1
+----/0008      96HR WAVE PERIOD, SWELL DIRECTION                   120/576 1200           1
+----/0018      96HR 500 MB FORECAST                                120/576 1200           1
+Notes: 1. CARRIER FREQUENCY IS 1.9 kHz BELOW THE ASSIGNED FREQUENCY
+2. Schedule effective September 19, 2018, includes new 72 hour products
+
+MAP AREAS:         1. 20N - 70N, 115W - 135E 2. 40N - 70N, 125W - 150E
+                   3. 40N - 70N, 115W - 170E 4. 40N - 60N, 125W - 160E
+                   5. 05N - 60N, 110W - 160W 6. ICE COVERED AK WATERS
+                   7. COOK INLET
+
+Send comments regarding the                           Send comments regarding the
+contents of these charts to:                          quality of this broadcast to:
+Marine Services Program Manager                       Commanding Officer
+National Weather Service Alaska Region                USCG COMMCOM
+222 West 7th Avenue                                   4720 Douglas A. Munro Road
+Anchorage, AK 99513-7575                              Chesapeake, VA 23322-2598
+907-271-5088 /FAX: 907-271-3711                       800-742-8519 /FAX: 757-421-6240
+nws.ar.arh.webauthors@noaa.gov                        COM-SMB-WATCH@uscg.mil
+
+Many of these charts also broadcast from Pt. Reyes, CA and Honolulu, HI.
+If you have access to the World Wide Web be certain to check out the following webpages. See these pages for
+further links.
+
+Links to radiofax charts   https://weather.gov/marine/alaska
+Information on ftpmail     https://weather.gov/marine/faq#3
+
+https://www.weather.gov                                 NWS Homepage
+https://weather.gov/marine                              NWS Marine Page
+mobile.weather.gov                                      Mobile Page
+
+(SCHEDULE EFFECTIVE SEP 19 2018)
+(INFORMATION DATED Feb. 12, 2020) https://weather.gov/media/marine/hfak.txt
+
+
+
+
+                                                         III-3
+
+PT. REYES, CALIFORNIA, U.S.A.
+CALL SIGN        FREQUENCIES           TIMES (UTC)            EMISSION        POWER
+NMC               4346   kHz           0140-1608                J3C            4 kW
+                  8682   kHz           ALL BROADCAST TIMES      J3C            4 kW
+                 12786   kHz           ALL BROADCAST TIMES      J3C            4 kW
+                 17151.2 kHz           ALL BROADCAST TIMES      J3C            4 kW
+                 22527   kHz           1840-2356                J3C            4 kW
+TRANS       CONTENTS OF TRANSMISSION              RPM/IOC     VALID     MAP
+TIME                                                          TIME     AREA
+
+0140/1400   TEST PATTERN                            120/576
+0143/1403   NE PACIFIC GOES IR SATELLITE IMAGE      120/576   00/12      6
+0154/1414   PACIFIC GOES IR SATELLITE IMAGE         120/576   00/12      5
+0205/1425   TROPICAL SEA STATE ANALYSIS             120/576   00/12      4
+0215/1435   TROPICAL 48HR SURFACE FORECAST          120/576   12/00      4
+0225/----   TROPICAL 48HR WIND/WAVE FORECAST        120/576   1200       4
+0235/----   TROPICAL 72HR WIND/WAVE FORECAST        120/576   1200       4
+0245/1445   500MB ANALYSIS                          120/576   00/12      1
+0255/1455   SEA STATE ANALYSIS, WIND/WAVE ANALYSIS 120/576    00/12    1/8
+0305/1505   PRELIM SURFACE ANALYSIS(PART 1 NE PAC) 120/576    00/12      2
+0318/1518   PRELIM SURFACE ANALYSIS(PART 2 NW PAC) 120/576    00/12      3
+0331/1531   FINAL SURFACE ANALYSIS(PART 1 NE PAC) 120/576     00/12      2
+0344/1544   FINAL SURFACE ANALYSIS(PART 2 NW PAC) 120/576     00/12      3
+0357/1557   CYCLONE DANGER AREA* or HIGH WIND/WAVES 120/576   03/15     10
+0408/1608   TROPICAL SURFACE ANALYSIS               120/576   00/12      4
+0655/1820   TEST PATTERN
+0657/----   1953Z REBROADCAST (96HR 500MB)          120/576   1200        1
+0707/----   1933Z REBROADCAST (96HR SURFACE)        120/576   1200        1
+0717/----   1943Z REBROADCAST (96HR WIND/WAVE)      120/576   1200        1
+0727/----   2003Z REBROADCAST (96HR WAVE PERIOD)    120/576   1200        1
+----/1822   24HR SURFACE FORECAST                   120/576   1200        8
+----/1832   24HR WIND/WAVE FORECAST                 120/576   1200        8
+----/1842   24HR 500MB FORECAST                     120/576   1200        1
+----/1852   SST ANALYSIS                            120/576   LATEST      9
+----/1902   SST ANALYSIS                            120/576   LATEST      6
+0737/1913   TROPICAL GOES IR SATELLITE IMAGE        120/576   06/18       7
+0748/1923   WIND/WAVE ANALYSIS                      120/576   06/18       8
+0758/----   24HR SURFACE FORECAST                   120/576   0000        8
+0808/----   24HR WIND/WAVE FORECAST                 120/576   0000        8
+0818/----   24HR 500MB FORECAST                     120/576   0000        1
+----/1933   96HR SURFACE FORECAST                   120/576   1200        1
+----/1943   96HR WIND/WAVE FORECAST                 120/576   1200        1
+----/1953   96HR 500MB FORECAST                     120/576   1200        1
+----/2003   96HR WAVE PERIOD/SWELL DIRECTION        120/576   1200        1
+0828/2013   48HR SURFACE FORECAST                   120/576   00/12       1
+0838/2023   48HR WIND/WAVE FORECAST                 120/576   00/12       1
+0848/2033   48HR 500MB FORECAST                     120/576   00/12       1
+0858/2043   48HR WAVE PERIOD/SWELL DIRECTION        120/576   00/12       1
+----/2053   72HR SURFACE FORECAST                   120/576   1200        1
+----/2103   72HR WIND/WAVE FORECAST                 120/576   1200        1
+0908/2113   PACIFIC GOES IR SATELLITE IMAGE         120/576   06/18       5
+0919/2124   SURFACE ANALYSIS (PART 1 NE PACIFIC)    120/576   06/18       2
+0932/2137   SURFACE ANALYSIS (PART 2 NW PACIFIC)    120/576   06/18       3
+0945/2150   TROPICAL SURFACE ANALYSIS               120/576   06/18       4
+0959/2204   TROPICAL 24HR WIND/WAVE FORECAST        120/576   00/12       4
+1009/2214   CYCLONE DANGER AREA* or HIGH WIND/WAVES 120/576   09/21      10
+1120/2320   TEST PATTERN                            120/576
+1124/2324   BROADCAST SCHEDULE (PART 1)             120/576
+                                            III-4
+
+1135/2335      BROADCAST SCHEDULE (PART 2)                          120/576
+1146/----      REQUEST FOR COMMENTS                                 120/576
+1157/----      PRODUCT NOTICE BULLETIN                              120/576
+1208/----      TROPICAL 48HR WIND/WAVE FORECAST                     120/576          0000         4
+1218/----      TROPICAL 72HR WIND/WAVE FORECAST                     120/576          0000         4
+1228/2346      TROPICAL 48HR WAVE PERIOD/SWELL DIR                  120/576          00/12        4
+----/2356      TROPICAL 72HR WAVE PERIOD/SWELL DIR                  120/576          0000         4
+
+
+
+* Tropical Cyclone Danger Area chart replaced by 48HR High Wind/Wave Warning
+chart Dec 01 - May 14 Valid times 00z,06z,12z and 18z
+
+MAP AREAS:      1. 20N - 70N, 115W - 135E            2. 20N - 70N, 115W - 175W
+                3. 20N - 70N, 175W - 135E            4. 20S - 30N, EAST OF 145W
+                5. 05N - 55N, EAST OF 180W           6. 23N - 42N, EAST OF 150W
+                7. 05N - 32N, EAST OF 125W           8. 18N - 62N, EAST OF 157W
+                9. 40N - 53N, EAST OF 136W          10. 0N - 40N, 80W - 180W
+
+NOTES: 1. CARRIER FREQUENCY IS 1.9 kHz BELOW THE ASSIGNED FREQUENCY
+2. Schedule effective September 19, 2018, includes new 72 hour products
+
+
+Please send comments regarding                Please send comments regarding
+the quality of these charts to:               the quality of this broadcast to:
+
+NATIONAL WEATHER SERVICE/NOAA                 COMMANDING OFFICER
+MARINE FORECAST BRANCH W/NP41                 USCG COMMCOM
+5830 UNIVERSITY RESEARCH CT                   4720 Douglas A. Munro Road
+COLLEGE PARK, MD 20740                         Chesapeake, VA 23322-2598
+PHONE: (301) 683-1497                         800-742-8519/Fax: 757-421-6240
+FAX: (301) 683-1545                           COM-SMB-WATCH@uscg.mil
+EMAIL: ncep.opc.webteam@noaa.gov
+
+
+Many of these charts also broadcast from Kodiak, AK and Honolulu, HI
+
+If you have access to the World Wide Web be certain to check out the following webpages. See these pages for
+further links.
+
+Links to radiofax charts   https://weather.gov/marine/ptreyes
+Information on ftpmail     https://weather.gov/marine/faq#3
+
+https://www.weather.gov                                 NWS Homepage
+https://weather.gov/marine                              NWS Marine Page
+mobile.weather.gov                                      Mobile Page
+
+(SCHEDULE EFFECTIVE SEP 19, 2018)
+(INFORMATION DATED Feb. 12, 2020)           https://weather.gov/media/marine/hfreyes.txt
+
+
+
+
+                                                         III-5
+
+NEW ORLEANS, LOUISIANA, U.S.A
+CALL SIGN            FREQUENCIES             TIMES (UTC)                          EMISSION           POWER
+NMG                   4317.9 kHz             ALL BROADCAST TIMES                    J3C               4 kW
+                      8503.9 kHz             ALL BROADCAST TIMES                    J3C               4 kW
+                     12789.9 kHz             ALL BROADCAST TIMES                    J3C               4 kW
+                     17146.4 kHz             1200-2045                              J3C               4 kW
+
+TIME           CONTENTS OF TRANSMISSION                                           RPM/IOC    VALID     MAP
+                                                                                             TIME      AREA
+0000/1200      TEST PATTERN                                                       120/576
+0005/1205      U.S./TROPICAL SURFACE ANALYSIS (W HALF)                            120/576    18/06      1
+0020/1220      TROPICAL SURFACE ANALYSIS (E HALF)                                 120/576    18/06      2
+0035/1235      REBROADCAST OF 1925/0725 (24 HR WIND/WAVE)                         120/576    12/00      3
+0045/1245      REBROADCAST OF 1950/0750 (48 HR WIND/WAVE)                         120/576    12/00      3
+0055/1255      REBROADCAST OF 2015/0815 (72 HR WIND/WAVE)                         120/576    12/00      3
+0105/1305      REBROADCAST OF 1855/0655 (24 HR SURFACE)                           120/576    12/00      3
+0115/1315      REBROADCAST OF 1905/0705 (48 HR SURFACE)                           120/576    12/00      3
+0125/1325      REBROADCAST OF 1915/0715 (72 HR SURFACE)                           120/576    12/00      3
+0135/1335      CYCLONE DANGER AREA* or 48 HR HIGH WIND/WAVES                      120/576    21/09      6
+0150/------    REBROADCAST OF 0825 (72 HR WAVE PD/SWELL)                          120/576    0000       3
+------ /1350   36 HR WIND/WAVE FORECAST                                           120/576    1200       3
+0200/1400      GOES IR TROPICAL SATELLITE IMAGE                                   120/576    00/12      4
+0215/1415      SEA STATE ANALYSIS                                                 120/576    00/12      3
+0225/1425      REQUEST FOR COMMENTS/PRODUCT NOTICE                                120/576
+0245/1445      HIGH SEAS FORECAST (IN ENGLISH)                                    120/576    22/10      5
+0600/1800      TEST PATTERN                                                       120/576
+0605/1805      U.S./TROPICAL SURFACE ANALYSIS (W HALF)                            120/576    00/12      1
+0620/1820      TROPICAL SURFACE ANALYSIS (E HALF)                                 120/576    00/12      2
+0635/1835      48 HR WAVE PERIOD/SWELL DIRECTION                                  120/576    00/12      3
+0645/1845      REBROADCAST OF 0215/1415 (SEA STATE ANAL')                         120/576    00/12      3
+0655/1855      24 HR SURFACE FORECAST                                             120/576    00/12      3
+0705/1905      48 HR SURFACE FORECAST                                             120/576    00/12      3
+0715/1915      72 HR SURFACE FORECAST                                             120/576    00/12      3
+0725/1925      24 HR WIND/WAVE FORECAST                                           120/576    00/12      3
+0735/1935      CYCLONE DANGER AREA* or 48HR HIGH WIND/WAVES                       120/576    03/15      6
+0750/1950      48 HR WIND/WAVE FORECAST                                           120/576    00/12      3
+0800/2000      GOES IR TROPICAL SATELLITE IMAGE                                   120/576    06/18      4
+0815/2015      72 HR WIND/WAVE FORECAST                                           120/576    00/12      3
+0825/------    72 HR WAVE PERIOD/SWELL DIRECTION                                  120/576    0000       3
+0835/------    REBROADCAST OF 0215 (SEA STATE ANALYSIS)                           120/576    1200       3
+------/2025    BROADCAST SCHEDULE                                                 120/576
+0845/2045      HIGH SEAS FORECAST (IN ENGLISH)                                    120/576    04/16      5
+
+* Tropical Cyclone Danger Area chart replaced by 48HR High Wind/Wave Warning chart
+Dec 01-May 14. Valid times 00z, 06z, 12z and 18z. Map area 05N-40N, 35W-100W
+MAP AREAS: 1. 5S - 50N, 55W - 125W
+           2. 5S - 50N, 0W - 70W
+           3. 0N - 31N, 35W - 100W
+           4. 12S - 44N, 28W - 112W
+           5. 7N - 31N, 35W - 98W (AREA COVERED BY TEXT FORECAST)
+           6. 05N - 60N, 0W - 100W
+
+NOTES: 1. CARRIER FREQUENCY IS 1.9 kHz BELOW THE ASSIGNED FREQUENCY
+
+Please send comments regarding                Please send comments regarding
+the quality of these charts to:               the quality of this broadcast to:
+
+NATIONAL HURRICANE CENTER                      COMMANDING OFFICER
+ATTN: CHIEF TAFB                               USCG COMMCOM
+11691 SOUTHWEST 17TH STREET                   4720 DOUGLAS A. MUNRO RD.
+MIAMI, FL 33165-2149                          CHESAPEAKE, VA 23322-2598
+PHONE: (305) 229-4454                         (800) 742-8519/Fax: (757) 421-6240
+FAX: (305) 553-1264                           COM-SMB-WATCH@uscg.mil
+EMAIL: Chris.Landsea@noaa.gov
+                                                     III-6
+
+NEW ORLEANS, LOUISIANA, U.S.A.
+Tropical cyclone charts also broadcast from Boston, MA
+
+If you have access to the World Wide Web be certain to check out the following webpages. See these pages for
+further links.
+
+Links to radiofax charts   https://weather.gov/marine/gulf
+Information on ftpmail     https://weather.gov/marine/faq#3
+
+https://www.weather.gov                                  NWS Homepage
+https://weather.gov/marine                               NWS Marine Page
+mobile.weather.gov                                       Mobile Page
+
+(Schedule Effective Apr 03, 2012)
+(Information dated Feb. 12, 2020) https://weather.gov/media/marine/hfgulf.txt
+
+
+
+
+                                                         III-7
+
+BOSTON, MASSACHUSETTS, U.S.A.
+CALL SIGN         FREQUENCIES                 TIMES              EMISSION   POWER
+NMF                4235   kHz            0230Z-1039Z               J3C       4 kW
+                   6340.5 kHz            ALL BROADCAST TIMES       J3C       4 kW
+                   9110   kHz            ALL BROADCAST TIMES       J3C       4 kW
+                  12750   kHz            1400Z-2239Z               J3C       4 kW
+
+TRANS TIME    CONTENTS OF TRANSMISSION                RPM/IOC   VALID MAP
+                                                                TIME AREA
+0230/1400    TEST PATTERN                             120/576
+0233/----    PRELIMINARY SURFACE ANALYSIS             120/576   0000    1
+0243/1405    BROADCAST SCHEDULE (PART 1)              120/576
+0254/1420    BROADCAST SCHEDULE (PART 2)              120/576
+0305/1433    REQUEST FOR COMMENTS                     120/576
+----/1443    PRODUCT NOTICE BULLETIN                  120/576
+----/1453    PRELIMINARY SURFACE ANALYSIS             120/576   1200    1
+----/1503    SATELLITE IMAGE                          120/576   1200    5
+0315/1515    WIND/WAVE ANALYSIS                       120/576   00/12   8
+0325/1525    SURFACE ANALYSIS (PART 1 NE ATLANTIC)    120/576   00/12   2
+0338/1538    SURFACE ANALYSIS (PART 2 NW ATLANTIC)    120/576   00/12   3
+0351/----    SATELLITE IMAGE                          120/576   0000    5
+----/1600    ICE CHART (REBROADCAST)                  120/576   2100
+----/1720    TEST PATTERN                             120/576
+0402/1723    (REBROADCAST OF 0325/1525 NE ATLANTIC)   120/576   00/12   2
+0415/1736    (REBROADCAST OF 0338/1538 NW ATLANTIC)   120/576   00/12   3
+0428/1749    500MB ANALYSIS                           120/576   00/12   4
+----/1759    SEA STATE ANALYSIS                       120/576   1200    4
+0438/----    ICE CHART (REBROADCAST)                  120/576   2100
+----/1810    24HR SURFACE FORECAST                    120/576   1200    8
+0452/1824    CYCLONE DANGER AREA* or HIGH WIND/WAVES 120/576    03/15   7
+----/1835    24HR WIND/WAVE FORECAST                  120/576   1200    8
+----/1855    24HR 500MB FORECAST                      120/576   1200    4
+0745/----    TEST PATTERN                             120/576
+0755/----    PRELIMINARY SURFACE ANALYSIS             120/576   0600    1
+0805/----    24HR SURFACE FORECAST                    120/576   0000    8
+0815/----    24HR WIND/WAVE FORECAST                  120/576   0000    8
+0825/----    24HR 500MB FORECAST                      120/576   0000    4
+0835/1905    36HR 500MB FORECAST                      120/576   00/12   4
+----/1915    96HR SURFACE FORECAST                    120/576   1200    4
+----/1925    96HR WIND/WAVE FORECAST                  120/576   1200    4
+----/1935    96HR 500MB FORECAST                      120/576   1200    4
+----/1945    96HR WAVE PERIOD FORECAST                120/576   1200    4
+0845/1955    48HR SURFACE FORECAST                    120/576   00/12   4
+0855/2005    48HR WIND/WAVE FORECAST                  120/576   00/12   4
+0905/2015    48HR 500MB FORECAST                      120/576   00/12   4
+0915/2025    48HR WAVE PERIOD FORECAST                120/576   00/12   4
+----/2035    PRELIMINARY SURFACE ANALYSIS             120/576   1800    1
+----/2045    72HR SURFACE FORECAST                    120/576   1200    4
+----/2055    72HR WIND/WAVE FORECAST                  120/576   1200    4
+----/2105    72HR 500MB FORECAST                      120/576   1200    4
+----/2115    72HR WAVE PERIOD FORECAST                120/576   1200    4
+0925/2125    SURFACE ANALYSIS (PART 1 NE ATLANTIC)    120/576   06/18   2
+0938/2138    SURFACE ANALYSIS (PART 2 NW ATLANTIC)    120/576   06/18   3
+0951/2151    SATELLITE IMAGE                          120/576   06/18   6
+1002/2202    (REBROADCAST OF 0925/2125 NE ATLANTIC)   120/576   06/18   2
+1015/2215    (REBROADCAST OF 0938/2138 NW ATLANTIC)   120/576   06/18   3
+1028/2228    CYCLONE DANGER AREA* or HIGH WIND/WAVES 120/576    09/21   7
+1039/2239    REBROADCAST/N American Ice Service Chart 120/576   21/21
+                                              III-8
+
+* Tropical Cyclone Danger Area chart replaced by 48HR High Wind/Wave Warning chart
+Dec 01-May 14. Valid times 00Z, 06Z, 12Z and 18Z. Map area 05N-40N, 35W-100W
+
+MAP AREAS 1. 28N-52N, 45W-85W           2. 18N-65N, 10E-45W
+          3. 18N-65N, 40W-95W           4. 18N-65N, 10E-95W
+          5. 20N-55N, 55W-95W           6. EQ-60N, 40W-130W
+          7. 05N-60N, 0W-100W           8. 22N-51N, 40W-98W
+
+NOTES: 1. CARRIER FREQUENCY IS 1.9 kHz BELOW THE ASSIGNED FREQUENCY
+
+2. Schedule effective September 19, 2018, includes new 72 hour products
+
+Please send comments regarding                Please send comments regarding
+the quality of these charts to:               the quality of this broadcast to:
+
+NATIONAL WEATHER SERVICE/NOAA                 COMMANDING OFFICER
+MARINE FORECAST BRANCH W/NP41                 USCG COMMCOM
+5830 UNIVERSITY RESEARCH CT                   4720 DOUGLAS A. MUNRO RD.
+COLLEGE PARK, MD 20740                       CHESAPEAKE, VA 23322-2598
+PHONE: (301) 683-1497                        (800) 742-8519/Fax: (757) 421-6240
+FAX: (301) 683-1545                          COM-SMB-WATCH@uscg.mil
+EMAIL: ncep.opc.webteam@noaa.gov
+
+Tropical cyclone charts also broadcast from New Orleans, LA
+
+If you have access to the World Wide Web be certain to check out the following webpages. See these pages for
+further links.
+
+Links to radiofax charts   https://weather.gov/marine/marsh
+Information on ftpmail     https://weather.gov/marine/faq#3
+
+https://www.weather.gov                                NWS Homepage
+https://weather.gov/marine                             NWS Marine Page
+mobile.weather.gov                                     Mobile Page
+
+(EFFECTIVE DATE: SEP 19, 2018)
+(INFORMATION DATED: Feb. 12, 2020)          https://weather.gov/media/marine/hfmarsh.txt
+
+
+
+
+                                                        III-9
+
+
+CHARLEVILLE, AUSTRALIA
+CALL SIGNS           FREQUENCIES               TIMES                          EMISSION POWER
+VMC                   2628  kHz                0900-1900                            J3C               1 kW
+VMC                   5100  kHz                All Broadcast Times                  J3C               1 kW
+VMC                  11030  kHz                All Broadcast Times                  J3C               1 kW
+VMC                  13920  kHz                All Broadcast Times                  J3C               1 kW
+VMC                  20469  kHz                1900-0900                            J3C               1 kW
+
+WILUNA, AUSTRALIA
+CALL SIGN            FREQUENCIES               TIMES                          EMISSION POWER
+VMW                   5755  kHz                1100-2100                            J3C               1 kW
+VMW                   7535  kHz                All Broadcast Times                  J3C               1 kW
+VMW                  10555  kHz                All Broadcast Times                  J3C               1 kW
+VMW                  15615  kHz                All Broadcast Times                  J3C               1 kW
+VMW                  18060  kHz                2100-1100                            J3C               1 kW
+TIME          CONTENTS OF TRANSMISSION                                              RPM/IOC     VALID     MAP
+                                                                                                TIME      AREA
+------/1200    Australian MSLP Prog (H+36)                                          120/576     1200      AUST
+0015/1215      VMC/VMW Schedule Page 1 of 2                                         120/576
+0030/1230      VMC/VMW Schedule Page 2 of 2                                         120/576
+0045/-------   VMC/VMW Information Notice                                           120/576
+0100/-------   IPS Recommended Frequencies for VMC (Charleville)                    120/576
+0130/-------   IPS RECOMMENDED FREQUENCIES FOR VMW                                  120/576
+------/1245    Indian Ocean MSLP Prog (H+36)                                        120/576 1200 IO
+------/1315    South Pacific Ocean Total Waves (H+48)                               120/576 0000 SWP
+------/1330    Indian Ocean Total Waves (H+48)                                      120/576 0000 IO
+------/1345    Pacific Ocean Sea Surface Temps (Weekly)                             120/576 LATEST SWP
+------/1400    Indian Ocean Sea Surface Temps (Weekly)                              120/576 LATEST IO
+0200/-------   Australian MSLP Prog (H+36)                                          120/576 0000 AUST
+------/1415    Casey Eastern and Western High Seas (H+48)                           120/576 0000
+0245/1430      Australian MSLP Anal (Manual)                                        120/576      00/12      AUST
+0300/1500      Australian 500 hPa Anal                                              120/576      00/12      AUST
+0315/------    Voice Broadcast Information for VMW (Wiluna) and VMC (Charleville)   120/576
+------/1515    Australian MSLP Prog (H+36)                                          120/576      1200       AUST
+0400/------    Australian 500 hPa (H+24) Prog                                       120/576      0000       AUST
+0430/1530      Australian MSLP 4-day forecast, Days 1 and 2                         120/576
+0445/1545      Australian MSLP 4-day forecast, Days 3 and 4                         120/576
+------/1600    Australian 500 hPa (H+24) Prog                                       120/576 1200 AUST
+------/1630    IPS Recommended Frequencies for VMC (Charleville)                    120/576
+------/1700    IPS Recommended Frequencies for VMW (Wiluna)                         120/576
+0600/1800      Asian (Part A) Gradient Level Wind Anal (Manual)                     120/576      00/12      A
+0623/1823      Asian (Part B) Gradient Level Wind Anal (Manual)                     120/576 00/12 B 0645/-----
+--     Asian MSLP Anal (Manual)                                                     120/576 0000 C
+0730/1915      Indian Ocean MSLP Anal (Manual)                                      120/576 00/12 IO
+0745/1930      Australian Wind Waves Ht(m) Prog                                     120/576      00/12      AUST
+0800/1945      Australian Swell Waves Ht(m) Prog (H+24)                             120/576      00/12      AUST
+0830/-------   South Pacific Ocean MSLP Anal                                        120/576 0000 SWP
+0845/-------   Australian MSLP Anal (Manual)                                        120/576 0600 AUST
+0900/-------   Australian MSLP Prog (H+36) (Repeat)                                 120/576      0000       AUST
+0915/-------   Australian MSLP 4-day forecast, Days 1 and 2     (Repeat)            120/576
+0930/-------   Australian MSLP 4-day forecast, Days 3 and 4     (Repeat)            120/576
+------/2000    South Pacific Ocean MSLP Anal (Manual)                               120/576 1200 SWP
+------/2015    Casey Eastern and Western High Seas (H+24)                           120/576 1200
+------/2030    Australian MSLP Anal (Manual)                                        120/576 1800 AUST
+1015/------    Casey Eastern and Western High Seas (H+24)                           120/576      0000
+------/2215    Casey Eastern and Western High Seas (H+36)                           120/576      1200
+1030/2230      S.H. 500 hPa Prog (H+48)                                             120/576      00/12      SH
+1045/2245      S.H. MSLP Prog (H+48)                                                120/576      00/12      SH
+1100/------    Casey Eastern and Western High Seas (H+36)                           120/576 0000
+1115/2300      S.H. 500 hPa Anal                                                    120/576 00/12 SH
+------/2315    Casey Eastern and Western High Seas (H+48)                           120/576 1200
+1130/-------   Asian Sea Surface Temp Anal (Weekly)                                 120/576 LATEST E
+------/2330    Australian MSLP Prog (H+36)                                          120/576 0000 AUST
+------/2345    Indian Ocean MSLP Prog (H+48)                                        120/576 1200 IO
+1145/-------   VMC/VMW Information Notice                                           120/576
+
+
+
+                                              IV-1
+
+CHARLEVILLE & WILUNA, AUSTRALIA
+TIME          CONTENTS OF TRANSMISSION                                                RPM/IOC       VALID      MAP
+                                                                                                    TIME       AREA
+
+The following charts are repeat broadcasts on 11030 kHz only via a directional aerial pointing from Charleville (VMC)
+towards Tasmania.
+0345    Australian MSLP Anal (Manual) Valid 0000
+0500    Australian MSLP 4-day Forecast, Days 1 and 2
+0515    Australian MSLP 4-day Forecast, Days 3 and 4
+0000    Indian Ocean MSLP Anal (Manual) Valid 1200
+
+FOR FURTHER INFORMATION CONTACT:
+SYSTEM HELP DESK
+PH: (03) 9669 4054
+EMAIL: webops@bom.gov.au
+
+MAP AREAS: A:                               30N - 35S, 120E – 180
+           AUST:                   LAMBERT  10S - 50S, 090E - 170E
+           B:                               30N - 35S, 070E - 130E
+           C:                               30N - 35S, 070E - 180
+           E:                               40N - 40S, 70E – 180
+           IO                      POLAR    10S - 90S, 0 - 090E - 180
+           CASEY                   MERCATOR 50S - 70S, 080E - 160E
+           SH                      POLAR    20S - 90S, all longitudes
+           PSST                    MERCATOR 20N - 50S, 140E - 180 - 100W
+           SWP                     POLAR    20S - 90S, 150E - 180 - 90W
+           IOSST                   MERCATOR 20N - 50S, 30E - 150E
+(INFORMATION DATED Apr 20, 2022) http://www.bom.gov.au/marine/radio-sat/radio-fax-schedule.shtml
+
+
+
+WELLINGTON, NEW ZEALAND
+
+Station ZKLF stopped broadcasting radiofax charts on 1 July 2023.
+
+
+ (INFORMATION DATED JULY 2023 - https://about.metservice.com/our-company/national-weather-services/retirement-of-
+radiofax
+
+
+
+
+                                                IV-2
+
+HONOLULU, HAWAII, U.S.A.
+CALL SIGN          FREQUENCIES        TIMES (UTC)                      EMISSION                 POWER
+KVM70               9982.5 kHz        0519-1556                          J3C                     4 kW
+                   11090   kHz        ALL BROADCAST TIMES                J3C                     4 kW
+                   16135   kHz        1719-0356                          J3C                     4 kW
+
+TIME        CONTENTS OF TRANSMISSION                                    RPM/IOC         VALID     MAP
+                                                                                        TIME      AREA
+0519/1719   TEST PATTERN                                               120/576
+0535/1735   CYCLONE DANGER AREA                                        120/576          03/15      E
+0555/1755   STREAMLINE ANALYSIS                                        120/576          00/12      B
+0615/1815   SURFACE ANALYSIS                                           120/570          00/12      C
+0635/1835   EAST PACIFIC GOES IR SATELLITE IMAGE                       120/576          06/18      G
+0649/1849   SW PACIFIC GOES IR SATELLITE IMAGE                         120/576          06/18      H
+0701/1901   24HR SURFACE FORECAST                                      120/576          00/12      A
+0714/1914   48HR SURFACE FORECAST                                      120/576          00/12      A
+0727/1927   72HR SURFACE FORECAST                                      120/576          00/12      A
+0740/1940   WIND/WAVE ANALYSIS                                         120/576          00/12      B
+0753/1953   24HR WIND/WAVE FORECAST                                    120/576          00/12      B
+0806/2006   24HR WIND/WAVE FORECAST                                    120/576          00/12      4
+0816/2016   48HR SURFACE FORECAST                                      120/576          00/12      1
+0826/2026   48HR WIND/WAVE FORECAST                                    120/576          00/12      1
+0836/2036   48/96HR WAVE PERIOD,SWELL DIRECTION                        120/576          00/12      1
+0846/2046   rebroadcast/ 96HR SURFACE FORECAST                         120/576          12/12      1
+0856/2056   rebroadcast/ 96HR WIND/WAVE FORECAST                       120/576          12/12      1
+0906/2106   PACIFIC GOES IR SATELLITE IMAGE                            120/576          06/18      5
+0917/2117   SURFACE ANALYSIS (PART 1 NE PACIFIC)                       120/576          06/18      2
+0930/2130   SURFACE ANALYSIS (PART 2 NW PACIFIC)                       120/576          06/18      3
+0943/2143   TROPICAL GOES IR SATELLITE IMAGE                           120/576          06/18      Y
+0954/2154   TROPICAL SURFACE ANALYSIS                                  120/576          06/18      Z
+1008/2208   24HR TROPICAL WIND/WAVE FORECAST                           120/576          00/12      Z
+1042/2242   CYCLONE DANGER AREA                                        120/570          09/21      E
+1102/2302   48HR WIND/WAVE FORECAST                                    120/576          00/12      B
+1115/2315   72HR WIND/WAVE FORECAST                                    120/576          00/12      B
+1128/2328   SEA SURFACE TEMPS                                          120/576          LATEST     F
+1141/2341   rebroadcast 24HR WIND/WAVE FORECASTS                       120/576          00/12      B
+1154/2354   STREAMLINE ANALYSIS                                        120/576          06/18      B
+1214/0014   SURFACE ANALYSIS                                           120/576          06/18      C
+1234/0034   EAST PACIFIC GOES IR SATELLITE IMAGE                       120/576          12/00      G
+1248/0048   SW PACIFIC GOES IR SATELLITE IMAGE                         120/576          12/00      H
+1300/0100   SCHEDULE PART I                                            120/576
+1320/0120   SCHEDULE PART II                                           120/576
+1340/0140   SYMBOLS OR PRODUCT NOTICE BULLETIN                         120/576
+1400/0200   24HR TROPICAL SURFACE FORECAST                             120/576          00/12      Z
+1410/0210   48HR TROPICAL SURFACE FORECAST                             120/576          00/12      Z
+1420/0220   72HR TROPICAL SURFACE FORECAST                             120/576          00/12      Z
+1430/0230   48/72HR TROPICAL WAVE PERIOD,SWELL DIR                     120/576          00/00      Z
+1440/0240   TROPICAL SEA STATE ANALYSIS                                120/576          12/00      Z
+1450/0250   rebroadcast 24HR TROPICAL WIND/WAVE FORECASTS              120/576          00/12      Z
+1500/0300   48HR TROPICAL WIND/WAVE FORECAST                           120/576          00/12      Z
+1510/0310   72HR TROPICAL WIND/WAVE FORECAST                           120/576          00/12      Z
+1520/0320   rebroadcast/SEA STATE ANALYSIS                             120/576          00/00      1
+1530/0330   SURFACE ANALYSIS(PART 1 NE PAC)                            120/576          12/00      2
+1543/0343   SURFACE ANALYSIS(PART 2 NW PAC)                            120/576          12/00      3
+1556/0356   TROPICAL SURFACE ANALYSIS                                  120/576          12/00      Z
+
+MAP AREAS:
+A. 30S - 50N, 110W - 130E    B. 30S - 30N, 110W - 130E      Honolulu Forecast Office
+C. EQ - 50N, 110W - 130E     D. 30S - 50N, 110W - 160E      Honolulu Forecast Office
+E. EQ - 40N, 80W - 170E      F. EQ - 55N, 110W - 160E       Honolulu Forecast Office
+G. 05S - 55N, 110W - 155E    H. 40S - 05N, 130W - 165E      Honolulu Forecast Office
+1. 20N - 70N, 115W - 135E    2. 20N - 70N, 115W - 175W      Ocean Prediction Center
+3. 20N - 70N, 175W - 135E    4. 18N - 62N, EAST OF 157W     Ocean Prediction Center
+5. 05N - 55N, EAST OF 180W                                  Ocean Prediction Center
+Y. 05N - 32N, EAST OF 130W   Z. 20S - 30N, EAST OF 145W     National Hurricane Center
+
+                                        IV-3
+
+HONOLULU, HAWAII, U.S.A.
+STREAMLINES ARE LINES OF CONSTANT WIND DIRECTION.
+WIND SPEEDS ARE GIVEN BY WIND BARBS INDEPENDENT OF STREAMLINES.
+
+RADIOFAX FREQUENCIES ARE ASSIGNED FREQUENCIES. TO CONVERT TO CARRIER
+FREQUENCIES, SUBTRACT 1.9 KHz FROM THE ASSIGNED FREQUENCIES.
+
+YOU MAY ADDRESS COMMENTS ABOUT THIS BROADCAST TO:
+
+                       Meteorologist In Charge
+                       National Weather Service
+                       2525 Correa Rd.
+                       Honolulu, HI 96822
+                       PHONE: (808) 973-5270/FAX: (808) 973-5281
+                       E-Mail W-HFO.operations@noaa.gov
+                       Or marine.weather@noaa.gov
+
+Many of these charts also broadcast from Pt. Reyes, CA and Kodiak, AK
+
+If you have access to the World Wide Web be certain to check out the
+
+following webpages. See these pages for further links.
+
+Links to radiofax charts   https://weather.gov/marine/hawaii
+Information on ftpmail     https://weather.gov/marine/faq#3
+
+https://www.weather.gov                                  NWS Homepage
+https://weather.gov/marine                               NWS Marine Page
+mobile.weather.gov                                       Mobile Page
+
+(SCHEDULE EFFECTIVE Feb. 11, 2020)
+(INFORMATION DATED Feb. 12, 2020) https://www.weather.gov/media/marine/hfhi.txt
+
+
+
+
+                                                IV-4
+
+
+ATHENS, GREECE
+
+CALL SIGN             FREQUENCY                TIMES                                  EMISSION         POWER
+SVJ4                   *4481 kHz                                                      J3C              8 kW
+SVJ4                   *8105 kHz                                                      J3C              8 kW
+TIME          CONTENTS OF TRANSMISSION                                            RPM/IOC       VALID      MAP
+                                                                                                TIME       AREA
+0845          SURFACE ANALYSIS                                                    120/576       0600         A
+0857          SURFACE PROG (H+42)                                                 120/576       0600         A
+0909          SURFACE PROG (H+66)                                                 120/576       0600         A
+0921          WAVE HEIGHT PROG (H+30)                                             120/576       1800         B
+0933          WAVE HEIGHT PROG (H+36)                                             120/576       0000         B
+0945          WAVE HEIGHT PROG (H+42)                                             120/576       0600         B
+0957          WAVE HEIGHT PROG (H+48)                                             120/576       1200         B
+1009          WAVE HEIGHT PROG (H+30)                                             120/576       1800         C
+1021          WAVE HEIGHT PROG (H+36)                                             120/576       0000         C
+1033          WAVE HEIGHT PROG (H+42)                                             120/576       0600         C
+1044          WAVE HEIGHT PROG (H+48)                                             120/576       1200         C
+
+
+MAP AREA:     A - SOUTH EUROPE , MEDITERRANEAN SEA, BLACK SEA
+              B - MEDITERRANEAN
+              C - AEGEAN
+ *Center Frequency is 1.9 khz higher
+
+              (INFORMATION DATED (01/2019)
+
+
+MURMANSK, RUSSIA
+CALL SIGN            FREQUENCIES               TIMES                              EMISSION             POWER
+RBW 41                5336   kHz                                                    J3C
+                      6445.5 kHz               ALL BROADCAST TIMES                  J3C
+                      7908.8 kHz               1900-0600                            J3C
+RBW48                10130   kHz               0600-1900                            J3C
+TIME          CONTENTS OF TRANSMISSION                                             RPM/IOC      VALID      MAP
+                                                                                                TIME       AREA
+0700   36HR SURFACE PROG                                                           120/576      0000        A
+0800   SEA STATE ANALYSIS                                                          120/576      0600        C
+1400   SURFACE TEMP ANALYSIS/ICEBERG POSITIONS                                     120/576      1200        B
+1400   ANAL OF ICEBERG POSITIONS FOR PAST+24HR                                     120/576      1200        C
+1430   24HR SEA STATE PROG                                                         120/576      1200        C
+1850   BROADCAST SCHEDULE                                                           90/576
+2000   ICEBERG PROGNOSIS                                                           120/576
+NOTES: (1) BASIC COVERAGE AREA IS FOR BARENTS SEA.MAP AREAS:
+       A      -1:05,000,000        67N 032W, 53N      047E, 72N        074E, 51N 004W
+       B      -1:03,000,000         79N 010E, 74N     010E, 79N        040E, 74N 040E
+       C      -1:05,000,000         78N 010E, 66N     010E, 78N        070E, 66N 070E
+
+Update 10/19/2024 – Listener received weather fax (Iceberg Prognosis) on 8444 kHz at 2000 UTC October 18,
+2024
+Update 03/2000 - Current operational frequencies report as being 6446 and 8444 kHz (nights) and 7907 kHz (days).
+Update 03/2000 - Broadcast schedule may no longer be transmitted on-air.
+Update 03/2002 - May only be transmitting on 6446 kHz.
+
+
+
+
+                                               V-1
+
+        HAMBURG/PINNEBERG, GERMANY
+
+                                                      Facsimile Transmission for shipping
+                                                        Deutscher Wetterdienst
+                                          Offenbach (Main) - Hamburg / Pinneberg (DDH, DDK)
+
+                                 Class of
+Frequencies Call sign   Power                          Signal
+                                 emission
+3855 kHz    DDH3         10,0 kW F1C
+7880 kHz    DDK3         10,0 kW F1C                   white + 425 Hz, black - 425 Hz
+13882,5 kHz DDK6         10,0 kW F1C
+                                 Ref.
+    Time      UpM/
+                         DD-time        time           Contents
+    UTC       Modul
+                                        UTC
+04.30       120 / 576   19        00.00                Surface Analysis North Atlantic, Europe
+05.12       120 / 576   11        00.00                36HR-forecast surface pressure
+                                                        surface pressure analysis, arrows showing the movement of pressure systems, significant
+05.25       120 / 576   19        00.00
+                                                        weather, ice
+                        05.55-06.35 Voice-transmission on 5905 kHz and 6180 kHz
+06.38       120 / 576   11        03.00                Information of tropical storms, North Atlantic (during season only)
+06.51       120 / 576   11        00.00                12HR, 24HR 500 hPa H+T, surface pressure
+07.04       120 / 576   11        00.00                12HR, 24HR 850 hPa H+T, 700 hPa relative humidity
+07.17       120 / 576   11        00.00                Repetition chart 05.12 UTC
+07.30       120 / 576   11        00.00                48HR-forecast surface pressure
+07.43       120 / 576   11        00.00                60HR-forecast surface pressure
+08.04       120 / 576   11        00.00                84HR-forecast surface pressure
+08.17       120 / 576   11        00.00                108HR-forecast surface pressure
+08.30       120 / 576   11        00.00                24HR-forecast significant height of combined wind waves and swell, wind 10m
+08.42       120 / 576   11        00.00                48HR-forecast significant height of combined wind waves and swell, wind 10m
+
+08.54       120 / 576   11        00.00                72HR-forecast significant height of combined wind waves and swell, wind 10m
+09.06       120 / 576   11        00.00                96HR-forecast significant height of combined wind waves and swell, wind 10m
+09.30       120 / 576   11        00.00                36HR, 48HR 500 hPa H+T, surface pressure
+09.45       120 / 576   20        00.00                Sea surface temperature North Sea
+10.07       120 / 576   20        00.00                Ice conditions chart Western Baltic Sea or special area if ice situation requires
+10.29       120 / 576   19        00.00                48HR wave prediction North Atlantic
+10.50       120 / 576   19        06.00                Surface Analysis North Atlantic, Europe
+11.11       120 / 576   11        00.00                36HR, 48HR 850 hPa H+T, 700 hPa relative humidity
+11.23       120 / 576   11        00.00                60HR, 72HR 500 hPa H+T, surface pressure
+11.35       120 / 576   11        00.00                60HR, 72HR 850 hPa H+T, 700 hPa relative humidity
+                        11.55-12.35 Voice-transmission on 5905 kHz and 6180 kHz
+12.36       120 / 576   19        06.00                Repetition chart 10.50 UTC
+12.56       120 / 576   11        00.00                Repetition chart 05.12 UTC
+13.08       120 / 576   11        00.00                Repetition chart 07.30 UTC
+
+13.20       120 / 576   11        00.00                Repetition chart 07.43 UTC
+13.32       120 / 576   11        00.00                Repetition chart 08.04 UTC
+13.44       120 / 576   11        00.00                Repetition chart 08.17 UTC
+13.56       120 / 576   19        06.00                Repetition chart 10.50 UTC
+14.25       120 / 576   19        00.00                Transmission schedule part 1
+14.45       120 / 576   19        00.00                Transmission schedule part 2
+15.08       120 / 576   11        00.00                Ice conditions chart Northwest Atlantic, Canadian Ice serv., or int. Ice Patrol
+15.20       120 / 576   19        09.00                Ice conditions chart Baltic Sea or special area
+15.40       120 / 576   19        09.00                Ice conditions chart European Arctic Sea or special area
+                        15.55-16.35 Voice-transmission on 5905 kHz and 6180 kHz
+16.36       120 / 576   19        12.00                Surface Analysis North Atlantic, Europe
+                                                       surface pressure analysis, arrows showing the movement of pressure systems,
+18.00       120 / 576   19        12.00
+                                                       significant weather, ice
+18.21       120 / 576   11        15.00                Information of tropical storms, North Atlantic (during season only)
+
+18.34       120 / 576   11        12.00                36HR-forecast surface pressure
+18.47       120 / 576   11        12.00                48HR-forecast surface pressure
+19.00       120 / 576   11        00.00                84HR-forecast surface pressure
+19.13       120 / 576   11        12.00                24HR-forecast significant height of combined wind waves and swell, wind 10m
+
+ 19.26        120 / 576   11       12.00                48HR-forecast significant height of combined wind waves and swell, wind 10m
+ 19.39        120 / 576   11       12.00                72HR-forecast significant height of combined wind waves and swell, wind 10m
+                          19.55-20.35 Voice-transmission on 5905 kHz and 6180 kHz
+ 21.00        120 / 576   11       12.00                Ice conditions chart Northwest Atlantic
+ 21.15        120 / 576   20       15.00                Ice conditions chart Baltic Sea or special area
+ 21.36        120 / 576   19       12.00                48HR wave prediction Surface weather chart North Atlantic
+ 22.00        120 / 576   19       18.00                Surface Analysis North Atlantic, Europe
+ VT= Modell day before, H + T = Height + Temperature
+                                                                                                                               © DWD, www.dwd.de
+
+
+
+
+         Notes: Abbreviations have the following meaning: GME Global model (31 layers, 60 km)
+                H Contour lines (gpdam) MSL Mean sea level T Isotherms (° C) U Relative humidity (%)
+
+Schedule in English language:
+https://www.dwd.de/EN/specialusers/shipping/broadcast_en/broadcast_fax_102020.pdf?__blob=publicationFile&v=1
+
+Schedule in German language:
+https://www.dwd.de/DE/fachnutzer/schifffahrt/funkausstrahlung/sendeplan_fax_102020.pdf?__blob=publicationFile&v=1
+
+
+         (INFORMATION DATED (24 July 2024)
+
+
+
+
+                                                                                       V-3
+
+    NORTHWOOD, UNITED KINGDOM
+                                   JOMOC HF-Fax Schedule (North Atlantic)
+
+CALL SIGNS    FREQUENCIES               TIMES            EMISSION              POWER
+GYA                2618.5kHz                    2200Z-0500Z            J3C                     10 kw
+GYA                4610.0kHz                    24 hours               J3C                     10 kw
+GYA                8040.0kHz                    Alternative 24 hour    J3C                     10 kw
+GYA                11086.5kHz                   0600Z-2000Z            J3C                     10 kw
+
+    Product                                  Broadcast     Product                                Broadcast
+                                           Time (Z)                                             Time (Z)
+    18Z SFC ANALYSIS                       0000            06Z SFC ANALYSIS                     1200
+    18Z SFC PROGNOSIS T+24                 0012            06Z SFC PROGNOSIS T+24               1212
+    18Z PRECIPITATION AND REDUCED VIS      0024            06Z PRECIPITATION AND REDUCED VIS    1224
+    T+12                                                   T+12
+    18Z PRECIPITATION AND REDUCED VIS      0036            06Z PRECIPITATION AND REDUCED VIS    1236
+    T+24                                                   T+24
+    18Z SFC ANALYSIS                       0048            06Z SFC ANALYSIS                     1248
+    18Z SFC PROGNOSIS T+24                 0100            06Z SFC PROGNOSIS T+24               1300
+    18Z SEA AND SWELL T+48                 0112            06Z SFC WINDS T+24                   1312
+    18Z SEA AND SWELL T+72                 0124            06Z GALE WARNING                     1324
+    OCEAN FRONTS                           0136            OCEAN FRONTS                         1336
+    18Z SEA AND SWELL T+24                 0148            06Z SEA AND SWELL T+24               1348
+    18Z SFC ANALYSIS                       0200            00Z SEA SURFACE TEMP                 1400
+    00Z SEA SURFACE TEMP                   0212            06Z SFC ANALYSIS                     1412
+    18Z SFC PROGNOSIS T+24                 0224            06Z SFC PROGNOSIS T+24               1424
+    00Z SFC ANALYSIS                       0236            12Z SFC ANALYSIS                     1436
+                                           0248                                                 1448
+    00Z SFC ANALYSIS                       0300            12Z SFC ANALYSIS                     1500
+                                           0312            00Z ANPS PROGNOSIS T+24              1512
+    18Z SFC WINDS T+24                     0324            00Z ANPS PROGNOSIS T+120             1524
+    00Z ANPS PROGNOSIS T+24                0336            06Z SEA AND SWELL T+48               1536
+    00Z ANPS PROGNOSIS T+72                0348                                                 1548
+    00Z SFC ANALYSIS                       0400            12Z SFC ANALYSIS                     1600
+                                           0412                                                 1612
+    18Z SFC WINDS T+24                     0424            06Z SFC WINDS T+24                   1624
+    00Z SFC PROGNOSIS T+24                 0436            12Z SFC PROGNOSIS T+24               1636
+    18Z SFC WINDS T+48                     0448            06Z SFC WINDS T+48                   1648
+    00Z SFC ANALYSIS                       0500            12Z SFC ANALYSIS                     1700
+    00Z SFC PROGNOSIS T+24                 0512            12Z SFC PROGNOSIS T+24               1712
+    00Z SFC PROGNOSIS T+48                 0524            12Z SFC PROGNOSIS T+48               1724
+                                           0536                                                 1736
+    06Z GALE WARNING                       0548            06Z SEA AND SWELL T+72               1748
+                                           0600            12Z SFC ANALYSIS                     1800
+    00Z SFC ANALYSIS                       0612            12Z SFC PROGNOSIS T+24               1812
+    00Z SFC PROGNOSIS T+24                 0624            12Z SFC ANALYSIS                     1824
+    00Z SFC ANALYSIS                       0636            12Z SFC PROGNOSIS T+24               1836
+    00Z SFC PROGNOSIS T+24                 0648            12Z SFC ANALYSIS                     1848
+    00Z SFC ANALYSIS                       0700            12Z SFC PROGNOSIS T+24               1900
+    00Z SFC PROGNOSIS T+24                 0712                                                 1912
+    00Z SFC PROGNOSIS T+48                 0724            12Z SFC PROGNOSIS T+48               1924
+    00Z SFC PROGNOSIS T+72                 0736            12Z SFC PROGNOSIS T+72               1936
+    00Z SFC PROGNOSIS T+96                 0748            12Z SFC PROGNOSIS T+96               1948
+    00Z SFC PROGNOSIS T+120                0800                                                 2000
+    00Z SFC PROGNOSIS T+48                 0812            12Z SFC PROGNOSIS T+120              2012
+    00Z PRECIPITATION AND REDUCED VIS      0824            12Z SFC PROGNOSIS T+48               2024
+    T+12
+    00Z PRECIPITATION AND REDUCED VIS      0836            12Z PRECIPITATION AND REDUCED VIS    2036
+    T+24                                                   T+12
+    00Z SFC PROGNOSIS T+24                 0848            12Z SFC PROGNOSIS T+24               2048
+    06Z SFC ANALYSIS                       0900            18Z SFC ANALYSIS                     2100
+                                           0912            12Z PRECIPITATION AND REDUCED VIS    2112
+                                                           T+24
+    00Z ANPS PROGNOSIS T+24                0924            00Z ANPS PROGNOSIS T+24              2124
+
+00Z ANPS PROGNOSIS T+120                0936             00Z ANPS PROGNOSIS T+120   2136
+                                        0948                                        2148
+06Z SFC ANALYSIS                        1000             18Z SFC ANALYSIS           2200
+06Z SFC PROGNOSIS T+24                  1012             18Z SFC PROGNOSIS T+24     2212
+                                        1024                                        2224
+00Z ANPS PROGNOSIS T+24                 1036             00Z ANPS PROGNOSIS T+24    2236
+                                        1048                                        2248
+06Z SFC ANALYSIS                        1100             18Z SFC ANALYSIS           2300
+06Z SFC PROGNOSIS T+24                  1112             18Z SFC PROGNOSIS T+24     2312
+06Z SEA AND SWELL T+24                  1124             18Z SEA AND SWELL T+24     2324
+06Z SFC PROGNOSIS T+24                  1136             18Z SFC PROGNOSIS T+24     2336
+06Z SEA AND SWELL T+24                  1148             18Z SEA AND SWELL T+24     2348
+        All MAPS 54°N.82°W 26°N.45°W                      54°N.51°E 28°N.12°
+
+Abbreviations
+GPH                       Geopotential Height
+OAT                       Outside Air Temperature
+PPTN                      Precipitation
+SCEXAS TAFS               South Coast Exercise Areas Terminal Aerodrome Forecasts
+TD                        Dewpoint Temperature
+WBPT                      Wet Bulb Potential Temperature
+
+
+
+(INFORMATION DATED Jan 05, 2022)
+
+
+
+
+                                                   V-5
+
+

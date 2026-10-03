@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-feature android:name="android.hardware.usb.host" android:required="false" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Only used to download NOAA broadcast schedules when you tap Update. -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:label="Radio Modem"
