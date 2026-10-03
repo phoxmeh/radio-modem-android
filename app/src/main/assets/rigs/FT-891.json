@@ -1,0 +1,399 @@
+{
+ "id": "FT-891",
+ "name": "FT-891",
+ "source": "flrig FT891.cxx (GPLv3)",
+ "serial": {
+  "baud": 38400,
+  "stopBits": 1,
+  "retries": 2,
+  "timeoutMs": 50,
+  "writeDelayMs": 0,
+  "postWriteDelayMs": 5,
+  "rtscts": true
+ },
+ "defaultFreq": 14070000,
+ "modes": [
+  {
+   "name": "LSB",
+   "code": "1",
+   "sideband": "L",
+   "bwTable": "SSB",
+   "defaultBw": 17
+  },
+  {
+   "name": "USB",
+   "code": "2",
+   "sideband": "U",
+   "bwTable": "SSB",
+   "defaultBw": 17
+  },
+  {
+   "name": "CW-U",
+   "code": "3",
+   "sideband": "U",
+   "bwTable": "CW",
+   "defaultBw": 5
+  },
+  {
+   "name": "FM",
+   "code": "4",
+   "sideband": "U",
+   "bwTable": "AMFMnorm",
+   "defaultBw": 0
+  },
+  {
+   "name": "AM",
+   "code": "5",
+   "sideband": "U",
+   "bwTable": "AMFMnorm",
+   "defaultBw": 0
+  },
+  {
+   "name": "RTTY-L",
+   "code": "6",
+   "sideband": "L",
+   "bwTable": "CW",
+   "defaultBw": 10
+  },
+  {
+   "name": "CW-L",
+   "code": "7",
+   "sideband": "L",
+   "bwTable": "CW",
+   "defaultBw": 5
+  },
+  {
+   "name": "DATA-L",
+   "code": "8",
+   "sideband": "L",
+   "bwTable": "SSBD",
+   "defaultBw": 16
+  },
+  {
+   "name": "RTTY-U",
+   "code": "9",
+   "sideband": "U",
+   "bwTable": "CW",
+   "defaultBw": 10
+  },
+  {
+   "name": "FM-N",
+   "code": "B",
+   "sideband": "U",
+   "bwTable": "AMFMnar",
+   "defaultBw": 0
+  },
+  {
+   "name": "DATA-U",
+   "code": "C",
+   "sideband": "U",
+   "bwTable": "SSBD",
+   "defaultBw": 16
+  },
+  {
+   "name": "AM-N",
+   "code": "D",
+   "sideband": "U",
+   "bwTable": "AMFMnar",
+   "defaultBw": 0
+  }
+ ],
+ "bandwidths": {
+  "SSB": {
+   "labels": [
+    "200",
+    "400",
+    "600",
+    "850",
+    "1100",
+    "1350",
+    "1500",
+    "1650",
+    "1800",
+    "1950",
+    "2100",
+    "2200",
+    "2300",
+    "2400",
+    "2500",
+    "2600",
+    "2700",
+    "2800",
+    "2900",
+    "3000",
+    "3200"
+   ],
+   "values": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+   ]
+  },
+  "SSBD": {
+   "labels": [
+    "50",
+    "100",
+    "150",
+    "200",
+    "250",
+    "300",
+    "350",
+    "400",
+    "450",
+    "500",
+    "800",
+    "1200",
+    "1400",
+    "1700",
+    "2000",
+    "2400",
+    "3000"
+   ],
+   "values": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+   ]
+  },
+  "CW": {
+   "labels": [
+    "50",
+    "100",
+    "150",
+    "200",
+    "250",
+    "300",
+    "350",
+    "400",
+    "450",
+    "500",
+    "800",
+    "1200",
+    "1400",
+    "1700",
+    "2000",
+    "2400",
+    "3000"
+   ],
+   "values": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+   ]
+  },
+  "AMFMnar": {
+   "labels": [
+    "NARROW"
+   ],
+   "values": [
+    0
+   ]
+  },
+  "AMFMnorm": {
+   "labels": [
+    "NORM"
+   ],
+   "values": [
+    0
+   ]
+  }
+ },
+ "powerMeterTable": [
+  [
+   0.0,
+   0.0
+  ],
+  [
+   35.0,
+   5.0
+  ],
+  [
+   59.0,
+   10.0
+  ],
+  [
+   72.0,
+   15.0
+  ],
+  [
+   86.0,
+   20.0
+  ],
+  [
+   96.0,
+   25.0
+  ],
+  [
+   107.0,
+   30.0
+  ],
+  [
+   119.0,
+   35.0
+  ],
+  [
+   129.0,
+   40.0
+  ],
+  [
+   141.0,
+   45.0
+  ],
+  [
+   150.0,
+   50.0
+  ],
+  [
+   155.0,
+   55.0
+  ],
+  [
+   161.0,
+   60.0
+  ],
+  [
+   166.0,
+   65.0
+  ],
+  [
+   173.0,
+   70.0
+  ],
+  [
+   179.0,
+   75.0
+  ],
+  [
+   184.0,
+   80.0
+  ],
+  [
+   191.0,
+   85.0
+  ],
+  [
+   196.0,
+   90.0
+  ],
+  [
+   202.0,
+   95.0
+  ],
+  [
+   208.0,
+   100.0
+  ]
+ ],
+ "protocol": "yaesu_ascii",
+ "_comment": "Hand-authored from flrig RIG_FT891 (src/rigs/yaesu/FT891.cxx). Commands end with ';'. {f9} = 9-digit zero-padded frequency, {n3} = 3-digit zero-padded integer, {n2} = 2-digit.",
+ "terminator": ";",
+ "identify": {
+  "send": "ID;",
+  "replyRegex": "ID(\\d+);"
+ },
+ "frequency": {
+  "digits": 9,
+  "get": "FA;",
+  "replyRegex": "FA(\\d{9});",
+  "set": "FA{f9};",
+  "minHz": 30000,
+  "maxHz": 56000000
+ },
+ "mode": {
+  "get": "MD0;",
+  "replyRegex": "MD0(.);",
+  "set": "MD0{code};"
+ },
+ "bandwidth": {
+  "_comment": "flrig set_bwA: NA0{0|1} selects the narrow filter when the table index is at or below narrowMaxIndex, then SH0 sets the width index (wvals).",
+  "narrowSet": "NA0{narrow};",
+  "set": "SH01{n2};",
+  "get": "SH0;",
+  "replyRegex": "SH0(\\d)(\\d\\d);",
+  "narrowMaxIndexBySideband": {
+   "SSB": 9,
+   "CW": 10,
+   "DATA": 9,
+   "RTTY": 10
+  },
+  "noBandwidthModes": [
+   "FM",
+   "AM",
+   "FM-N",
+   "AM-N"
+  ]
+ },
+ "power": {
+  "get": "PC;",
+  "replyRegex": "PC(\\d{3});",
+  "set": "PC{n3};",
+  "min": 5,
+  "max": 100
+ },
+ "smeter": {
+  "get": "SM0;",
+  "replyRegex": "SM0(\\d{3});",
+  "scaleDivisor": 2.56,
+  "max": 100
+ },
+ "powerOut": {
+  "get": "RM5;",
+  "replyRegex": "RM5(\\d{3});"
+ },
+ "ptt": {
+  "on": "TX1;",
+  "off": "TX0;",
+  "get": "TX;",
+  "replyRegex": "TX(\\d);"
+ },
+ "notes": [
+  "flrig also writes EX menu items (EX1107/EX0707/EX1011/EX0812) to track sideband for CW/RTTY/DATA; v1 relies on MD0 codes 8 (DATA-L) and C (DATA-U) directly.",
+  "Radio must be set to CAT RATE 38400 (menu 05-06) and CAT RTS enabled to match flrig settings."
+ ]
+}

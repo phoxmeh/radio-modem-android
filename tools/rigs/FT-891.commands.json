@@ -1,0 +1,25 @@
+{
+ "protocol": "yaesu_ascii",
+ "_comment": "Hand-authored from flrig RIG_FT891 (src/rigs/yaesu/FT891.cxx). Commands end with ';'. {f9} = 9-digit zero-padded frequency, {n3} = 3-digit zero-padded integer, {n2} = 2-digit.",
+ "terminator": ";",
+ "identify": {"send": "ID;", "replyRegex": "ID(\\d+);"},
+ "frequency": {"digits": 9, "get": "FA;", "replyRegex": "FA(\\d{9});", "set": "FA{f9};", "minHz": 30000, "maxHz": 56000000},
+ "mode": {"get": "MD0;", "replyRegex": "MD0(.);", "set": "MD0{code};"},
+ "bandwidth": {
+  "_comment": "flrig set_bwA: NA0{0|1} selects the narrow filter when the table index is at or below narrowMaxIndex, then SH0 sets the width index (wvals).",
+  "narrowSet": "NA0{narrow};",
+  "set": "SH01{n2};",
+  "get": "SH0;",
+  "replyRegex": "SH0(\\d)(\\d\\d);",
+  "narrowMaxIndexBySideband": {"SSB": 9, "CW": 10, "DATA": 9, "RTTY": 10},
+  "noBandwidthModes": ["FM", "AM", "FM-N", "AM-N"]
+ },
+ "power": {"get": "PC;", "replyRegex": "PC(\\d{3});", "set": "PC{n3};", "min": 5, "max": 100},
+ "smeter": {"get": "SM0;", "replyRegex": "SM0(\\d{3});", "scaleDivisor": 2.56, "max": 100},
+ "powerOut": {"get": "RM5;", "replyRegex": "RM5(\\d{3});"},
+ "ptt": {"on": "TX1;", "off": "TX0;", "get": "TX;", "replyRegex": "TX(\\d);"},
+ "notes": [
+  "flrig also writes EX menu items (EX1107/EX0707/EX1011/EX0812) to track sideband for CW/RTTY/DATA; v1 relies on MD0 codes 8 (DATA-L) and C (DATA-U) directly.",
+  "Radio must be set to CAT RATE 38400 (menu 05-06) and CAT RTS enabled to match flrig settings."
+ ]
+}
