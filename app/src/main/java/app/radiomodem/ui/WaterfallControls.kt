@@ -8,7 +8,6 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -65,15 +64,15 @@ fun WaterfallControls(vm: AudioViewModel, settings: AppSettings) {
 
 @Composable
 private fun ViewMenu(vm: AudioViewModel, settings: AppSettings) = Column(Modifier.fillMaxWidth().padding(top = 4.dp)) {
-    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text("Zoom", style = MaterialTheme.typography.labelMedium)
-        OutlinedButton({ vm.zoomBy(1 / 1.5f, vm.rxHz) }, contentPadding = PaddingValues(horizontal = 14.dp)) { Text("−", fontSize = 18.sp) }
-        OutlinedButton({ vm.zoomBy(1.5f, vm.rxHz) }, contentPadding = PaddingValues(horizontal = 14.dp)) { Text("+", fontSize = 18.sp) }
-        OutlinedButton({ vm.zoomFull() }, contentPadding = PaddingValues(horizontal = 12.dp)) { Text("Full") }
-        OutlinedButton({ vm.centerViewOnCarrier() }, contentPadding = PaddingValues(horizontal = 12.dp)) { Text("Find carrier") }
-        OutlinedButton({ vm.tuneTo(vm.referenceHz); vm.centerViewOnCarrier() }, contentPadding = PaddingValues(horizontal = 12.dp)) {
-            Text("Set ${vm.referenceHz.toInt()}")
+    // Everything fits across the screen: no horizontal scrolling anywhere in this menu.
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        val pad = PaddingValues(horizontal = 4.dp)
+        OutlinedButton({ vm.zoomBy(1 / 1.5f, vm.rxHz) }, Modifier.weight(0.8f), contentPadding = pad) { Text("−", fontSize = 18.sp) }
+        OutlinedButton({ vm.zoomBy(1.5f, vm.rxHz) }, Modifier.weight(0.8f), contentPadding = pad) { Text("+", fontSize = 18.sp) }
+        OutlinedButton({ vm.zoomFull() }, Modifier.weight(1f), contentPadding = pad) { Text("Full", maxLines = 1) }
+        OutlinedButton({ vm.centerViewOnCarrier() }, Modifier.weight(1.3f), contentPadding = pad) { Text("Center", maxLines = 1) }
+        OutlinedButton({ vm.tuneTo(vm.referenceHz); vm.centerViewOnCarrier() }, Modifier.weight(1.5f), contentPadding = pad) {
+            Text("Set ${vm.referenceHz.toInt()}", maxLines = 1)
         }
     }
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
