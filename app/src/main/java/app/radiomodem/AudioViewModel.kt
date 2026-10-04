@@ -37,7 +37,8 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
         )
         const val MAX_HZ = 4000f
         const val FAX_CENTER_HZ = 1900f
-        const val HISTORY = 256
+        const val HISTORY = 1024
+        const val MIN_SPAN_HZ = 250f
     }
 
     var running by mutableStateOf(false); private set
@@ -47,7 +48,7 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
 
     // Display state (audio Hz). rxHz is the modem carrier.
     var rxHz by mutableFloatStateOf(1000f); private set
-    fun tuneTo(hz: Float) { rxHz = hz; settings.lastCarrierHz = hz; Dsp.setCarrier(hz) }
+    fun tuneTo(hz: Float) { val h = hz.coerceIn(0f, MAX_HZ); rxHz = h; settings.lastCarrierHz = h; Dsp.setCarrier(h) }
     var squelch by mutableFloatStateOf(0.3f); private set
     fun updateSquelch(v: Float) { squelch = v; settings.lastSquelch = v; Dsp.setSquelch(v) }
     /** Opposite sideband: needed for QPSK, MFSK and Olivia when the receiver is on the other sideband from the sender. */
@@ -274,12 +275,33 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
     var rangeDb: Float get() = settings.waterfallRangeDb; set(v) { settings.waterfallRangeDb = v }
     private val frameMs get() = when (settings.waterfallSpeed) { "slow" -> 100L; "fast" -> 25L; else -> 50L }
 
-    private var binHz = 48000f / Dsp.FFT_SIZE
+    /** Moves the carrier by [deltaHz] and scrolls the view if the marker would leave it. */
+    fun nudge(deltaHz: Float) {
+        tuneTo(Math.round(rxHz + deltaHz).toFloat())
+        val margin = viewSpanHz * 0.08f
+        if (rxHz < viewStartHz + margin || rxHz > viewStartHz + viewSpanHz - margin) centerViewOnCarrier()
+    }
+    fun centerViewOnCarrier() { viewStartHz = (rxHz - viewSpanHz / 2).coerceIn(0f, MAX_HZ - viewSpanHz) }
+    /** Zooms the audio span about [focusHz]; the picture scales uniformly (see Waterfall). */
+    fun zoomBy(factor: Float, focusHz: Float = viewStartHz + viewSpanHz / 2) {
+        val span = (viewSpanHz / factor).coerceIn(MIN_SPAN_HZ, MAX_HZ)
+        val frac = (focusHz - viewStartHz) / viewSpanHz
+        viewSpanHz = span
+        viewStartHz = (focusHz - frac * span).coerceIn(0f, MAX_HZ - span)
+    }
+    fun zoomFull() { viewSpanHz = MAX_HZ; viewStartHz = 0f }
+    /** Centre of the usual SSB audio passband (1900 Hz for weather fax); the waterfall marks it. */
+    val referenceHz get() = if (isFax) FAX_CENTER_HZ else 1500f
+
+    var binHz = 48000f / Dsp.FFT_SIZE; private set
     private var width = (MAX_HZ / binHz).toInt()
-    private var pixels = IntArray(width * HISTORY)
+    private var row = IntArray(width)
+    /** Ring of spectrum rows; [head] is the newest, older rows follow it (wrapping). */
     var bitmap: Bitmap = Bitmap.createBitmap(width, HISTORY, Bitmap.Config.ARGB_8888); private set
-    private val bins = FloatArray(Dsp.FFT_SIZE / 2)
+    var head = 0; private set
+    private var bins = FloatArray(width)
     private var job: Job? = null
+    private var autoTick = 0
 
     fun hzToPx(hz: Float) = hz / binHz
 
@@ -380,7 +402,8 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
         val w = (MAX_HZ / binHz).toInt()
         if (w != width) {
             width = w
-            pixels = IntArray(width * HISTORY)
+            row = IntArray(width)
+            bins = FloatArray(width)
             bitmap = Bitmap.createBitmap(width, HISTORY, Bitmap.Config.ARGB_8888)
         }
         job = viewModelScope.launch(Dispatchers.Default) {
@@ -410,10 +433,25 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun pushRow() {
-        System.arraycopy(pixels, 0, pixels, width, width * (HISTORY - 1))
-        for (x in 0 until width) pixels[x] = colorFor((bins[x] - floorDb) / rangeDb)
-        bitmap.setPixels(pixels, 0, width, 0, 0, width, HISTORY)
+        if (settings.waterfallAuto && ++autoTick >= 8) { autoTick = 0; autoLevel() }
+        head = (head + HISTORY - 1) % HISTORY
+        val floor = floorDb; val range = rangeDb
+        for (x in 0 until width) row[x] = colorFor((bins[x] - floor) / range)
+        bitmap.setPixels(row, 0, width, 0, head, width, 1)
         frame++
+    }
+
+    /** Fits floor/range to the current band: floor just under the noise, top just over the strongest signal. */
+    private fun autoLevel() {
+        val lo = (150f / binHz).toInt(); val hi = minOf(width, (3600f / binHz).toInt())
+        if (hi - lo < 20) return
+        val sorted = bins.copyOfRange(lo, hi).also { it.sort() }
+        val noise = sorted[sorted.size / 4]
+        val peak = sorted[sorted.size - 1 - sorted.size / 300]
+        val targetFloor = (noise - 4f).coerceIn(-130f, -30f)
+        val targetRange = (maxOf(peak, noise + 22f) + 3f - targetFloor).coerceIn(25f, 90f)
+        floorDb += (targetFloor - floorDb) * 0.2f
+        rangeDb += (targetRange - rangeDb) * 0.2f
     }
 
     private fun colorFor(t0: Float): Int = Palettes.color(settings.waterfallPalette, t0)

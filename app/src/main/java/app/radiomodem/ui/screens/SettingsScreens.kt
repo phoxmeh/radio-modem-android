@@ -62,6 +62,7 @@ fun WaterfallSettings(onBack: () -> Unit) = ScreenPage("Waterfall", onBack) {
     }
     SettingChoice("Scroll speed", listOf("slow" to "Slow", "normal" to "Normal", "fast" to "Fast"), s.waterfallSpeed,
         "Faster scrolling uses a little more battery.") { s.waterfallSpeed = it }
+    SettingSwitch("Auto level", "Keep brightness and contrast fitted to the band noise (also on the waterfall's gear menu)", s.waterfallAuto) { s.waterfallAuto = it }
     SettingSlider("Floor", "${s.waterfallFloorDb.toInt()} dB", s.waterfallFloorDb, -130f..-40f,
         subtitle = "Signals quieter than this are drawn as the darkest colour.") { s.waterfallFloorDb = it }
     SettingSlider("Range", "${s.waterfallRangeDb.toInt()} dB", s.waterfallRangeDb, 20f..100f,

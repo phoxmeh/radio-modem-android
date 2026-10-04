@@ -70,7 +70,9 @@ class AppSettings private constructor(ctx: Context) {
     var lastReverse by flag("last_reverse", false)
     var showVfo by flag("show_vfo", true)
     var showWaterfall by flag("show_waterfall", true)
-    var waterfallDp by num("wf_dp", 160f)
+    var waterfallDp by num("wf_dp2", 230f)
+    var waterfallAuto by flag("wf_auto", true)           // keep floor/range fitted to the band noise
+    var waterfallControls by flag("wf_controls", false)  // expanded view menu under the waterfall
     var viewStartHz by num("view_start", 0f)
     var viewSpanHz by num("view_span", 4000f)
     // Preferred audio input: type + product name survive unplugging (device ids do not).

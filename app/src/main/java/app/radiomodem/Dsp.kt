@@ -3,7 +3,7 @@ package app.radiomodem
 /** JNI bridge to the native DSP library. Single global engine instance. */
 object Dsp {
     init { System.loadLibrary("radiodsp") }
-    const val FFT_SIZE = 4096
+    const val FFT_SIZE = 16384  // zero-padded transform over an 8192-sample window
 
     external fun version(): String
     /** deviceId 0 = system default input. Returns false if the stream could not be opened. */

@@ -160,7 +160,8 @@ private fun MainScreen(
                             if (settings.showVfo) VfoPanel(rig, onRigSetup = { go("rig") }, onSave = { saveCurrent = true })
                             if (settings.showWaterfall) {
                                 Box(Modifier.fillMaxWidth().height(settings.waterfallDp.dp)) { Waterfall(audio) }
-                                ResizeHandle { settings.waterfallDp = (settings.waterfallDp + it).coerceIn(60f, 400f) }
+                                WaterfallControls(audio, settings)
+                                ResizeHandle { settings.waterfallDp = (settings.waterfallDp + it).coerceIn(110f, 480f) }
                             }
                             if (audio.isFax) FaxView(audio, Modifier.weight(1f).fillMaxWidth())
                             else RxFeed(audio, Modifier.weight(1f).fillMaxWidth())
@@ -268,8 +269,6 @@ private fun ModemDrawer(audio: AudioViewModel, settings: AppSettings) = Column(
         }
     }
 
-    HorizontalDivider()
-    WaterfallBrightness(audio)
 }
 
 /** AFC and Reverse, shown only where the mode supports them. */
@@ -314,18 +313,4 @@ private fun FaxControls(audio: AudioViewModel) = Column(verticalArrangement = Ar
     if (audio.faxMeasuredLpm > 0) Hint("Measured from phasing: ${"%.1f".format(audio.faxMeasuredLpm)} LPM")
     Hint("Tune USB at the station's assigned frequency minus 1.9 kHz; the saved weather-fax entries already do. Carrier ${audio.rxHz.toInt()} Hz.")
     TextButton({ audio.faxRestart() }) { Text("Discard picture, wait for APT") }
-}
-
-/** Collapsed by default: the waterfall levels are not mode-specific, so they stay out of the way. */
-@Composable
-private fun WaterfallBrightness(audio: AudioViewModel) {
-    var open by rememberSaveable { mutableStateOf(false) }
-    TextButton({ open = !open }, contentPadding = PaddingValues(0.dp)) { Text(if (open) "Waterfall brightness ▾" else "Waterfall brightness ▸") }
-    if (open) {
-        Text("Floor: ${audio.floorDb.toInt()} dB")
-        Slider(audio.floorDb, { audio.floorDb = it }, valueRange = -130f..-40f)
-        Text("Range: ${audio.rangeDb.toInt()} dB")
-        Slider(audio.rangeDb, { audio.rangeDb = it }, valueRange = 20f..100f)
-        Hint("More waterfall options are under Settings > Waterfall.")
-    }
 }

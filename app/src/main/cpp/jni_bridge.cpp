@@ -11,9 +11,9 @@
 
 namespace {
 AudioEngine gAudio;
-Spectrum gSpectrum(4096);
-std::vector<float> gFrame(4096);
-std::vector<float> gBins(2048);
+Spectrum gSpectrum(8192, 16384);
+std::vector<float> gFrame(8192);
+std::vector<float> gBins(8192);
 std::mutex gModemMutex;
 std::unique_ptr<PskDemod> gPsk;
 std::unique_ptr<MfskDemod> gMfsk;
@@ -76,11 +76,11 @@ JNIEXPORT jfloat JNICALL Java_app_radiomodem_Dsp_quality(JNIEnv *, jobject) {
 
 JNIEXPORT jint JNICALL Java_app_radiomodem_Dsp_sampleRate(JNIEnv *, jobject) { return gAudio.sampleRate(); }
 
-// Fills `out` with up to out.size dB bins (bin width = sampleRate / 4096). Returns bins written, 0 if no data yet.
+// Fills `out` with up to out.size dB bins (bin width = sampleRate / 16384). Returns bins written, 0 if no data yet.
 JNIEXPORT jint JNICALL Java_app_radiomodem_Dsp_readSpectrum(JNIEnv *env, jobject, jfloatArray out) {
-    if (!gAudio.running() || !gAudio.latest(gFrame.data(), gSpectrum.size())) return 0;
-    gSpectrum.compute(gFrame.data(), gBins.data());
+    if (!gAudio.running() || !gAudio.latest(gFrame.data(), gSpectrum.windowSize())) return 0;
     jsize n = std::min<jsize>(env->GetArrayLength(out), (jsize)gBins.size());
+    gSpectrum.compute(gFrame.data(), gBins.data(), n);
     env->SetFloatArrayRegion(out, 0, n, gBins.data());
     return n;
 }
