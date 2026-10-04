@@ -72,6 +72,7 @@ class AppSettings private constructor(ctx: Context) {
     var showWaterfall by flag("show_waterfall", true)
     var waterfallDp by num("wf_dp2", 230f)
     var waterfallAuto by flag("wf_auto", true)           // keep floor/range fitted to the band noise
+    var waterfallLevels by flag("wf_levels", true)       // brightness/contrast sliders shown in the view menu
     var waterfallControls by flag("wf_controls", false)  // expanded view menu under the waterfall
     var viewStartHz by num("view_start", 0f)
     var viewSpanHz by num("view_span", 4000f)

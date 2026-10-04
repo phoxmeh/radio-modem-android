@@ -1,6 +1,10 @@
 package app.radiomodem.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -13,6 +17,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -69,19 +76,54 @@ private fun ViewMenu(vm: AudioViewModel, settings: AppSettings) = Column(Modifie
             Text("Set ${vm.referenceHz.toInt()}")
         }
     }
-    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        FilterChip(settings.waterfallAuto, { settings.waterfallAuto = !settings.waterfallAuto }, { Text("Auto level") })
-        Palettes.names.forEach { (id, label) ->
-            FilterChip(settings.waterfallPalette == id, { settings.waterfallPalette = id }, { Text(label) })
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        PaletteMenu(settings)
+        TextButton({ settings.waterfallLevels = !settings.waterfallLevels }) {
+            Text(if (settings.waterfallLevels) "Levels ▾" else "Levels ▸")
         }
+        Spacer(Modifier.weight(1f))
+        Text("Auto", style = MaterialTheme.typography.labelLarge)
+        Spacer(Modifier.width(8.dp))
+        Switch(settings.waterfallAuto, { settings.waterfallAuto = it })
     }
-    if (!settings.waterfallAuto) {
+    // The sliders stay put; touching one takes over from Auto level.
+    val brightness = remember { MutableInteractionSource() }
+    val contrast = remember { MutableInteractionSource() }
+    val touched = brightness.collectIsPressedAsState().value || brightness.collectIsDraggedAsState().value ||
+        contrast.collectIsPressedAsState().value || contrast.collectIsDraggedAsState().value
+    LaunchedEffect(touched) { if (touched) settings.waterfallAuto = false }
+    if (settings.waterfallLevels) {
         Text("Brightness  ${vm.floorDb.toInt()} dB", style = MaterialTheme.typography.labelMedium)
         // Dragging right lowers the floor, which brightens the picture.
-        Slider(-vm.floorDb, { vm.floorDb = -it }, valueRange = 40f..130f)
+        Slider(-vm.floorDb, { vm.floorDb = -it }, interactionSource = brightness, valueRange = 40f..130f)
         Text("Contrast  ${vm.rangeDb.toInt()} dB span", style = MaterialTheme.typography.labelMedium)
-        Slider(110f - vm.rangeDb, { vm.rangeDb = 110f - it }, valueRange = 20f..90f)
+        Slider(110f - vm.rangeDb, { vm.rangeDb = 110f - it }, interactionSource = contrast, valueRange = 20f..90f)
+    }
+}
+
+@Composable
+private fun PaletteMenu(settings: AppSettings) {
+    var open by remember { mutableStateOf(false) }
+    val current = Palettes.names.firstOrNull { it.first == settings.waterfallPalette }?.second ?: "Classic"
+    Box {
+        OutlinedButton({ open = true }, contentPadding = PaddingValues(start = 14.dp, end = 8.dp)) {
+            Text("Colours: $current  ▾")
+        }
+        DropdownMenu(open, { open = false }) {
+            Palettes.names.forEach { (id, label) ->
+                DropdownMenuItem(
+                    text = { Text(label) },
+                    leadingIcon = {
+                        Canvas(Modifier.size(width = 56.dp, height = 14.dp)) {
+                            val n = 28
+                            for (k in 0 until n) drawRect(Color(Palettes.color(id, k / (n - 1f))), Offset(size.width * k / n, 0f), Size(size.width / n + 1f, size.height))
+                        }
+                    },
+                    trailingIcon = { if (id == settings.waterfallPalette) Text("✓") },
+                    onClick = { settings.waterfallPalette = id; open = false },
+                )
+            }
+        }
     }
 }
 
