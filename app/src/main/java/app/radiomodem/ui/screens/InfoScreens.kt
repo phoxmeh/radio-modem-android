@@ -74,11 +74,13 @@ fun AboutScreen(onBack: () -> Unit) {
         SectionLabel("Credits")
         listOf(
             "fldigi — Dave Freese W1HKJ and contributors (GPLv3). PSK, QPSK, MFSK and weather-fax demodulators, the Olivia receiver wrapper, varicode tables, Viterbi decoder and interleaver are ported from it.",
-            "flrig — Dave Freese W1HKJ and contributors (GPLv3). The Yaesu FT-891 modes, bandwidths and CAT command set are taken from its rig class.",
+            "flrig — Dave Freese W1HKJ and contributors (GPLv3). The Yaesu FT-891, FT-991A and FTdx10 modes, bandwidths and CAT command sets are taken from its rig classes.",
             "Olivia / MFSK library — Pawel Jalocha SP9VRC, vendored unchanged via fldigi.",
             "gMFSK — Tomi Manninen OH2BNS, the origin of much of fldigi's modem code.",
             "usb-serial-for-android — Mike Wakerly and contributors (MIT). USB serial CAT.",
             "Oboe — Google (Apache 2.0). Low-latency audio capture.",
+            "PdfBox-Android — Tom Roush, port of Apache PDFBox (Apache 2.0). Reads NOAA's published fax schedule PDF.",
+            "Fax schedules — NOAA/NWS (US government work), DWD, UK Met Office and other national weather services, as published by them.",
             "Android Jetpack and Compose — Google (Apache 2.0). User interface.",
         ).forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) }
         HorizontalDivider()
