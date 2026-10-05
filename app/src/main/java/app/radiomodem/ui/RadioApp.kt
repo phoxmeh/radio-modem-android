@@ -244,7 +244,7 @@ private fun ModemDrawer(audio: AudioViewModel, settings: AppSettings) = Column(
     HorizontalDivider()
 
     when (family) {
-        "WEFAX" -> FaxControls(audio)
+        "WEFAX" -> FaxControls(audio, settings)
         else -> {
             if (family == "MFSK") {
                 if (audio.modemId in Modems.PICTURE_MODES)
@@ -285,7 +285,7 @@ private fun TrackingSwitches(audio: AudioViewModel, family: String) {
 }
 
 @Composable
-private fun FaxControls(audio: AudioViewModel) = Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+private fun FaxControls(audio: AudioViewModel, settings: AppSettings) = Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
     Text("Lines per minute", style = MaterialTheme.typography.labelMedium)
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         val default = if (audio.modemId == Modems.WEFAX_288) 60 else 120
@@ -298,19 +298,19 @@ private fun FaxControls(audio: AudioViewModel) = Column(verticalArrangement = Ar
         val current = if (audio.faxFilter >= 0) audio.faxFilter else if (audio.modemId == Modems.WEFAX_288) 2 else 1
         listOf("Narrow", "Medium", "Wide").forEachIndexed { i, n -> FilterChip(current == i, { audio.updateFaxFilter(i) }, { Text(n) }) }
     }
-    Text("Slant: ${"%+.2f".format(audio.faxSlant)} %")
-    Slider(audio.faxSlant, { audio.updateFaxSlant((it * 100).toInt() / 100f) }, valueRange = -1f..1f)
-    Text("Shift: ${"%+.0f".format(audio.faxShift * 100)} % of width")
-    Slider(audio.faxShift, { audio.updateFaxShift((it * 100).toInt() / 100f) }, valueRange = -0.5f..0.5f)
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Switch(audio.afc, { audio.updateAfc(it) })
-        Text("  AFC (centre on the phasing lines)", style = MaterialTheme.typography.bodySmall)
+        Switch(settings.faxAutoSlant, { audio.updateFaxAutoSlant(it) })
+        Text("  Auto slant", style = MaterialTheme.typography.bodySmall)
     }
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Switch(audio.faxManual, { audio.updateFaxManual(it) })
-        Text("  Start now (skip APT and phasing)", style = MaterialTheme.typography.bodySmall)
+    if (settings.faxAutoSlant) {
+        Text("Stop adjusting after", style = MaterialTheme.typography.labelMedium)
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf(100 to "100", 200 to "200", 400 to "400", 800 to "800", 2800 to "Never").forEach { (n, label) ->
+                FilterChip(settings.faxAutoStopLines.toInt() == n, { audio.updateFaxAutoStop(n) }, { Text(label) })
+            }
+        }
+        Hint("Auto slant measures the line length from the phasing lines, then refines it from the picture at 48, 96, 192 … lines. Past the limit it stops, so a long picture cannot be skewed by later content. Slant, shift, AFC, Skip APT and Clear are under the picture.")
     }
     if (audio.faxMeasuredLpm > 0) Hint("Measured from phasing: ${"%.1f".format(audio.faxMeasuredLpm)} LPM")
     Hint("Tune USB at the station's assigned frequency minus 1.9 kHz; the saved weather-fax entries already do. Carrier ${audio.rxHz.toInt()} Hz.")
-    TextButton({ audio.faxRestart() }) { Text("Discard picture, wait for APT") }
-}
+    }

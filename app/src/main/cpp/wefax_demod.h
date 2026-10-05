@@ -28,6 +28,12 @@ public:
     void setLpm(double lpm) { setLpmInternal(lpm); }
     void setSlantPercent(double pct);        // + lengthens the assumed line time
     void setShift(double fractionOfWidth);   // horizontal offset, -0.5..0.5
+    // Automatic slant: line time measured from the phasing lines at the start of a picture, then refined from
+    // the picture itself (vertical features drifting sideways between lines) at 48, 96, 192, ... lines. No
+    // refinement happens past `stopLines`, so a long picture cannot be skewed by later content. The manual
+    // slant is applied on top. Off by default.
+    void setAutoSlant(bool on, int stopLines);
+    double autoSlantPercent() const { return slantAuto_; }
     void restart();                          // back to waiting for APT start; discards the image
 
     void process(const float *in, int n);
@@ -102,6 +108,10 @@ private:
     // image
     double lpm_;
     double slantPct_ = 0, shift_ = 0;
+    bool autoSlant_ = false;
+    int autoStop_ = 400, nextRefine_ = 48;
+    double slantAuto_ = 0;  // percent, from phasing and picture content
+    void refineSlant(int rows);
     double phase0_ = 0.025;  // line phase of stored sample 0 (phasing pulse falling edge is at +2.5%)
     bool aligned_ = true;
     std::vector<uint8_t> samples_;

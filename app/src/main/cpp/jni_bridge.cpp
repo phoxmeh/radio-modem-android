@@ -23,6 +23,8 @@ std::unique_ptr<WefaxDemod> gFax;
 double gFaxLpm = 0, gFaxSlant = 0, gFaxShift = 0;
 int gFaxFilter = -1;
 bool gFaxManual = false;
+bool gFaxAuto = true;     // automatic slant (survives decoder re-creation)
+int gFaxAutoStop = 400;   // lines after which auto slant stops refining
 bool gReverse = false;  // opposite sideband (QPSK, MFSK, Olivia)
 bool gAfc = true;       // automatic frequency control (PSK, MFSK, WEFAX)
 // 0..2 = BPSK31/63/125, 3..5 = QPSK31/63/125, 6..12 = MFSK4/8/16/31/32/64/128,
@@ -95,7 +97,7 @@ JNIEXPORT void JNICALL Java_app_radiomodem_Dsp_setModem(JNIEnv *, jobject, jint 
     gMfsk.reset();
     gOlivia.reset();
     gFax.reset();
-    gFaxLpm = gFaxSlant = gFaxShift = 0; gFaxFilter = -1; gFaxManual = false;
+    gFaxLpm = gFaxSlant = gFaxShift = 0; gFaxFilter = -1; gFaxManual = false;  // gFaxAuto is a preference: kept
 }
 
 JNIEXPORT void JNICALL Java_app_radiomodem_Dsp_setCarrier(JNIEnv *, jobject, jfloat carrierHz) {
@@ -128,6 +130,7 @@ JNIEXPORT jstring JNICALL Java_app_radiomodem_Dsp_decode(JNIEnv *env, jobject) {
             gFax->setSlantPercent(gFaxSlant);
             gFax->setShift(gFaxShift);
             gFax->setAfc(gAfc);
+            gFax->setAutoSlant(gFaxAuto, gFaxAutoStop);
             if (gFaxManual) gFax->setManual(true);
         } else {
             int o = gModemId - 13;
@@ -168,13 +171,13 @@ JNIEXPORT jbyteArray JNICALL Java_app_radiomodem_Dsp_faxPoll(JNIEnv *env, jobjec
     return out;
 }
 
-// [state, imageId, lpm, measuredLpm, manual]
+// [state, imageId, lpm, measuredLpm, manual, autoSlantPercent]
 JNIEXPORT jdoubleArray JNICALL Java_app_radiomodem_Dsp_faxInfo(JNIEnv *env, jobject) {
     std::lock_guard<std::mutex> l(gModemMutex);
-    double v[5] = {0, 0, gFaxLpm, 0, gFaxManual ? 1.0 : 0.0};
-    if (gFax) { v[0] = gFax->state(); v[1] = gFax->imageId(); v[2] = gFax->lpm(); v[3] = gFax->measuredLpm(); v[4] = gFax->manual(); }
-    jdoubleArray out = env->NewDoubleArray(5);
-    env->SetDoubleArrayRegion(out, 0, 5, v);
+    double v[6] = {0, 0, gFaxLpm, 0, gFaxManual ? 1.0 : 0.0, 0};
+    if (gFax) { v[0] = gFax->state(); v[1] = gFax->imageId(); v[2] = gFax->lpm(); v[3] = gFax->measuredLpm(); v[4] = gFax->manual(); v[5] = gFax->autoSlantPercent(); }
+    jdoubleArray out = env->NewDoubleArray(6);
+    env->SetDoubleArrayRegion(out, 0, 6, v);
     return out;
 }
 
@@ -186,6 +189,12 @@ JNIEXPORT void JNICALL Java_app_radiomodem_Dsp_faxSet(JNIEnv *, jobject, jdouble
     if (lpm > 0) gFax->setLpm(lpm);
     gFax->setSlantPercent(slantPct);
     gFax->setShift(shift);
+}
+
+JNIEXPORT void JNICALL Java_app_radiomodem_Dsp_faxAutoSlant(JNIEnv *, jobject, jboolean on, jint stopLines) {
+    std::lock_guard<std::mutex> l(gModemMutex);
+    gFaxAuto = on; gFaxAutoStop = stopLines;
+    if (gFax) gFax->setAutoSlant(on, stopLines);
 }
 
 JNIEXPORT void JNICALL Java_app_radiomodem_Dsp_faxManual(JNIEnv *, jobject, jboolean manual) {

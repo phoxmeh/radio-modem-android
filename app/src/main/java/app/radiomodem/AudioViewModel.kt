@@ -92,7 +92,7 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
         if (Modems.all[id].family == "WEFAX") {
             if (enteringFax) tuneTo(FAX_CENTER_HZ)  // the fax subcarrier sits at 1900 Hz when tuned USB at assigned - 1.9 kHz
             resetFaxState()
-            applyFax()
+            applyFax(); applyFaxAuto()
         }
     }
 
@@ -109,6 +109,8 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
     var faxShift by mutableFloatStateOf(0f); private set  // fraction of the line width
     var faxFilter by mutableIntStateOf(-1); private set   // -1 = default for the IOC
     var faxManual by mutableStateOf(false); private set
+    /** Slant currently applied by the automatic correction (percent), on top of [faxSlant]. */
+    var faxAutoSlantNow by mutableFloatStateOf(0f); private set
     var faxFollow by mutableStateOf(true)
     /** Auto-save of finished pictures (fax and MFSK), from Settings > Pictures. */
     var faxAutoSave: Boolean get() = settings.pictureAutoSave; set(v) { settings.pictureAutoSave = v }
@@ -133,6 +135,9 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
     fun updateFaxSlant(v: Float) { faxSlant = v; applyFax() }
     fun updateFaxShift(v: Float) { faxShift = v; applyFax() }
     fun updateFaxFilter(v: Int) { faxFilter = v; applyFax() }
+    fun applyFaxAuto() = Dsp.faxAutoSlant(settings.faxAutoSlant, settings.faxAutoStopLines.toInt())
+    fun updateFaxAutoSlant(on: Boolean) { settings.faxAutoSlant = on; applyFaxAuto() }
+    fun updateFaxAutoStop(lines: Int) { settings.faxAutoStopLines = lines.toFloat(); applyFaxAuto() }
     fun updateFaxManual(on: Boolean) { faxManual = on; Dsp.faxManual(on) }
     /** Discards the current picture and waits for the next APT start tone. */
     fun faxRestart() { faxManual = false; Dsp.faxManual(false); Dsp.faxRestart(); faxRows = 0; faxFrame++ }
@@ -140,6 +145,7 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
     private fun pollFax() {
         val info = Dsp.faxInfo()
         faxMeasuredLpm = info[3].toFloat()
+        faxAutoSlantNow = info[5].toFloat()
         val data = Dsp.faxPoll()
         if (data.size < 24) return
         val h = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN)
@@ -397,6 +403,7 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
         Dsp.setReverse(reverse)
         Dsp.setAfc(afc)
         Dsp.setInputGain(settings.audioGain)
+        applyFaxAuto()
         val rate = Dsp.sampleRate()
         binHz = rate.toFloat() / Dsp.FFT_SIZE
         val w = (MAX_HZ / binHz).toInt()

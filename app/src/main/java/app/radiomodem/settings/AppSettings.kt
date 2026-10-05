@@ -71,6 +71,8 @@ class AppSettings private constructor(ctx: Context) {
     var showVfo by flag("show_vfo", true)
     var showWaterfall by flag("show_waterfall", true)
     var waterfallDp by num("wf_dp2", 230f)
+    var faxAutoSlant by flag("fax_auto_slant", true)
+    var faxAutoStopLines by num("fax_auto_stop", 400f)   // auto slant stops refining after this many lines
     var waterfallAuto by flag("wf_auto", true)           // keep floor/range fitted to the band noise
     var waterfallLevels by flag("wf_levels", true)       // brightness/contrast sliders shown in the view menu
     var waterfallControls by flag("wf_controls", false)  // expanded view menu under the waterfall

@@ -128,7 +128,7 @@ private fun PaletteMenu(settings: AppSettings) {
 
 /** Fires once on press, then repeats (faster the longer it is held) until released. */
 @Composable
-private fun StepButton(text: String, modifier: Modifier, onStep: () -> Unit) {
+internal fun StepButton(text: String, modifier: Modifier, onStep: () -> Unit) {
     val step by rememberUpdatedState(onStep)
     var held by remember { mutableStateOf(false) }
     Box(

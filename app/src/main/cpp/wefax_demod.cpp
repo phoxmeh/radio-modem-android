@@ -176,6 +176,9 @@ void WefaxDemod::beginImage(bool aligned) {
     state_ = Image;
     aligned_ = aligned;
     phase0_ = aligned ? 0.025 : 0.0;
+    slantAuto_ = 0; nextRefine_ = 48;
+    if (autoSlant_ && aligned && measuredLpm_ > 0 && lpm_ > 0)  // line time from the phasing lines vs the standard speed
+        slantAuto_ = std::clamp((lpm_ / measuredLpm_ - 1.0) * 100.0, -1.5, 1.5);
     samples_.clear();
     if (manual_ || !aligned) ++imageId_;
     invalidate();
@@ -235,7 +238,53 @@ void WefaxDemod::decodePhasing(int x, double raw) {
     }
 }
 
-double WefaxDemod::samplesPerLine() const { return 60.0 * kRate / lpm_ * (1.0 + slantPct_ / 100.0); }
+double WefaxDemod::samplesPerLine() const { return 60.0 * kRate / lpm_ * (1.0 + (slantPct_ + slantAuto_) / 100.0); }
+
+void WefaxDemod::setAutoSlant(bool on, int stopLines) {
+    autoStop_ = std::max(48, stopLines);
+    if (on == autoSlant_) return;
+    autoSlant_ = on;
+    if (!on && slantAuto_ != 0) { slantAuto_ = 0; invalidate(); }
+}
+
+// Vertical features (frames, grid lines, text columns) stay in the same column when the line time is right and
+// drift sideways line by line when it is not. Correlate the horizontal gradient of rows `lag` apart over every
+// pair so far; the lag of the best match is the drift, and drift / (lag * width) is the line-time error.
+void WefaxDemod::refineSlant(int rows) {
+    constexpr int kLag = 32, kMaxShift = 24;
+    rows = std::min(rows, 800);
+    if (rows < kLag + 16) return;
+    std::vector<uint8_t> row((size_t)width_);
+    std::vector<float> g((size_t)rows * width_);
+    for (int r = 0; r < rows; ++r) {
+        renderRow(r, row.data());
+        float *dst = &g[(size_t)r * width_];
+        for (int c = 1; c + 1 < width_; ++c) dst[c] = (float)row[c + 1] - (float)row[c - 1];
+        dst[0] = dst[width_ - 1] = 0;
+    }
+    std::vector<double> corr(2 * kMaxShift + 1, 0.0);
+    for (int r = 0; r + kLag < rows; ++r) {
+        const float *a = &g[(size_t)r * width_], *b = &g[(size_t)(r + kLag) * width_];
+        for (int d = -kMaxShift; d <= kMaxShift; ++d) {
+            double sum = 0;
+            const int c0 = std::max(0, -d), c1 = std::min(width_, width_ - d);
+            for (int c = c0; c < c1; ++c) sum += (double)a[c] * b[c + d];
+            corr[d + kMaxShift] += sum;
+        }
+    }
+    int best = 0;
+    double mean = 0;
+    for (size_t i = 0; i < corr.size(); ++i) { if (corr[i] > corr[best]) best = (int)i; mean += std::fabs(corr[i]); }
+    mean /= corr.size();
+    if (best == 0 || best == (int)corr.size() - 1 || corr[best] < 2.0 * mean) return;  // no clear picture structure
+    const double l = corr[best - 1], c = corr[best], rr = corr[best + 1];
+    const double frac = (l - rr) / (2.0 * (l - 2.0 * c + rr));
+    const double shift = (best - kMaxShift) + frac;
+    const double delta = std::clamp(shift / ((double)kLag * width_) * 100.0, -0.2, 0.2);
+    if (std::fabs(delta) < 0.0005) return;
+    slantAuto_ += delta;
+    invalidate();
+}
 
 // Row r, column c covers line phase [r + c/W, r + (c+1)/W); stored sample 0 sits at phase0_ (+shift).
 void WefaxDemod::renderRow(int r, uint8_t *dst) const {
@@ -255,10 +304,20 @@ void WefaxDemod::renderRow(int r, uint8_t *dst) const {
 }
 
 size_t WefaxDemod::poll(std::vector<uint8_t> &out) {
-    const double spl = samplesPerLine(), base = phase0_ - shift_;
+    double spl = samplesPerLine();
+    const double base = phase0_ - shift_;
     // Row r is complete once its last column's samples exist.
     int complete = (int)std::floor((double)samples_.size() / spl + base);
     complete = std::clamp(complete, 0, kMaxRows);
+    if (autoSlant_ && state_ == Image && complete >= nextRefine_) {
+        const bool inRange = nextRefine_ <= autoStop_;
+        nextRefine_ *= 2;
+        if (inRange) {
+            refineSlant(complete);
+            spl = samplesPerLine();
+            complete = std::clamp((int)std::floor((double)samples_.size() / spl + base), 0, kMaxRows);
+        }
+    }
     const int first = renderedRows_, count = std::max(0, complete - renderedRows_);
     const size_t start = out.size();
     int32_t header[6] = {generation_, width_, first, count, imageId_, (int32_t)state_};

@@ -52,8 +52,10 @@ struct FaxTx {
 struct Result { std::vector<std::vector<uint8_t>> rows; int width = 0, id = 0, state = -1, generation = 0; };
 
 static float gLastCenter = 0;
-static Result decode(const std::vector<float> &sig, int ioc, double slant = 0, bool afc = false) {
+static double gLastAuto = 0;
+static Result decode(const std::vector<float> &sig, int ioc, double slant = 0, bool afc = false, int autoStop = 0) {
     WefaxDemod d(kRate, ioc, 1900);
+    if (autoStop) d.setAutoSlant(true, autoStop);
     d.setAfc(afc);
     if (slant != 0) d.setSlantPercent(slant);
     Result res;
@@ -69,6 +71,7 @@ static Result decode(const std::vector<float> &sig, int ioc, double slant = 0, b
     };
     for (size_t i = 0; i < sig.size(); i += 480) { d.process(&sig[i], (int)std::min<size_t>(480, sig.size() - i)); drain(); }
     gLastCenter = d.center();
+    gLastAuto = d.autoSlantPercent();
     return res;
 }
 
@@ -133,6 +136,44 @@ int main() {
         printf("  error uncorrected %.1f, with +0.5%% slant correction %.1f\n", ea, ec);
         ok &= check(ec < ea, "slant correction improves the image");
         ok &= check(ec < 15.0, "corrected image matches (error < 15/255)");
+    }
+
+    printf("WEFAX auto slant:\n");
+    {
+        FaxTx slow{576, 120.0 / 1.005};
+        slow.run(rows, 1809);
+        Result a = decode(slow.out, 576, 0, false, 400);
+        double ea = 1e9;
+        for (int off = 0; off < 40; ++off) for (int sh = -40; sh <= 40; ++sh) ea = std::min(ea, compare(a, off, rows, sh));
+        printf("  0.5%% slow line time: error %.1f, auto slant %+.3f%%\n", ea, gLastAuto);
+        ok &= check(ea < 15.0, "auto slant corrects a 0.5% line-time error");
+        ok &= check(std::fabs(gLastAuto - 0.5) < 0.1, "auto slant value is close to +0.5%");
+
+        // A small error that phasing alone cannot resolve: only the picture content shows it.
+        FaxTx tiny{576, 120.0 / 1.0006};
+        tiny.run(rows, 1809);
+        Result u = decode(tiny.out, 576, 0, false, 0), v = decode(tiny.out, 576, 0, false, 400), w = decode(tiny.out, 576, 0, false, 48);
+        double eu = 1e9, ev = 1e9, ew = 1e9;
+        for (int off = 0; off < 40; ++off) for (int sh = -60; sh <= 60; ++sh) {
+            eu = std::min(eu, compare(u, off, rows, sh)); ev = std::min(ev, compare(v, off, rows, sh)); ew = std::min(ew, compare(w, off, rows, sh));
+        }
+        printf("  0.06%% slow: off %.1f, auto %.1f (slant %+.4f%%), stop at 48 lines %.1f\n", eu, ev, gLastAuto, ew);
+        ok &= check(ev <= eu, "auto slant does not make a small error worse");
+    }
+
+    {
+        // 0.008% is below what four phasing lines resolve, but 300 lines drift ~40 px: content refinement must catch it.
+        const int longRows = 300;
+        FaxTx tiny{576, 120.0 / 1.00008};
+        tiny.run(longRows, 1809);
+        Result u = decode(tiny.out, 576, 0, false, 0), v = decode(tiny.out, 576, 0, false, 400);
+        const double autoSlant = gLastAuto;
+        double eu = 1e9, ev = 1e9;
+        for (int off = 14; off <= 20; ++off) for (int sh = -12; sh <= 12; ++sh) {
+            eu = std::min(eu, compare(u, off, longRows, sh)); ev = std::min(ev, compare(v, off, longRows, sh));
+        }
+        printf("  0.008%% slow, 300 lines: off %.1f, auto %.1f (slant %+.4f%%)\n", eu, ev, autoSlant);
+        ok &= check(ev < eu, "content refinement improves a long picture");
     }
 
     printf("WEFAX AFC: transmitter subcarrier 45 Hz above the receiver's 1900 Hz:\n");

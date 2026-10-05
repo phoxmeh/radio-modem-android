@@ -34,6 +34,8 @@ object Dsp {
     /** lpm <= 0 keeps the default; filter < 0 keeps the default (0 narrow, 1 medium, 2 wide). */
     external fun faxSet(lpm: Double, slantPct: Double, shift: Double, filter: Int)
     external fun faxManual(manual: Boolean)
+    /** Automatic slant: refined from phasing and picture content, frozen after [stopLines] lines. */
+    external fun faxAutoSlant(on: Boolean, stopLines: Int)
     external fun faxRestart()
 
     /** Opposite sideband for QPSK, MFSK and Olivia. No effect on BPSK or WEFAX. */
