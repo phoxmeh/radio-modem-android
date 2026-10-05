@@ -11,6 +11,8 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -175,10 +177,12 @@ private fun MainScreen(
                                 settings, audio,
                                 onMenu = { scope.launch { left.open() } },
                                 onMode = { modeSheet = true },
-                                onClear = { if (audio.isFax) audio.faxRestart() else audio.clearText() },
+                                onClear = { audio.clearText() },
+                                onSchedule = { go("schedule") },
+                                hasVfo = !rig.profile.audioOnly,
                                 onModem = { scope.launch { right.open() } },
                             )
-                            if (settings.showVfo) VfoPanel(rig, onRigSetup = { go("rig") }, onSave = { saveCurrent = true })
+                            if (settings.showVfo && !rig.profile.audioOnly) VfoPanel(rig, onRigSetup = { go("rig") }, onSave = { saveCurrent = true })
                             if (settings.showWaterfall) {
                                 Box(Modifier.fillMaxWidth().height(settings.waterfallDp.dp)) { Waterfall(audio) }
                                 WaterfallControls(audio, settings)
@@ -201,7 +205,7 @@ private fun MainScreen(
 @Composable
 private fun Toolbar(
     settings: AppSettings, audio: AudioViewModel,
-    onMenu: () -> Unit, onMode: () -> Unit, onClear: () -> Unit, onModem: () -> Unit,
+    onMenu: () -> Unit, onMode: () -> Unit, onClear: () -> Unit, onSchedule: () -> Unit, hasVfo: Boolean, onModem: () -> Unit,
 ) = BoxWithConstraints(Modifier.fillMaxWidth()) {
     // Long mode names (e.g. "WEFAX 576", "Olivia 16/500") need the room, so "Waterfall" shortens to "WF" then.
     val compact = maxWidth < 400.dp || Modems.all[audio.modemId].name.length > 8
@@ -209,11 +213,14 @@ private fun Toolbar(
         TextButton(onMenu, contentPadding = PaddingValues(horizontal = 10.dp)) { Text("☰", fontSize = 20.sp) }
         Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically) {
-            FilterChip(settings.showVfo, { settings.showVfo = !settings.showVfo }, { Text("VFO", fontSize = 13.sp, maxLines = 1) })
+            // An audio-only rig has no CAT, so there is nothing for a VFO to control.
+            if (hasVfo) FilterChip(settings.showVfo, { settings.showVfo = !settings.showVfo }, { Text("VFO", fontSize = 13.sp, maxLines = 1) })
             FilterChip(settings.showWaterfall, { settings.showWaterfall = !settings.showWaterfall },
                 { Text(if (compact) "WF" else "Waterfall", fontSize = 13.sp, maxLines = 1) })
             AssistChip(onMode, { Text(Modems.all[audio.modemId].name + " ▾", fontSize = 13.sp, maxLines = 1) })
-            TextButton(onClear, contentPadding = PaddingValues(horizontal = 6.dp)) { Text("Clear", maxLines = 1) }
+            // Weather fax has its own Clear under the picture; here a calendar opens the broadcast schedule instead.
+            if (audio.isFax) IconButton(onSchedule) { Icon(Icons.Default.DateRange, contentDescription = "Fax schedule") }
+            else TextButton(onClear, contentPadding = PaddingValues(horizontal = 6.dp)) { Text("Clear", maxLines = 1) }
         }
         TextButton(onModem, contentPadding = PaddingValues(horizontal = 10.dp)) { Text("⋮", fontSize = 20.sp) }
     }

@@ -8,29 +8,58 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.zIndex
 import app.radiomodem.rig.RigConfig
 import app.radiomodem.rig.RigProfiles
 import app.radiomodem.rig.RigViewModel
 
 private val BAUDS = listOf(4800, 9600, 19200, 38400, 57600, 115200)
 
-/** Every saved rig as a row; tap one to open its settings. */
+/** Every saved rig as a row; tap one to open its settings, drag the handle to change the order. */
 @Composable
 fun RigListScreen(rig: RigViewModel, onBack: () -> Unit, open: (String) -> Unit) {
     val ctx = LocalContext.current
     val models = remember { RigProfiles.available(ctx) }
     var adding by remember { mutableStateOf(false) }
+    var dragging by remember { mutableStateOf<String?>(null) }
+    var dragOffset by remember { mutableFloatStateOf(0f) }
+    var rowHeight by remember { mutableFloatStateOf(1f) }
 
     ScreenPage("Rigs", onBack) {
-        Hint("Tap a rig to change its settings. The rig marked Active is the one the app is using now; you can also switch from the top of the main menu.")
-        rig.rigs.forEach { r ->
+        Hint("Tap a rig to change its settings. The rig marked Active is the one the app is using now. Drag ≡ to change the order, which is also the order in the main menu.")
+        // key(): a row keeps its identity (and its running drag) when it moves to another slot.
+        rig.rigs.toList().forEach { r -> key(r.id) {
             val model = RigProfiles.load(ctx, r.profileId)
             val active = r.id == rig.activeId
+            val lifted = dragging == r.id
             Surface(
                 onClick = { open(r.id) }, shape = MaterialTheme.shapes.medium, tonalElevation = if (active) 6.dp else 1.dp,
-                modifier = Modifier.fillMaxWidth(),
+                shadowElevation = if (lifted) 8.dp else 0.dp,
+                modifier = Modifier.fillMaxWidth().zIndex(if (lifted) 1f else 0f).graphicsLayer { translationY = if (lifted) dragOffset else 0f }
+                    .onSizeChanged { rowHeight = it.height.toFloat().coerceAtLeast(1f) },
             ) {
-                Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.padding(start = 4.dp, end = 16.dp, top = 12.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("≡", fontSize = 26.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 12.dp).pointerInput(r.id) {
+                            detectDragGestures(
+                                onDragStart = { dragging = r.id; dragOffset = 0f },
+                                onDragEnd = { dragging = null; dragOffset = 0f },
+                                onDragCancel = { dragging = null; dragOffset = 0f },
+                            ) { change, drag ->
+                                change.consume()
+                                dragOffset += drag.y
+                                // Swap with the neighbour once the row has moved past its middle; the offset carries on from the new slot.
+                                val at = rig.rigs.indexOfFirst { it.id == r.id }
+                                if (dragOffset > rowHeight * 0.6f && at < rig.rigs.lastIndex) { rig.moveRig(at, at + 1); dragOffset -= rowHeight + 8.dp.toPx() }
+                                else if (dragOffset < -rowHeight * 0.6f && at > 0) { rig.moveRig(at, at - 1); dragOffset += rowHeight + 8.dp.toPx() }
+                            }
+                        })
                     Column(Modifier.weight(1f)) {
                         Text(r.name, style = MaterialTheme.typography.titleMedium)
                         Text(model.name, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -42,7 +71,7 @@ fun RigListScreen(rig: RigViewModel, onBack: () -> Unit, open: (String) -> Unit)
                     Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-        }
+        } }
         Button({ adding = true }, Modifier.fillMaxWidth()) { Text("Add a rig") }
     }
 

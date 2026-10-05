@@ -135,6 +135,12 @@ class RigViewModel(app: Application) : AndroidViewModel(app) {
         powerW = prefs.getInt("power", profile.powerMin)
     }
 
+    /** Moves a rig in the list (and so in the quick-switch menu). */
+    fun moveRig(from: Int, to: Int) {
+        if (from !in rigs.indices || to !in rigs.indices || from == to) return
+        rigs.add(to, rigs.removeAt(from)); store.save(rigs.toList())
+    }
+
     fun updateConfig(c: RigConfig) {
         val i = rigs.indexOfFirst { it.id == c.id }.takeIf { it >= 0 } ?: return
         val modelChanged = rigs[i].profileId != c.profileId
