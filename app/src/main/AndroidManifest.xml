@@ -4,6 +4,10 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- Only used to download NOAA broadcast schedules when you tap Update. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Keeps monitoring running with the screen off or another app in front. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:label="Radio Modem"
@@ -15,6 +19,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name=".MonitorService" android:exported="false" android:foregroundServiceType="microphone" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="app.radiomodem.fileprovider"

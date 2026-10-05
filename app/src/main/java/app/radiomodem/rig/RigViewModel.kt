@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import app.radiomodem.settings.AppSettings
@@ -33,12 +34,27 @@ import kotlinx.coroutines.launch
  * rig: a single worker coroutine serializes queued commands and a round-robin poll of the rig's state.
  */
 class RigViewModel(app: Application) : AndroidViewModel(app) {
-    val profile: RigProfile = app.assets.open("rigs/FT-891.json").bufferedReader().use { RigProfile.parse(it.readText()) }
-    private val prefs = app.getSharedPreferences("rig", Context.MODE_PRIVATE)
+    private val store = RigStore(app)
     private val settings = AppSettings.get(app)
 
+    /** Saved rigs; the active one supplies the profile, wiring and tuning defaults. */
+    val rigs = mutableStateListOf<RigConfig>().apply {
+        addAll(store.load {
+            // Upgrade from the single-rig version: keep the USB adapter and rate that were remembered.
+            RigConfig(name = "FT-891", profileId = "FT-891", usbVendor = settings.usbVendor.toInt(), usbProduct = settings.usbProduct.toInt(),
+                usbPort = settings.usbPort.toInt(), baud = settings.usbBaud.toInt())
+        })
+    }
+    var activeId by mutableStateOf(rigs.firstOrNull { it.id == store.activeId }?.id ?: rigs.first().id); private set
+    val config: RigConfig get() = rigs.first { it.id == activeId }
+
+    var profile: RigProfile by mutableStateOf(RigProfiles.load(app, config.profileId)); private set
+    private var prefs = rigPrefs(activeId)
+    private fun rigPrefs(id: String) = getApplication<Application>().getSharedPreferences("rig_$id", Context.MODE_PRIVATE)
+    private fun usbIndex(p: RigProfile) = p.modes.indexOfFirst { it.name == "USB" }.coerceAtLeast(0)
+
     var freqHz by mutableLongStateOf(prefs.getLong("freq", profile.defaultFreq)); private set
-    var modeIdx by mutableIntStateOf(prefs.getInt("mode", profile.modes.indexOfFirst { it.name == "USB" }.coerceAtLeast(0))); private set
+    var modeIdx by mutableIntStateOf(prefs.getInt("mode", usbIndex(profile)).coerceIn(0, profile.modes.lastIndex)); private set
     var bwIdx by mutableIntStateOf(prefs.getInt("bw", 0)); private set
     var powerW by mutableIntStateOf(prefs.getInt("power", profile.powerMin)); private set
     var smeter by mutableFloatStateOf(0f); private set
@@ -94,9 +110,71 @@ class RigViewModel(app: Application) : AndroidViewModel(app) {
         setFrequency(hz)
     }
 
+    // ---- saved rigs ---------------------------------------------------------------------------
+
+    /** Switches to another saved rig: its model, last frequency and mode, and its USB adapter (reconnected if present). */
+    fun selectRig(id: String) {
+        if (id == activeId || rigs.none { it.id == id }) return
+        disconnect()
+        activeId = id; store.activeId = id
+        loadActive()
+        autoTried.clear()
+        autoConnect()
+    }
+
+    private fun loadActive() {
+        profile = RigProfiles.load(getApplication(), config.profileId)
+        prefs = rigPrefs(activeId)
+        freqHz = prefs.getLong("freq", profile.defaultFreq)
+        modeIdx = prefs.getInt("mode", usbIndex(profile)).coerceIn(0, profile.modes.lastIndex)
+        bwIdx = prefs.getInt("bw", 0)
+        powerW = prefs.getInt("power", profile.powerMin)
+    }
+
+    fun updateConfig(c: RigConfig) {
+        val i = rigs.indexOfFirst { it.id == c.id }.takeIf { it >= 0 } ?: return
+        val modelChanged = rigs[i].profileId != c.profileId
+        rigs[i] = c; store.save(rigs.toList())
+        if (c.id == activeId && modelChanged) { disconnect(); loadActive() }
+    }
+
+    fun addRig(): String {
+        val c = RigConfig(name = "Rig ${rigs.size + 1}")
+        rigs.add(c); store.save(rigs.toList())
+        selectRig(c.id)
+        return c.id
+    }
+
+    fun deleteRig(id: String) {
+        if (rigs.size <= 1) return
+        val wasActive = id == activeId
+        if (wasActive) selectRig(rigs.first { it.id != id }.id)
+        rigs.removeAll { it.id == id }; store.save(rigs.toList())
+        getApplication<Application>().deleteSharedPreferences("rig_$id")
+    }
+
+    /**
+     * Sets mode, frequency and bandwidth for a tap on a saved frequency or schedule entry. The rig's own defaults
+     * (Rig setup) apply wherever the caller gives none.
+     */
+    fun applyTuningDefaults(mode: String = "", bandwidth: String? = null, freqHz: Long? = null) {
+        val wanted = mode.ifBlank { config.defaultMode }
+        // Rigs without a DATA mode fall back to the plain sideband.
+        val idx = listOf(wanted, when (wanted) { "DATA-U" -> "USB"; "DATA-L" -> "LSB"; else -> wanted })
+            .firstNotNullOfOrNull { n -> profile.modes.indexOfFirst { it.name == n }.takeIf { it >= 0 } }
+        if (idx != null && idx != modeIdx) setMode(idx)
+        freqHz?.let { setFrequency(it) }
+        val label = bandwidth ?: config.defaultBw.ifEmpty { null }
+        label?.let { l -> bwTable?.labels?.indexOf(l)?.takeIf { it >= 0 && it != bwIdx }?.let { setBandwidth(it) } }
+    }
+
     // ---- connection ---------------------------------------------------------------------------
 
+    /** Connects the active rig through [driver]; the adapter and port are remembered in the rig for next time. */
     fun connect(driver: UsbSerialDriver, portIndex: Int, baud: Int) {
+        val c = config
+        if (c.usbVendor != driver.device.vendorId || c.usbProduct != driver.device.productId || c.usbPort != portIndex || c.baud != baud)
+            updateConfig(c.copy(usbVendor = driver.device.vendorId, usbProduct = driver.device.productId, usbPort = portIndex, baud = baud))
         if (usb.hasPermission(driver.device)) { open(driver, portIndex, baud); return }
         val action = "app.radiomodem.USB_PERMISSION"
         val ctx = getApplication<Application>()
@@ -119,22 +197,28 @@ class RigViewModel(app: Application) : AndroidViewModel(app) {
         if (conn == null) { status = "Could not open USB device"; return }
         val port: UsbSerialPort? = driver.ports.getOrNull(portIndex)
         if (port == null) { status = "No such port"; return }
-        // DTR/RTS are deliberately left alone: on many rigs they key PTT.
+        val cfg = config
+        val prof = profile
+        // DTR/RTS are left alone unless the rig's settings say otherwise: on many radios they key PTT.
         try {
             port.open(conn)
-            port.setParameters(baud, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
+            val stop = when (cfg.stopBits) { 2 -> UsbSerialPort.STOPBITS_2; else -> UsbSerialPort.STOPBITS_1 }
+            port.setParameters(baud, cfg.dataBits, stop, cfg.parity)
+            // Not every adapter chip supports hardware flow control; a refusal is not fatal.
+            when (cfg.flow) {
+                "rtscts" -> runCatching { port.setFlowControl(UsbSerialPort.FlowControl.RTS_CTS) }
+                "xonxoff" -> runCatching { port.setFlowControl(UsbSerialPort.FlowControl.XON_XOFF) }
+            }
+            when (cfg.dtr) { "low" -> runCatching { port.dtr = false }; "high" -> runCatching { port.dtr = true } }
+            when (cfg.rts) { "low" -> runCatching { port.rts = false }; "high" -> runCatching { port.rts = true } }
         } catch (e: Exception) { status = "Open failed: ${e.message}"; return }
         status = "Connecting…"
         worker = viewModelScope.launch(Dispatchers.IO) {
-            val r = CatRig(profile, UsbSerialLink(port))
+            val r = CatRig(prof, UsbSerialLink(port))
             if (!r.identify()) {
-                r.close(); status = "No answer from ${profile.name} (check CAT rate ${baud} and port)"; return@launch
+                r.close(); status = "No answer from ${prof.name} (check CAT rate ${baud} and port)"; return@launch
             }
-            rig = r; connected = true; status = "Connected: ${profile.name}"
-            // Remember this adapter so it can be reopened automatically next time.
-            settings.usbVendor = driver.device.vendorId.toFloat(); settings.usbProduct = driver.device.productId.toFloat()
-            settings.usbPort = portIndex.toFloat(); settings.usbBaud = baud.toFloat()
-            // Push our remembered power; read everything else from the radio.
+            rig = r; connected = true; status = "Connected: ${cfg.name} (${prof.name})"
             var step = 0
             try {
                 while (isActive) {
@@ -157,11 +241,12 @@ class RigViewModel(app: Application) : AndroidViewModel(app) {
      * permission prompt does not come back on every resume.
      */
     fun autoConnect() {
-        if (!settings.autoReconnect || connected || settings.usbVendor < 0) return
-        val driver = drivers().firstOrNull { it.device.vendorId == settings.usbVendor.toInt() && it.device.productId == settings.usbProduct.toInt() }
+        val c = config
+        if (!settings.autoReconnect || connected || c.usbVendor < 0) return
+        val driver = drivers().firstOrNull { it.device.vendorId == c.usbVendor && it.device.productId == c.usbProduct }
         if (driver == null) { autoTried.clear(); return }  // unplugged: allow another attempt when it returns
         if (!autoTried.add(driver.device.deviceId)) return
-        connect(driver, settings.usbPort.toInt(), settings.usbBaud.toInt().takeIf { it > 0 } ?: profile.serial.baud)
+        connect(driver, c.usbPort, c.baud.takeIf { it > 0 } ?: profile.serial.baud)
     }
 
     fun disconnect() {

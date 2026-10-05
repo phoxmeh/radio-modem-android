@@ -16,10 +16,10 @@ import app.radiomodem.schedule.FaxStations
  *    the end of 2026 (PNS 26-48).
  */
 object SeedMemories {
-    const val VERSION = 3
+    const val VERSION = 4  // 4: entries use the rig's default mode and bandwidth
 
     private fun psk(band: String, dialKhz: Double, note: String = "") = Memory(
-        name = "$band PSK31", group = "PSK31 calling", freqHz = Math.round(dialKhz * 1000), mode = "DATA-U",
+        name = "$band PSK31", group = "PSK31 calling", freqHz = Math.round(dialKhz * 1000), mode = "",
         modem = "BPSK31", carrierHz = 1000, notes = note, seedKey = "psk31-$band",
     )
 
@@ -30,7 +30,7 @@ object SeedMemories {
         Memory(
             name = "${s.place}, ${s.country} · ${kHz(f)} kHz",
             group = "Weather fax: ${s.region}",
-            freqHz = Math.round(s.dialKHz(fq) * 1000), mode = "USB", modem = "WEFAX", carrierHz = 1900,
+            freqHz = Math.round(s.dialKHz(fq) * 1000), mode = "", modem = "WEFAX", carrierHz = 1900,
             // Most useful facts first: the list shows only the first two lines of the notes.
             notes = buildString {
                 append("${s.operator} (call sign ${s.call}). ")

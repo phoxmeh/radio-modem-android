@@ -32,11 +32,17 @@ class MainActivity : ComponentActivity() {
         val audio = audioModel
         val permission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
             micGranted = ok
-            if (ok && !audio.running) audio.start()
+            if (ok && audio.monitorWanted && !audio.running) audio.startMonitoring()
         }
         micGranted = checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
-        if (micGranted) audio.start()
+        if (micGranted && audio.monitorWanted) audio.startMonitoring()
         else if (AppSettings.get(this).onboardingDone) permission.launch(Manifest.permission.RECORD_AUDIO)  // first run: the help screen explains first
+        val notifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+        if (android.os.Build.VERSION.SDK_INT >= 33 && !AppSettings.get(this).notifAsked &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED && AppSettings.get(this).onboardingDone) {
+            AppSettings.get(this).notifAsked = true  // the monitoring notification (with Stop) needs this; ask once
+            notifications.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
         val pickWav = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             uri?.let { loadWav(audio, uri.lastPathSegment ?: "file", contentResolver.openInputStream(it)?.readBytes()) }
         }
@@ -54,7 +60,9 @@ class MainActivity : ComponentActivity() {
         }
         val files = FileActions(
             playWav = { pickWav.launch(arrayOf("audio/*")) },
-            useMic = { audio.stop(); audio.start() },
+            useMic = { audio.stop(); audio.startMonitoring() },
+            keepRunning = { moveTaskToBack(true) },
+            quit = { audio.stopMonitoring(); finishAndRemoveTask() },
             requestMic = { permission.launch(Manifest.permission.RECORD_AUDIO) },
             importMemories = { importMem.launch(arrayOf("application/json", "text/csv", "text/comma-separated-values", "text/plain", "*/*")) },
             exportMemoriesJson = { exportJson.launch("saved-frequencies.json") },
@@ -92,7 +100,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         micGranted = checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
-        if (micGranted && !audioModel.running && audioModel.playingFile == null) audioModel.start()
+        if (micGranted && audioModel.monitorWanted && !audioModel.running && audioModel.playingFile == null) audioModel.startMonitoring()
         rigModel.autoConnect()
     }
 

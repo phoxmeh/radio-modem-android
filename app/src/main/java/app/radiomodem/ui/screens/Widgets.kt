@@ -9,6 +9,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -85,3 +87,28 @@ fun NavRow(title: String, subtitle: String, onClick: () -> Unit) =
         Text(title, style = MaterialTheme.typography.bodyLarge)
         Hint(subtitle)
     }
+
+/** A labelled field that opens a menu of choices: for longer lists than chips handle well. */
+@Composable
+fun DropdownField(
+    label: String, options: List<Pair<String, String>>, selected: String, modifier: Modifier = Modifier.fillMaxWidth(),
+    enabled: Boolean = true, onSelect: (String) -> Unit,
+) {
+    var open by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    val current = options.firstOrNull { it.first == selected }?.second ?: selected
+    Column(modifier) {
+        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Box {
+            OutlinedButton({ open = true }, Modifier.fillMaxWidth(), enabled = enabled, contentPadding = PaddingValues(horizontal = 14.dp)) {
+                Text(current, Modifier.weight(1f), maxLines = 1)
+                Text("▾")
+            }
+            DropdownMenu(open, { open = false }) {
+                options.forEach { (id, text) ->
+                    DropdownMenuItem({ Text(text) }, { open = false; onSelect(id) },
+                        trailingIcon = { if (id == selected) Text("✓") })
+                }
+            }
+        }
+    }
+}

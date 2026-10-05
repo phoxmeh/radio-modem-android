@@ -19,19 +19,13 @@ import app.radiomodem.Modems
 import app.radiomodem.data.Memory
 import app.radiomodem.data.MemoryViewModel
 import app.radiomodem.rig.RigViewModel
+import app.radiomodem.ui.screens.DropdownField
 
 
 /** Applies a saved frequency: rig mode/frequency/bandwidth, then the decoder and its audio carrier. */
 fun recall(m: Memory, rig: RigViewModel, audio: AudioViewModel) {
-    val modes = rig.profile.modes
-    // Rigs without a DATA mode fall back to the plain sideband.
-    val idx = listOf(m.mode, when (m.mode) { "DATA-U" -> "USB"; "DATA-L" -> "LSB"; else -> m.mode })
-        .firstNotNullOfOrNull { n -> modes.indexOfFirst { it.name == n }.takeIf { it >= 0 } }
-    if (idx != null && idx != rig.modeIdx) rig.setMode(idx)
-    rig.setFrequency(m.freqHz)
-    m.bandwidth?.let { label ->
-        rig.bwTable?.labels?.indexOf(label)?.takeIf { it >= 0 }?.let { rig.setBandwidth(it) }
-    }
+    // Blank mode / bandwidth mean the rig's own defaults from Rig setup.
+    rig.applyTuningDefaults(m.mode, m.bandwidth, m.freqHz)
     Modems.idOf(m.modem).takeIf { it >= 0 }?.let { audio.selectModem(it) }
     m.carrierHz?.let { audio.tuneTo(it.toFloat()) }
 }
@@ -49,7 +43,7 @@ fun captureCurrent(rig: RigViewModel, audio: AudioViewModel): Memory {
 
 private fun describe(m: Memory): String = buildString {
     append("%d.%03d.%03d".format(m.freqHz / 1_000_000, (m.freqHz / 1000) % 1000, m.freqHz % 1000))
-    append(" · ${m.mode}")
+    append(if (m.mode.isBlank()) " · rig default mode" else " · ${m.mode}")
     m.bandwidth?.let { append(" · $it Hz") }
     m.modem?.let { append(" · $it"); m.carrierHz?.let { c -> append(" @ $c Hz") } }
 }
@@ -156,6 +150,16 @@ fun MemoryEditDialog(
                 TextButton({ val c = captureCurrent(rig, audio); m = c.copy(id = m.id, name = m.name, group = m.group, notes = m.notes, seedKey = m.seedKey); mhz = "%.6f".format(c.freqHz / 1e6) }) {
                     Text("Use current radio settings")
                 }
+                // Blank = whatever the active rig is set to use when tuning (Rig setup > When tuning).
+                val modes = rig.profile.modes.map { it.name }
+                DropdownField("Mode", listOf("" to "Rig default (${rig.config.defaultMode.ifEmpty { "unchanged" }})") + modes.map { it to it }, m.mode) {
+                    m = m.copy(mode = it, bandwidth = null)
+                }
+                val table = rig.profile.modes.firstOrNull { it.name == m.mode }?.let { rig.profile.bandwidths[it.bwTable] }
+                if (m.mode.isNotEmpty() && table != null && table.labels.size > 1)
+                    DropdownField("Bandwidth", listOf("" to "Rig default") + table.labels.map { it to "$it Hz" }, m.bandwidth ?: "") {
+                        m = m.copy(bandwidth = it.ifEmpty { null })
+                    }
                 OutlinedTextField(m.notes, { m = m.copy(notes = it) }, label = { Text("Notes") }, minLines = 2)
             }
         },

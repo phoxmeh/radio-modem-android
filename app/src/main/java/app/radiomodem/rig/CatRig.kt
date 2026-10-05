@@ -65,8 +65,11 @@ class CatRig(val profile: RigProfile, private val link: SerialLink) {
         val mode = profile.modes[modeIdx]
         val table = profile.bwTableFor(modeIdx) ?: return
         val bw = j.getJSONObject("bandwidth")
-        val narrowMax = bw.getJSONObject("narrowMaxIndexBySideband").optInt(mode.group, -1)
-        send(expand(bw.getString("narrowSet"), "narrow" to if (bwIdx <= narrowMax) 1 else 0))
+        val narrowSet = bw.optString("narrowSet")
+        if (narrowSet.isNotEmpty()) {  // some radios have a separate narrow-filter switch, some do not
+            val narrowMax = bw.getJSONObject("narrowMaxIndexBySideband").optInt(mode.group, -1)
+            send(expand(narrowSet, "narrow" to if (bwIdx <= narrowMax) 1 else 0))
+        }
         send(expand(bw.getString("set"), "n2" to table.values[bwIdx]))
     }
 

@@ -79,10 +79,10 @@ fun RadioApp(
                 "logs" -> LogsScreen(audio.logger, ::pop) { logPath = it.absolutePath; push("log_view") }
                 "log_view" -> if (logPath.isNotEmpty() && File(logPath).exists()) LogViewScreen(File(logPath), audio.logger, ::pop) else LaunchedEffect(Unit) { pop() }
                 "schedule" -> ScheduleScreen(viewModel(), ::pop) { station, freq ->
-                    // Tune the radio and decoder to this frequency (USB, weather fax, 1900 Hz subcarrier), then show the receiver.
+                    // Tune the radio and decoder to this frequency (rig default mode, weather fax, 1900 Hz subcarrier), then show the receiver.
                     recall(
                         app.radiomodem.data.Memory(name = "${station.title} · ${freq.kHz} kHz", freqHz = Math.round(station.dialKHz(freq) * 1000),
-                            mode = "USB", modem = "WEFAX", carrierHz = 1900),
+                            mode = "", modem = "WEFAX", carrierHz = 1900),  // blank = the rig's default mode and bandwidth
                         rig, audio,
                     )
                     pop()
@@ -107,11 +107,31 @@ private fun MainScreen(
     var showMemories by rememberSaveable { mutableStateOf(false) }
     var saveCurrent by remember { mutableStateOf(false) }
     var modeSheet by remember { mutableStateOf(false) }
+    var quitDialog by remember { mutableStateOf(false) }
+    val micOk = androidx.core.content.ContextCompat.checkSelfPermission(LocalContext.current, android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED
 
     // Back closes an open drawer or sheet before it would leave the screen.
     BackHandler(enabled = left.currentValue == DrawerValue.Open || right.currentValue == DrawerValue.Open) {
         scope.launch { if (left.currentValue == DrawerValue.Open) left.close() else right.close() }
     }
+
+    // Back on the main screen asks instead of leaving: the user may want monitoring to carry on in the background.
+    BackHandler(enabled = left.currentValue != DrawerValue.Open && right.currentValue != DrawerValue.Open) { quitDialog = true }
+    if (quitDialog) AlertDialog(
+        onDismissRequest = { quitDialog = false },
+        title = { Text("Leave Radio Modem?") },
+        text = {
+            Text(if (audio.running) "Keep monitoring carries on listening and decoding in the background (a notification with a Stop button stays on screen). Quit stops listening and closes the app."
+                 else "Monitoring is off. Quit closes the app.")
+        },
+        confirmButton = {
+            Row {
+                if (audio.running) TextButton({ quitDialog = false; files.keepRunning() }) { Text("Keep monitoring") }
+                TextButton({ quitDialog = false; files.quit() }) { Text("Quit") }
+            }
+        },
+        dismissButton = { TextButton({ quitDialog = false }) { Text("Cancel") } },
+    )
 
     val view = LocalView.current
     DisposableEffect(settings.keepScreenOn) {
@@ -134,8 +154,8 @@ private fun MainScreen(
                     drawerState = left,
                     drawerContent = {
                         ModalDrawerSheet {
-                            MenuDrawer(audio.playingFile, close = { scope.launch { left.close() } }, go = go,
-                                onMemories = { showMemories = true }, files = files)
+                            MenuDrawer(audio, rig, close = { scope.launch { left.close() } }, go = go,
+                                onMemories = { showMemories = true }, onQuit = { quitDialog = true }, files = files, micOk = micOk)
                         }
                     },
                 ) {
@@ -206,26 +226,69 @@ private fun ResizeHandle(onDrag: (Float) -> Unit) = Box(
     contentAlignment = Alignment.Center,
 ) { Box(Modifier.width(40.dp).height(4.dp).background(MaterialTheme.colorScheme.outline)) }
 
+/** Quick switch between saved rigs, at the top of the menu. */
+@Composable
+private fun RigPicker(rig: RigViewModel, go: (String) -> Unit, close: () -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
+        Text("Rig", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Box {
+            OutlinedButton({ open = true }, Modifier.fillMaxWidth(), contentPadding = PaddingValues(horizontal = 14.dp)) {
+                Text((if (rig.connected) "● " else "○ ") + rig.config.name, Modifier.weight(1f), maxLines = 1)
+                Text("▾")
+            }
+            DropdownMenu(open, { open = false }) {
+                rig.rigs.forEach { r ->
+                    DropdownMenuItem({ Text(r.name) }, { open = false; rig.selectRig(r.id) },
+                        trailingIcon = { if (r.id == rig.activeId) Text(if (rig.connected) "● connected" else "✓") })
+                }
+                HorizontalDivider()
+                DropdownMenuItem({ Text("Manage rigs…") }, { open = false; close(); go("rig") })
+            }
+        }
+        Text(rig.status, style = MaterialTheme.typography.bodySmall, maxLines = 2, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
 @Composable
 private fun MenuDrawer(
-    playingFile: String?, close: () -> Unit, go: (String) -> Unit, onMemories: () -> Unit, files: FileActions,
+    audio: AudioViewModel, rig: RigViewModel, close: () -> Unit, go: (String) -> Unit, onMemories: () -> Unit, onQuit: () -> Unit, files: FileActions, micOk: Boolean,
 ) = Column(Modifier.padding(16.dp).verticalScroll(rememberScrollState())) {
     @Composable fun item(label: String, action: () -> Unit) =
         NavigationDrawerItem(label = { Text(label) }, selected = false, onClick = { close(); action() })
     Text("Radio Modem", style = MaterialTheme.typography.titleLarge)
+    val playingFile = audio.playingFile
     Text(
         if (playingFile == null) "Input: live audio" else "Input: file $playingFile",
-        style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(bottom = 8.dp),
+        style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(bottom = 4.dp),
     )
+    RigPicker(rig, go, close)
+    HorizontalDivider(Modifier.padding(vertical = 8.dp))
+    // Listening is on or off here; turning it off and on again also re-initialises the audio input after a hiccup.
+    Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
+            Text("Monitoring", style = MaterialTheme.typography.titleSmall)
+            Text(
+                when { audio.failed -> "Audio input failed"; audio.running -> "Listening"; else -> "Stopped" },
+                style = MaterialTheme.typography.bodySmall,
+                color = if (audio.failed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        if (audio.running) TextButton({ audio.restartMonitoring() }) { Text("Restart") }
+        Switch(audio.running, { if (it) { if (!micOk) files.requestMic() else audio.startMonitoring() } else audio.stopMonitoring() })
+    }
+    HorizontalDivider(Modifier.padding(vertical = 8.dp))
     item("Saved frequencies", onMemories)
     item("Fax schedule") { go("schedule") }
-    item("Rig setup") { go("rig") }
     item("Audio setup") { go("audio") }
+    item("Rig setup") { go("rig") }
     item("Session logs") { go("logs") }
     item("Settings") { go("settings") }
     HorizontalDivider(Modifier.padding(vertical = 8.dp))
     item("Getting started") { go("help") }
     item("About") { go("about") }
+    HorizontalDivider(Modifier.padding(vertical = 8.dp))
+    item("Quit…") { onQuit() }
     HorizontalDivider(Modifier.padding(vertical = 8.dp))
     Text("Test tools", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(start = 12.dp, bottom = 4.dp))
     item("Play WAV file…") { files.playWav() }

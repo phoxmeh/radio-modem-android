@@ -13,7 +13,8 @@ data class Memory(
     val name: String,
     val group: String = "",
     val freqHz: Long,
-    val mode: String = "USB",
+    /** Rig vocabulary; blank means "use the rig's default mode" (set per rig in Rig setup). */
+    val mode: String = "",
     val bandwidth: String? = null,
     val modem: String? = null,
     val carrierHz: Int? = null,
@@ -33,7 +34,7 @@ data class Memory(
         fun fromJson(o: JSONObject) = Memory(
             id = o.optString("id").ifEmpty { UUID.randomUUID().toString() },
             name = o.getString("name"), group = o.optString("group"),
-            freqHz = o.getLong("freqHz"), mode = o.optString("mode", "USB"),
+            freqHz = o.getLong("freqHz"), mode = o.optString("mode", ""),
             bandwidth = o.optString("bandwidth").ifEmpty { null }, modem = o.optString("modem").ifEmpty { null },
             carrierHz = if (o.has("carrierHz")) o.getInt("carrierHz") else null,
             notes = o.optString("notes"), seedKey = o.optString("seedKey").ifEmpty { null },
@@ -71,7 +72,7 @@ data class Memory(
                 val name = get(r, "name"); val f = get(r, "freq_hz").toLongOrNull() ?: return@mapNotNull null
                 if (name.isEmpty()) return@mapNotNull null
                 Memory(name = name, group = get(r, "group"), freqHz = f,
-                    mode = get(r, "mode").ifEmpty { "USB" }, bandwidth = get(r, "bandwidth").ifEmpty { null },
+                    mode = get(r, "mode"), bandwidth = get(r, "bandwidth").ifEmpty { null },
                     modem = get(r, "modem").ifEmpty { null }, carrierHz = get(r, "carrier_hz").toIntOrNull(),
                     notes = get(r, "notes"))
             }

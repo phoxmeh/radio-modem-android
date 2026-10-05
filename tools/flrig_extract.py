@@ -15,7 +15,7 @@ def strip_comments(s):
     return re.sub(r'//[^\n]*', '', s)
 
 def array_body(src, name):
-    m = re.search(r'\b' + re.escape(name) + r'\s*\[\s*\]\s*=\s*\{(.*?)\};', src, re.S)
+    m = re.search(r'\b' + re.escape(name) + r'\s*\[[^\]]*\]\s*=\s*\{(.*?)\};', src, re.S)
     if not m: raise KeyError(name)
     return m.group(1)
 
@@ -37,7 +37,10 @@ def main(cxx, commands, out):
     mode_names = strings(src, 'v%smodes_' % prefix)
     mode_chr = chars(src, '%s_mode_chr' % prefix)
     mode_type = chars(src, '%s_mode_type' % prefix)
-    def_bw = ints(src, '%s_def_bw' % prefix)
+    try:
+        def_bw = ints(src, '%s_def_bw' % prefix)
+    except KeyError:                                                      # newer rigs: separate narrow/wide defaults
+        def_bw = ints(src, 'defBW_wide')
 
     # Bandwidth tables: vXXX_widths_<T>[] labels paired with XXX_wvals_<T>[] CAT values.
     tables = {}
@@ -45,11 +48,16 @@ def main(cxx, commands, out):
         t = m.group(1)
         labels = strings(src, 'v%s_widths_%s' % (prefix, t))
         vname = '%s_wvals_%s' % (prefix, 'AMFM' if t.startswith('AMFM') else t)
-        vals = [int(x) for x in re.findall(r'-?\d+', array_body(src, vname))]  # WVALS_LIMIT is a macro
+        try:
+            vals = [int(x) for x in re.findall(r'-?\d+', array_body(src, vname))]  # WVALS_LIMIT is a macro
+        except KeyError:
+            # Single-width modes (AM/FM) have no table of their own; DATA widths use the PSK values on some rigs.
+            alt = '%s_wvals_PSK' % prefix if t == 'DATA' else '%s_wvals_AMFM' % prefix
+            vals = [int(x) for x in re.findall(r'-?\d+', array_body(src, alt))]
         tables[t] = {'labels': labels, 'values': vals[:len(labels)]}
 
     # Mode -> bandwidth table, from bwtable(int n): "case mX: ... return FT891_widths_T;"
-    enum = re.search(r'enum m%s\s*\{(.*?)\}' % prefix, src, re.S).group(1)
+    enum = re.search(r'enum m\w+\s*\{(.*?)\}', src, re.S).group(1)
     enum_names = [e.strip() for e in enum.split(',') if e.strip()]
     fn = re.search(r'RIG_%s::bwtable\(int n\)\s*\{(.*?)\n\}' % prefix, src, re.S).group(1)
     bw_for_mode, pending = {}, []
@@ -68,8 +76,11 @@ def main(cxx, commands, out):
                       'bwTable': bw_for_mode.get(em, default_table), 'defaultBw': def_bw[i]})
 
     def meter(nm):
-        return [[float(a), float(b)] for a, b in
-                re.findall(r'\{\s*(\d+)\s*,\s*([\d.]+)\s*\}', array_body(src, nm))]
+        try:
+            return [[float(a), float(b)] for a, b in
+                    re.findall(r'\{\s*(\d+)\s*,\s*([\d.]+)\s*\}', array_body(src, nm))]
+        except KeyError:
+            return []
 
     baud = int(re.search(r'serial_baudrate\s*=\s*BR(\d+)', src).group(1))
     ser = {'baud': baud}

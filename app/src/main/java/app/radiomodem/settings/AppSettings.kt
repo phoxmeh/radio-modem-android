@@ -60,6 +60,8 @@ class AppSettings private constructor(ctx: Context) {
     // ---- Startup ---------------------------------------------------------------------------------
     var restoreState by flag("restore_state", true)
     var autoReconnect by flag("auto_reconnect", true)
+    var monitorAtLaunch by flag("monitor_at_launch", true)
+    var notifAsked by flag("notif_asked", false)
     var onboardingDone by flag("onboarding_done", false)
 
     // ---- Last state (written as you operate, read at startup when restoreState is on) -------------

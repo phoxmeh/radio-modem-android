@@ -61,6 +61,7 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
     var modemId by mutableIntStateOf(0); private set
 
     init {
+        MonitorService.stopHandler = { stopMonitoring() }
         if (settings.restoreState) {
             modemId = settings.lastModem.toInt().coerceIn(0, Modems.all.lastIndex)
             rxHz = settings.lastCarrierHz
@@ -311,6 +312,25 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
 
     fun hzToPx(hz: Float) = hz / binHz
 
+    /** Starts listening and the foreground service that keeps it alive in the background. */
+    /** What the user last asked for; resuming the app only restarts audio when this is true. */
+    var monitorWanted by mutableStateOf(settings.monitorAtLaunch); private set
+
+    fun startMonitoring(deviceId: Int = -1) {
+        monitorWanted = true
+        start(deviceId)
+        if (running) MonitorService.start(getApplication())
+    }
+
+    /** Stops listening and removes the notification. Audio-level problems are fixed by stopping and starting again. */
+    fun stopMonitoring() {
+        monitorWanted = false
+        stop()
+        MonitorService.stop(getApplication())
+    }
+
+    fun restartMonitoring() { stopMonitoring(); startMonitoring() }
+
     fun start(deviceId: Int = -1) {
         if (running) return
         failed = !Dsp.startAudio(if (deviceId >= 0) deviceId else preferredDeviceId(), 48000)
@@ -463,5 +483,5 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun colorFor(t0: Float): Int = Palettes.color(settings.waterfallPalette, t0)
 
-    override fun onCleared() { audioManager.unregisterAudioDeviceCallback(deviceCallback); stop() }
+    override fun onCleared() { audioManager.unregisterAudioDeviceCallback(deviceCallback); stopMonitoring() }
 }

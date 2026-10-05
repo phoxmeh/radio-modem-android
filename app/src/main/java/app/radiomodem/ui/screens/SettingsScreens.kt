@@ -119,6 +119,7 @@ fun GeneralSettings(onBack: () -> Unit, showHelp: () -> Unit) = ScreenPage("Star
     val s = settings()
     SectionLabel("Startup")
     SettingSwitch("Restore last state", "Reopen with the last mode, carrier, squelch, AFC/Reverse, panel layout and waterfall zoom", s.restoreState) { s.restoreState = it }
+    SettingSwitch("Start monitoring at launch", "Begin listening as soon as the app opens. Off: use Monitoring in the left menu.", s.monitorAtLaunch) { s.monitorAtLaunch = it }
     SettingSwitch("Reconnect automatically", "Reopen the last audio input and USB radio when they are plugged in. Android may still ask for USB permission.", s.autoReconnect) { s.autoReconnect = it }
     HorizontalDivider()
     SectionLabel("Session logs")
