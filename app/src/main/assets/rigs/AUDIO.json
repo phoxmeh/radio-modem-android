@@ -1,0 +1,18 @@
+{
+ "id": "AUDIO",
+ "name": "Shortwave radio (audio only)",
+ "source": "built in: no CAT, the radio is tuned by hand",
+ "protocol": "none",
+ "audioOnly": true,
+ "serial": {"baud": 0},
+ "defaultFreq": 9500000,
+ "frequency": {"minHz": 100000, "maxHz": 30000000},
+ "power": {"min": 0, "max": 0},
+ "modes": [
+  {"name": "AM", "code": "", "sideband": "U", "bwTable": "", "defaultBw": 0},
+  {"name": "USB", "code": "", "sideband": "U", "bwTable": "", "defaultBw": 0},
+  {"name": "LSB", "code": "", "sideband": "L", "bwTable": "", "defaultBw": 0},
+  {"name": "CW", "code": "", "sideband": "U", "bwTable": "", "defaultBw": 0}
+ ],
+ "bandwidths": {}
+}

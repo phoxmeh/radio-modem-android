@@ -112,3 +112,44 @@ fun DropdownField(
         }
     }
 }
+
+/**
+ * A settings row (title and current value) that opens a list of choices to tap, the usual pattern for a setting with
+ * more than a few options.
+ */
+@Composable
+fun ChoiceRow(
+    title: String, options: List<Pair<String, String>>, selected: String, enabled: Boolean = true,
+    subtitle: String? = null, onSelect: (String) -> Unit,
+) {
+    var open by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    val current = options.firstOrNull { it.first == selected }?.second ?: selected
+    Row(
+        Modifier.fillMaxWidth().clickable(enabled = enabled) { open = true }.padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge,
+                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(current, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+            if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+    if (open) AlertDialog(
+        onDismissRequest = { open = false },
+        title = { Text(title) },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                options.forEach { (id, label) ->
+                    Row(Modifier.fillMaxWidth().clickable { open = false; onSelect(id) }.padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(id == selected, { open = false; onSelect(id) })
+                        Text(label, Modifier.padding(start = 4.dp))
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = { TextButton({ open = false }) { Text("Cancel") } },
+    )
+}

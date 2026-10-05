@@ -25,6 +25,8 @@ class RigProfile(val json: JSONObject) {
     val id: String = json.getString("id")
     val name: String = json.getString("name")
     val protocol: String = json.getString("protocol")
+    /** No CAT link at all (a plain receiver): the app only hears the audio and keeps the frequency as a label. */
+    val audioOnly: Boolean = json.optBoolean("audioOnly", false)
     val defaultFreq: Long = json.optLong("defaultFreq", 14070000)
     val serial: SerialSettings = json.getJSONObject("serial").let {
         SerialSettings(it.getInt("baud"), it.optInt("stopBits", 1), it.optInt("timeoutMs", 50),

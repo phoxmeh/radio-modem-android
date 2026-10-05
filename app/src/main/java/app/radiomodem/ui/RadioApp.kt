@@ -75,7 +75,7 @@ fun RadioApp(
                 "settings_station" -> StationSettings(::pop)
                 "settings_general" -> GeneralSettings(::pop) { push("help") }
                 "audio" -> AudioSetupScreen(audio, ::pop) { files.useMic() }
-                "rig" -> RigSetupScreen(rig, ::pop)
+                "rig" -> RigListScreen(rig, ::pop) { push("rig_edit:$it") }
                 "logs" -> LogsScreen(audio.logger, ::pop) { logPath = it.absolutePath; push("log_view") }
                 "log_view" -> if (logPath.isNotEmpty() && File(logPath).exists()) LogViewScreen(File(logPath), audio.logger, ::pop) else LaunchedEffect(Unit) { pop() }
                 "schedule" -> ScheduleScreen(viewModel(), ::pop) { station, freq ->
@@ -89,7 +89,8 @@ fun RadioApp(
                 }
                 "about" -> AboutScreen(::pop)
                 "help" -> HelpScreen(micGranted, files.requestMic, { push("audio") }, { push("rig") }) { settings.onboardingDone = true; pop() }
-                else -> MainScreen(audio, rig, mem, files, settings, ::push)
+                else -> if (current.startsWith("rig_edit:")) RigEditScreen(rig, current.removePrefix("rig_edit:"), ::pop)
+                        else MainScreen(audio, rig, mem, files, settings, ::push)
             }
         }
     }

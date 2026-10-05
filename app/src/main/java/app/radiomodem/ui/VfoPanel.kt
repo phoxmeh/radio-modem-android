@@ -34,10 +34,18 @@ fun VfoPanel(rig: RigViewModel, onRigSetup: () -> Unit, onSave: () -> Unit) = Co
         Spacer(Modifier.weight(1f))
         Column(horizontalAlignment = Alignment.End) {
             TextButton(onRigSetup, contentPadding = PaddingValues(horizontal = 8.dp)) {
-                Text(if (rig.connected) "● ${rig.profile.name}" else "○ No rig", fontSize = 13.sp)
+                Text(if (rig.profile.audioOnly) "● ${rig.config.name}" else if (rig.connected) "● ${rig.config.name}" else "○ No rig", fontSize = 13.sp, maxLines = 1)
             }
-            LinearProgressIndicator(progress = { rig.smeter }, Modifier.width(72.dp).padding(end = 8.dp))
+            if (!rig.profile.audioOnly) LinearProgressIndicator(progress = { rig.smeter }, Modifier.width(72.dp).padding(end = 8.dp))
         }
+    }
+
+    if (rig.profile.audioOnly) {
+        // Nothing to control: the frequency is only a label for the radio the user tunes by hand.
+        Text("Audio only: tune your radio to this frequency yourself.", style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (typeDialog) FrequencyDialog(rig.freqHz, { typeDialog = false }) { rig.setFrequency(it); typeDialog = false }
+        return@Column
     }
 
     // Band, mode and bandwidth are used occasionally, so they collapse into three buttons; tapping one shows

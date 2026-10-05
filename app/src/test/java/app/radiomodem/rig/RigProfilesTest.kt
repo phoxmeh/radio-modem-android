@@ -21,6 +21,7 @@ class RigProfilesTest {
         File("src/main/assets/rigs").listFiles { f -> f.name.endsWith(".json") }!!.forEach { f ->
             val p = RigProfile.parse(f.readText())
             assertTrue("${p.name} has modes", p.modes.isNotEmpty())
+            if (p.audioOnly) return@forEach  // no CAT tables to check
             p.modes.forEach { m ->
                 val t = p.bandwidths[m.bwTable]
                 assertNotNull("${p.name} ${m.name} table ${m.bwTable}", t)

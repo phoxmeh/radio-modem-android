@@ -59,7 +59,11 @@ class RigViewModel(app: Application) : AndroidViewModel(app) {
     var powerW by mutableIntStateOf(prefs.getInt("power", profile.powerMin)); private set
     var smeter by mutableFloatStateOf(0f); private set
     var connected by mutableStateOf(false); private set
-    var status by mutableStateOf("Not connected (audio-only)"); private set
+    private var rawStatus by mutableStateOf("Not connected (audio-only)")
+    /** Connection status for the active rig. */
+    var status: String
+        get() = if (profile.audioOnly) "Audio only: no CAT link. Tune the radio by hand." else rawStatus
+        private set(v) { rawStatus = v }
 
     val mode get() = profile.modes[modeIdx]
     val bwTable get() = profile.bwTableFor(modeIdx)
@@ -138,10 +142,11 @@ class RigViewModel(app: Application) : AndroidViewModel(app) {
         if (c.id == activeId && modelChanged) { disconnect(); loadActive() }
     }
 
-    fun addRig(): String {
-        val c = RigConfig(name = "Rig ${rigs.size + 1}")
+    /** Adds a rig of the given model without switching to it; returns its id so its settings can be opened. */
+    fun addRig(profileId: String): String {
+        val model = RigProfiles.load(getApplication(), profileId)
+        val c = RigConfig(name = model.name, profileId = model.id, defaultMode = if (model.audioOnly) "" else "USB")
         rigs.add(c); store.save(rigs.toList())
-        selectRig(c.id)
         return c.id
     }
 
