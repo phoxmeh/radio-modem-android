@@ -39,6 +39,7 @@ fun RadiogramScreen(vm: RadiogramViewModel, mem: MemoryViewModel, onBack: () -> 
 
     // Keep the countdowns current, and refresh once when the saved copy is old.
     LaunchedEffect(Unit) { while (true) { vm.tick(); delay(15_000) } }
+    LaunchedEffect(Unit) { vm.reschedule() }
     LaunchedEffect(Unit) { vm.refresh { slots -> mem.import(RadiogramEntries.memories(slots)) } }
 
     val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -75,7 +76,8 @@ fun RadiogramScreen(vm: RadiogramViewModel, mem: MemoryViewModel, onBack: () -> 
             },
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        if (vm.message.isNotEmpty()) Hint(vm.message)
+        // Successful reads are already described above; show only problems and "already current".
+        if (vm.message.isNotEmpty() && !vm.message.startsWith("Program ")) Hint(vm.message)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (w.postUrl.isNotEmpty()) OutlinedButton({ ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(w.postUrl)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }) { Text("Open post") }
             if (w.intro.isNotEmpty()) OutlinedButton({ showNotes = !showNotes }) { Text(if (showNotes) "Hide notes" else "This week's notes") }

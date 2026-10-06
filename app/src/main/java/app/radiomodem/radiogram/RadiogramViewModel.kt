@@ -49,4 +49,7 @@ class RadiogramViewModel(app: Application) : AndroidViewModel(app) {
 
     fun setLead(minutes: Int) { settings.radiogramLeadMin = minutes.toFloat(); reminders.rescheduleAll(minutes) }
     fun canBeExact() = reminders.canBeExact()
+
+    /** Sets the alarms again, so reminders made before exact alarms were allowed become exact. */
+    fun reschedule() = reminders.rescheduleAll(leadMin)
 }
