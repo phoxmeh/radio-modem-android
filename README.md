@@ -16,14 +16,15 @@ tested.
 | Weather fax | Automatic APT start/stop and phasing, AFC, auto slant (frozen after N lines), manual slant/shift, save/share |
 | MFSK pictures | Decoded inline in the text feed and saved to Pictures/RadioModem |
 | Fax schedule | Bundled NOAA worldwide snapshot plus live refresh; 24-hour timeline per station, UTC/local, one-tap Tune |
-| Saved frequencies | PSK31 calling frequencies and every known weather-fax station, named by location; import/export CSV and JSON |
+| Shortwave Radiogram | This week's transmissions (day, time, frequency, transmitter) read from the weekly schedule picture on swradiogram.net with on-device OCR; countdowns, one-tap Tune (MFSK32, 1500 Hz), per-transmission reminders, the week's lineup and notes |
+| Saved frequencies | PSK31 calling frequencies, every known weather-fax station (named by location) and the Shortwave Radiogram transmitters; import/export CSV and JSON |
 | Rigs | Several saved rigs (Yaesu FT-891, FT-991A, FTdx10 via flrig definitions) plus an audio-only shortwave receiver; default mode and bandwidth used when tuning; serial options |
 | Background | A Monitoring switch and a foreground service keep decoding with the screen off |
 | Logging | One text log per session, optional timestamps |
 
 ## Using it
 
-1. Grant microphone access (this is also how a USB sound card's audio reaches Android).
+1. Grant microphone access (this is also how a USB sound card's audio reaches Android). Notifications are needed for monitoring and reminders.
 2. Pick the audio input under **Audio setup**.
 3. Optional: add your radio under **Rig setup**, plug it in through an OTG adapter, and connect.
 4. Choose a mode (the mode chip), then tap the waterfall or use the `−10 −1 +1 +10` buttons to put the carrier on
@@ -43,11 +44,20 @@ tests/run_host_tests.sh               # native DSP tests (g++ only, no device)
 
 - `app/src/main/cpp` – native DSP (`radiodsp`): audio capture (Oboe), spectrum, PSK/MFSK/Olivia/WEFAX demodulators, JNI bridge.
 - `app/src/main/java/app/radiomodem` – Kotlin and Compose UI. `rig/` CAT and saved rigs, `data/` saved frequencies,
-  `schedule/` fax schedule parsing and timeline, `ui/` screens.
-- `app/src/main/assets/rigs` – rig definitions. `schedules/` – bundled NOAA snapshot.
+  `schedule/` fax schedule parsing and timeline, `radiogram/` Shortwave Radiogram feed, OCR, parser and reminders, `ui/` screens.
+- `app/src/main/assets/rigs` – rig definitions. `schedules/` – bundled NOAA snapshot. `tessdata/` – Tesseract English model (Apache 2.0).
 - `tools/flrig_extract.py` – lifts mode and bandwidth tables from flrig's rig classes; the CAT commands are hand-written
   in `tools/rigs/*.commands.json`. `tools/fetch_schedule_snapshot.py` refreshes the schedule snapshot.
 - `tests/` – host tests with transmit generators mirrored from fldigi.
+
+## Shortwave Radiogram schedule
+
+The schedule is only published as a picture in each weekly post, so the app reads the blog's RSS feed
+(`swradiogram.net/rss`), takes the week's dates from the post title, and reads the table from the picture with
+Tesseract. Rows are validated (weekday, time, a plausible shortwave frequency, a known transmitter name) before use.
+If the picture cannot be read, the last known table is kept with the new dates; a copy of the current table is
+bundled so the screen works offline. Once a week is over and the next post is not out yet, the usual table is carried
+forward and labelled as such. Reminders use exact alarms when Android allows them and are set again after a restart.
 
 ## Adding a radio
 
@@ -66,4 +76,4 @@ Only the Yaesu ASCII CAT family is implemented so far.
 GNU General Public License, version 3 or (at your option) any later version; see `LICENSE`. The decoders are ports of
 fldigi algorithms and the rig tables come from flrig, both GPLv3. Pawel Jalocha's Olivia/MFSK headers are vendored
 unchanged under `app/src/main/cpp/jalocha`. Other components: Oboe (Apache 2.0), usb-serial-for-android (MIT),
-PdfBox-Android (Apache 2.0). NOAA schedule data is a US government work.
+PdfBox-Android (Apache 2.0), Tesseract4Android with the Tesseract English model (Apache 2.0). NOAA schedule data is a US government work; the Shortwave Radiogram schedule belongs to its producer and is only read, not republished.

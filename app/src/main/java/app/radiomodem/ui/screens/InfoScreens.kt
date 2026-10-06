@@ -65,7 +65,7 @@ fun AboutScreen(onBack: () -> Unit) {
     ScreenPage("About", onBack) {
         Text("Radio Modem", style = MaterialTheme.typography.headlineSmall)
         Text("Version $version")
-        Text("Receive digital modes (PSK, QPSK, MFSK with pictures, Olivia, weather fax) on Android, with CAT rig control.")
+        Text("Receive digital modes (PSK, QPSK, MFSK with pictures, Olivia, weather fax) on Android, with CAT rig control, broadcast schedules for weather fax and Shortwave Radiogram, and background monitoring.")
         HorizontalDivider()
         SectionLabel("License")
         Text("Free software under the GNU General Public License, version 3 or (at your option) any later version. It comes with ABSOLUTELY NO WARRANTY. " +
@@ -80,7 +80,9 @@ fun AboutScreen(onBack: () -> Unit) {
             "usb-serial-for-android — Mike Wakerly and contributors (MIT). USB serial CAT.",
             "Oboe — Google (Apache 2.0). Low-latency audio capture.",
             "PdfBox-Android — Tom Roush, port of Apache PDFBox (Apache 2.0). Reads NOAA's published fax schedule PDF.",
+            "Tesseract OCR and Tesseract4Android (Apache 2.0), with the Tesseract English model. Reads the Shortwave Radiogram schedule picture.",
             "Fax schedules — NOAA/NWS (US government work), DWD, UK Met Office and other national weather services, as published by them.",
+            "Shortwave Radiogram — produced by Dr. Kim Andrew Elliott and team (swradiogram.net). The weekly schedule is read from the blog and not republished.",
             "Android Jetpack and Compose — Google (Apache 2.0). User interface.",
         ).forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) }
         HorizontalDivider()
