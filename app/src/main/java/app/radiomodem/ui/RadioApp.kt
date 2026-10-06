@@ -89,6 +89,15 @@ fun RadioApp(
                     )
                     pop()
                 }
+                "radiogram" -> RadiogramScreen(viewModel(), mem, ::pop) { b ->
+                    // The programme is AM on the listed frequency, MFSK32 with the waterfall at 1500 Hz; mode and bandwidth are the rig's defaults.
+                    recall(
+                        app.radiomodem.data.Memory(name = "Shortwave Radiogram · ${b.transmitter} · ${b.kHz} kHz", freqHz = b.kHz * 1000L,
+                            mode = "", modem = "MFSK32", carrierHz = 1500),
+                        rig, audio,
+                    )
+                    pop()
+                }
                 "about" -> AboutScreen(::pop)
                 "help" -> HelpScreen(micGranted, files.requestMic, { push("audio") }, { push("rig") }) { settings.onboardingDone = true; pop() }
                 else -> if (current.startsWith("rig_edit:")) RigEditScreen(rig, current.removePrefix("rig_edit:"), ::pop)
@@ -288,6 +297,7 @@ private fun MenuDrawer(
     HorizontalDivider(Modifier.padding(vertical = 8.dp))
     item("Saved frequencies", onMemories)
     item("Fax schedule") { go("schedule") }
+    item("Shortwave Radiogram") { go("radiogram") }
     item("Audio setup") { go("audio") }
     item("Rig setup") { go("rig") }
     item("Session logs") { go("logs") }

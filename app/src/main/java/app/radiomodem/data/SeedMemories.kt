@@ -16,7 +16,7 @@ import app.radiomodem.schedule.FaxStations
  *    the end of 2026 (PNS 26-48).
  */
 object SeedMemories {
-    const val VERSION = 4  // 4: entries use the rig's default mode and bandwidth
+    const val VERSION = 5  // 5: Shortwave Radiogram entries (4: entries use the rig's default mode and bandwidth)
 
     private fun psk(band: String, dialKhz: Double, note: String = "") = Memory(
         name = "$band PSK31", group = "PSK31 calling", freqHz = Math.round(dialKhz * 1000), mode = "",
@@ -49,5 +49,6 @@ object SeedMemories {
         psk("40m", 7070.150, "RSGB lists 7040 kHz and up; 7070 is common in the Americas."),
         psk("30m", 10142.150), psk("20m", 14070.150), psk("17m", 18100.150),
         psk("15m", 21080.150), psk("12m", 24920.150), psk("10m", 28120.150),
-    ) + FaxStations.all.flatMap { entries(it) }
+    ) + FaxStations.all.flatMap { entries(it) } +
+        app.radiomodem.radiogram.RadiogramEntries.memories(app.radiomodem.radiogram.RadiogramEntries.bundledSlots, seeds = true)
 }

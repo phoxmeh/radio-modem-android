@@ -8,6 +8,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Shortwave Radiogram reminders: exact alarms when allowed, set again after a restart. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:label="Radio Modem"
@@ -22,6 +25,10 @@
             </intent-filter>
         </activity>
         <service android:name=".MonitorService" android:exported="false" android:foregroundServiceType="microphone" />
+        <receiver android:name=".radiogram.ReminderReceiver" android:exported="false" />
+        <receiver android:name=".radiogram.ReminderBootReceiver" android:exported="true">
+            <intent-filter><action android:name="android.intent.action.BOOT_COMPLETED" /></intent-filter>
+        </receiver>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="app.radiomodem.fileprovider"
