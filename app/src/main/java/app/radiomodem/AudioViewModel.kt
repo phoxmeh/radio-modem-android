@@ -238,20 +238,26 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
         val id = h.getInt(0); val w = h.getInt(4); val ht = h.getInt(8); val first = h.getInt(16); val count = h.getInt(20)
         val state = h.getInt(24)
         if (w <= 0 || ht <= 0) return
-        if (id != picId) { rxItems.add(RxItem.Image(id, w, ht)); picId = id }
-        val item = rxItems.lastOrNull { it is RxItem.Image && it.id == id } as? RxItem.Image ?: return
-        if (count > 0) {
-            val bmp = item.bitmap ?: Bitmap.createBitmap(w, ht, Bitmap.Config.ARGB_8888).also { item.bitmap = it }
+        // One feed item per picture. Ids are unique across decoder restarts, but the size must match as well, so a stale
+        // item can never be written into with rows of a different shape.
+        val existing = rxItems.lastOrNull { it is RxItem.Image && it.id == id } as? RxItem.Image
+        val item = if (existing != null && existing.width == w && existing.height == ht) existing
+                   else RxItem.Image(id, w, ht).also { rxItems.add(it) }
+        picId = id
+        if (count > 0 && data.size >= 28 + count * w * 3) {
+            val bmp = item.bitmap ?: Bitmap.createBitmap(item.width, item.height, Bitmap.Config.ARGB_8888).also { item.bitmap = it }
             val px = IntArray(w)
             for (r in 0 until count) {
+                val y = first + r
+                if (y < 0 || y >= bmp.height || w != bmp.width) break
                 val base = 28 + r * w * 3
                 for (c in 0 until w) {
                     val i = base + c * 3
                     px[c] = (0xFF shl 24) or ((data[i].toInt() and 0xFF) shl 16) or ((data[i + 1].toInt() and 0xFF) shl 8) or (data[i + 2].toInt() and 0xFF)
                 }
-                bmp.setPixels(px, 0, w, 0, first + r, w, 1)
+                bmp.setPixels(px, 0, w, 0, y, w, 1)
             }
-            item.rows = first + count
+            item.rows = maxOf(item.rows, minOf(first + count, item.height))
         }
         val finished = state == 2
         if (finished != item.complete) item.complete = finished
@@ -435,17 +441,23 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
         }
         job = viewModelScope.launch(Dispatchers.Default) {
             while (isActive) {
-                if (Dsp.readSpectrum(bins) > 0) pushRow()
-                val t = Dsp.decode()
-                if (t.isNotEmpty()) appendText(t)
-                if (Modems.all[modemId].family == "MFSK") pollPicture()
-                if (isFax) pollFax()
-                quality = Dsp.quality()
-                Dsp.level().let { inputPeak = it[0]; inputRms = it[1] }
-                // AFC retunes the decoder; follow it so the waterfall marker tracks the signal.
-                if (afc && Modems.supportsAfc(Modems.all[modemId].family)) {
-                    val c = Dsp.carrier()
-                    if (kotlin.math.abs(c - rxHz) > 0.4f) rxHz = c
+                // A bad frame (an odd picture header, odd audio) must never take the whole app down: log it and carry on.
+                try {
+                    if (Dsp.readSpectrum(bins) > 0) pushRow()
+                    val t = Dsp.decode()
+                    if (t.isNotEmpty()) appendText(t)
+                    if (Modems.all[modemId].family == "MFSK") pollPicture()
+                    if (isFax) pollFax()
+                    quality = Dsp.quality()
+                    Dsp.level().let { inputPeak = it[0]; inputRms = it[1] }
+                    // AFC retunes the decoder; follow it so the waterfall marker tracks the signal.
+                    if (afc && Modems.supportsAfc(Modems.all[modemId].family)) {
+                        val c = Dsp.carrier()
+                        if (kotlin.math.abs(c - rxHz) > 0.4f) rxHz = c
+                    }
+                } catch (e: Exception) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    android.util.Log.e("RadioModem", "audio loop", e)
                 }
                 delay(frameMs)
             }

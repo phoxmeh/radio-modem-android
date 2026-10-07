@@ -38,6 +38,7 @@ public:
     // Poll appends a header of 7 little-endian int32 {pictureId, width, height, color, firstRow,
     // rowCount, state (0 none, 1 receiving, 2 complete)} followed by rowCount rows of RGB.
     size_t pollPicture(std::vector<uint8_t> &out);
+    int picturesStarted() const { return pictureId_; }
 
 private:
     using cmplx = std::complex<double>;

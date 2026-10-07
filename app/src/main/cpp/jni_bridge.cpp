@@ -5,6 +5,7 @@
 #include "mfsk_demod.h"
 #include "olivia_demod.h"
 #include "wefax_demod.h"
+#include <cstring>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -17,6 +18,8 @@ std::vector<float> gBins(8192);
 std::mutex gModemMutex;
 std::unique_ptr<PskDemod> gPsk;
 std::unique_ptr<MfskDemod> gMfsk;
+// Picture ids restart at 1 with every new decoder; the app tells pictures apart by id, so keep them unique across decoders.
+int gPicBase = 0;
 std::unique_ptr<OliviaDemod> gOlivia;
 std::unique_ptr<WefaxDemod> gFax;
 // Fax settings survive decoder re-creation (e.g. when the audio source restarts).
@@ -94,6 +97,7 @@ JNIEXPORT void JNICALL Java_app_radiomodem_Dsp_setModem(JNIEnv *, jobject, jint 
     gModemId = id;
     gCarrier = carrierHz;
     gPsk.reset();
+    if (gMfsk) gPicBase += gMfsk->picturesStarted();
     gMfsk.reset();
     gOlivia.reset();
     gFax.reset();
@@ -237,7 +241,11 @@ JNIEXPORT jbyteArray JNICALL Java_app_radiomodem_Dsp_picPoll(JNIEnv *env, jobjec
     std::lock_guard<std::mutex> l(gModemMutex);
     static std::vector<uint8_t> buf;
     buf.clear();
-    if (gMfsk) gMfsk->pollPicture(buf);
+    if (gMfsk && gMfsk->pollPicture(buf) >= sizeof(int32_t)) {
+        int32_t id; std::memcpy(&id, buf.data(), sizeof id);
+        id += gPicBase;
+        std::memcpy(buf.data(), &id, sizeof id);
+    }
     jbyteArray out = env->NewByteArray((jsize)buf.size());
     if (!buf.empty()) env->SetByteArrayRegion(out, 0, (jsize)buf.size(), reinterpret_cast<const jbyte *>(buf.data()));
     return out;

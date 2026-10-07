@@ -51,7 +51,8 @@ fun RxFeed(audio: AudioViewModel, modifier: Modifier = Modifier) {
     LazyColumn(modifier.background(MaterialTheme.colorScheme.surfaceContainer), state = listState,
         contentPadding = PaddingValues(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(audio.rxItems.size) { i ->
-            when (val item = audio.rxItems[i]) {
+            when (val item = audio.rxItems.getOrNull(i)) {
+                null -> {}
                 is RxItem.Text -> Text(item.text, fontFamily = FontFamily.Monospace, fontSize = AppSettings.get(LocalContext.current).feedTextSp.sp)
                 is RxItem.Image -> PictureCard(audio, item) { zoomed = item }
             }
