@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
             notifications.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
         val pickWav = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-            uri?.let { loadWav(audio, uri.lastPathSegment ?: "file", contentResolver.openInputStream(it)?.readBytes()) }
+            uri?.let { playWav(audio, uri.lastPathSegment ?: "file") { contentResolver.openInputStream(it) ?: throw java.io.IOException("cannot open") } }
         }
         if (savedInstanceState == null) handleIntent(intent)
         val importMem = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -87,14 +87,11 @@ class MainActivity : ComponentActivity() {
         val path = intent.getStringExtra("wav") ?: return
         val f = java.io.File(path)
         android.util.Log.d("RadioModem", "wav extra $path readable=${f.canRead()}")
-        if (f.canRead()) loadWav(audioModel, f.name, f.readBytes())
+        if (f.canRead()) playWav(audioModel, f.name) { f.inputStream() }
     }
 
-    private fun loadWav(audio: AudioViewModel, name: String, bytes: ByteArray?) {
-        val samples = bytes?.let { WavLoader.load(it) }
-        android.util.Log.d("RadioModem", "loadWav $name bytes=${bytes?.size} samples=${samples?.size}")
-        if (samples == null) Toast.makeText(this, "Unsupported WAV (need 16-bit PCM)", Toast.LENGTH_LONG).show()
-        else audio.playSamples(name, samples)
+    private fun playWav(audio: AudioViewModel, name: String, open: () -> java.io.InputStream) {
+        audio.playWav(name, open) { msg -> runOnUiThread { Toast.makeText(this, msg, Toast.LENGTH_LONG).show() } }
     }
 
     override fun onResume() {

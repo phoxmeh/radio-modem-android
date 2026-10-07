@@ -403,20 +403,35 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
 
     init { audioManager.registerAudioDeviceCallback(deviceCallback, Handler(Looper.getMainLooper())) }
 
-    /** Plays decoded-from-file audio (48 kHz mono floats) through the decoder in real time. */
-    fun playSamples(name: String, samples: FloatArray) {
-        stop()
-        Dsp.startVirtual(48000)
-        playingFile = name
-        beginLoop()
+    /**
+     * Plays a WAV file through the decoder in real time, reading it as a stream so a recording of any length plays.
+     * [open] supplies the bytes; [onError] gets a message if the file cannot be played. Live audio is left running
+     * until the file is known to be playable.
+     */
+    fun playWav(name: String, open: () -> java.io.InputStream, onError: (String) -> Unit) {
+        feeder?.cancel()
         feeder = viewModelScope.launch(Dispatchers.Default) {
-            var i = 0
-            val chunk = 2400  // 50 ms
-            while (isActive && i < samples.size) {
-                Dsp.inject(samples.copyOfRange(i, minOf(i + chunk, samples.size)))
-                i += chunk
-                delay(frameMs)
-            }
+            val wav = try { open().let { WavStream.open(it) } } catch (e: Exception) { onError("Could not open the file: ${e.message}"); return@launch }
+            if (wav == null) { onError("Unsupported WAV file (needs 8, 16, 24 or 32-bit PCM, or 32-bit float)"); return@launch }
+            try {
+                job?.cancel(); job = null
+                Dsp.stopAudio()
+                Dsp.startVirtual(48000)
+                playingFile = name
+                beginLoop()
+                val chunk = 2400   // 50 ms of audio at 48 kHz, fed at the pace of the clock so playback runs at real speed
+                val t0 = System.nanoTime()
+                var fed = 0L
+                while (isActive) {
+                    val block = wav.read(chunk)
+                    if (block.isEmpty()) break
+                    Dsp.inject(block)
+                    fed += block.size
+                    val due = t0 + fed * 1_000_000_000L / 48000
+                    val wait = (due - System.nanoTime()) / 1_000_000
+                    if (wait > 0) delay(wait)
+                }
+            } finally { wav.close() }
         }
     }
 
