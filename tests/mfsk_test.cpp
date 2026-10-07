@@ -1,5 +1,6 @@
 // Host-side MFSK test: a transmitter written to mirror fldigi mfsk::sendbit/sendsymbol/tx_process feeds the receiver.
 // Build: g++ -std=c++17 -O2 -I../app/src/main/cpp mfsk_test.cpp ../app/src/main/cpp/{mfsk_demod,viterbi,interleave}.cpp -o mfsk_test
+#include <algorithm>
 #include "interleave.h"
 #include "mfsk_demod.h"
 #include "mfsk_varicode.h"
@@ -159,7 +160,39 @@ static bool runPicture(const Params &p, bool color, int spp, bool reverse, const
     return ok;
 }
 
+// Writes a colour picture transmission as a 16-bit mono 48 kHz WAV, to replay through the app: --wav MODE W H out.wav
+static int writePictureWav(const char *modeName, int W, int H, const char *path) {
+    const Params *pp = nullptr;
+    for (const Params &q : kModes) if (std::string(q.name) == modeName) pp = &q;
+    if (!pp) { fprintf(stderr, "unknown mode %s\n", modeName); return 2; }
+    const Params &p = *pp;
+    Tx tx(p, 1500, 48000);
+    tx.startText();
+    for (unsigned char c : std::string("Test picture\n")) tx.sendchar(c);
+    char hdr[64]; snprintf(hdr, sizeof hdr, "\nPic:%dx%dC;", W, H);
+    for (unsigned char c : std::string(hdr)) tx.sendchar(c);
+    tx.flushtx(); tx.prologue();
+    std::vector<uint8_t> data;
+    for (int r = 0; r < H; ++r) for (int plane = 0; plane < 3; ++plane) for (int c = 0; c < W; ++c)
+        data.push_back(plane == 0 ? (uint8_t)(c * 255 / (W - 1)) : plane == 1 ? (uint8_t)(r * 255 / (H - 1)) : (((c / 8) + (r / 8)) % 2 ? 40 : 220));
+    tx.pixels(data, 8);
+    tx.flushtx();
+    for (unsigned char c : std::string("73")) tx.sendchar(c);
+    tx.endText();
+    for (int i = 0; i < 48000; ++i) tx.out.push_back(0.f);
+    FILE *f = fopen(path, "wb"); if (!f) return 3;
+    uint32_t n = (uint32_t)tx.out.size() * 2, rate = 48000, br = rate * 2, riff = 36 + n;
+    uint16_t fmt = 1, ch = 1, align = 2, bits = 16; uint32_t sixteen = 16;
+    fwrite("RIFF", 1, 4, f); fwrite(&riff, 4, 1, f); fwrite("WAVEfmt ", 1, 8, f); fwrite(&sixteen, 4, 1, f);
+    fwrite(&fmt, 2, 1, f); fwrite(&ch, 2, 1, f); fwrite(&rate, 4, 1, f); fwrite(&br, 4, 1, f); fwrite(&align, 2, 1, f); fwrite(&bits, 2, 1, f);
+    fwrite("data", 1, 4, f); fwrite(&n, 4, 1, f);
+    for (float x : tx.out) { int16_t v = (int16_t)std::clamp(x * 24000.f, -32768.f, 32767.f); fwrite(&v, 2, 1, f); }
+    fclose(f);
+    return 0;
+}
+
 int main(int argc, char **argv) {
+    if (argc > 5 && std::string(argv[1]) == "--wav") return writePictureWav(argv[2], atoi(argv[3]), atoi(argv[4]), argv[5]);
     if (argc > 1 && std::string(argv[1]) == "--pictures") {
         // fldigi offers picture mode on MFSK16, 32, 64 and 128 only. The test pattern has hard edges, so the
         // error grows with pixel rate (X2 = 2000 px/s, X4 = 4000 px/s through a 15..1900 Hz wide tone block).
