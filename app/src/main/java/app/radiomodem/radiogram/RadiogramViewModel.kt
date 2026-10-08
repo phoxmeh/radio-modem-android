@@ -20,6 +20,7 @@ class RadiogramViewModel(app: Application) : AndroidViewModel(app) {
     var refreshing by mutableStateOf(false); private set
     var message by mutableStateOf(""); private set
     var nowMs by mutableLongStateOf(System.currentTimeMillis())
+    init { settings.radiogramUsed = true; RadiogramPoller.schedule(app) }
     /** Keys of broadcasts that have a reminder set. */
     val reminded = mutableStateListOf<String>().apply { addAll(reminders.all().map { it.key }) }
 
@@ -27,15 +28,26 @@ class RadiogramViewModel(app: Application) : AndroidViewModel(app) {
     fun view() = RadiogramRepository.view(week, nowMs)
     fun tick() { nowMs = System.currentTimeMillis() }
 
-    /** Refreshes when the saved copy is old; [onSlots] gets the table so saved-frequency entries can be added. */
+    var lastCheckedMs by mutableLongStateOf(repo.lastCheckedMs()); private set
+
+    /**
+     * Looks for a new post. Without [force] it only checks when it could matter: the saved week is over (so a new post
+     * is due) and the last check was over an hour ago, or nothing has been read yet. [onSlots] gets the table so
+     * saved-frequency entries can be added.
+     */
     fun refresh(force: Boolean = false, onSlots: (List<RadiogramSlot>) -> Unit = {}) {
         if (refreshing) return
-        if (!force && System.currentTimeMillis() - week.fetchedAtMs < 6 * 3_600_000L) return
+        val v = view()
+        val due = v.state != WeekState.Active && System.currentTimeMillis() - lastCheckedMs > 3_600_000L
+        if (!force && !due) return
         refreshing = true
         viewModelScope.launch {
-            message = repo.refresh()
+            val r = repo.refresh()
+            message = r.message
             week = repo.load()
-            if (week.rowsFrom == "image") onSlots(week.slots)
+            lastCheckedMs = repo.lastCheckedMs()
+            if (r.newPost && week.rowsFrom == "image") onSlots(week.slots)
+            RadiogramPoller.schedule(getApplication())
             refreshing = false
         }
     }

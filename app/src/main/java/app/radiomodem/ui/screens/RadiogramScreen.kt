@@ -40,6 +40,7 @@ fun RadiogramScreen(vm: RadiogramViewModel, mem: MemoryViewModel, onBack: () -> 
     // Keep the countdowns current, and refresh once when the saved copy is old.
     LaunchedEffect(Unit) { while (true) { vm.tick(); delay(15_000) } }
     LaunchedEffect(Unit) { vm.reschedule() }
+    LaunchedEffect(vm.week) { if (vm.week.rowsFrom == "image") mem.import(RadiogramEntries.memories(vm.week.slots)) }
     LaunchedEffect(Unit) { vm.refresh { slots -> mem.import(RadiogramEntries.memories(slots)) } }
 
     val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -63,21 +64,33 @@ fun RadiogramScreen(vm: RadiogramViewModel, mem: MemoryViewModel, onBack: () -> 
     }) {
         // ---- this week ----
         val w = view.week
+        val state = view.state
         Text(
-            if (w.program != null && !view.projected) "Program ${w.program} · ${dateRange(w.start, w.end)}" else "Week of ${dateRange(view.start, view.start.plusDays(7))}",
+            if (state == WeekState.NoPost) "No schedule read yet" else "Program ${w.program ?: "?"} · ${dateRange(w.start, w.end)}",
             style = MaterialTheme.typography.titleMedium,
         )
-        Text(
-            when {
-                view.projected -> "This week's post is not out yet (they appear on Thursdays). Showing the usual table carried forward."
-                w.rowsFrom == "image" -> "Read from the picture in the latest post."
-                w.rowsFrom == "previous" -> "The latest post's picture could not be read, so the last known table is used with this week's dates."
-                else -> "Bundled schedule. Tap Update to read the latest post."
-            },
-            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        // Successful reads are already described above; show only problems and "already current".
-        if (vm.message.isNotEmpty() && !vm.message.startsWith("Program ")) Hint(vm.message)
+        when (state) {
+            WeekState.Active -> Text(
+                if (w.rowsFrom == "image") "Read from the picture in the latest post." else "The latest post's picture could not be read, so the last known table is used with this week's dates.",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            WeekState.WaitingForNextPost -> Surface(color = MaterialTheme.colorScheme.tertiaryContainer, shape = MaterialTheme.shapes.medium, modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("Schedule not updated yet", style = MaterialTheme.typography.titleSmall)
+                    Text("This is last week's schedule, shown greyed out. The new one is posted on Thursday evenings; the dates here will change when it appears.", style = MaterialTheme.typography.bodyMedium)
+                    Text(checkedText(vm.lastCheckedMs, now, RadiogramPoller.delayMs(w, now)), style = MaterialTheme.typography.bodySmall)
+                }
+            }
+            WeekState.NoPost -> Surface(color = MaterialTheme.colorScheme.tertiaryContainer, shape = MaterialTheme.shapes.medium, modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("No post has been read yet", style = MaterialTheme.typography.titleSmall)
+                    Text("Tap Update to read the latest post. Until then this is the usual weekly pattern, with no dates.", style = MaterialTheme.typography.bodyMedium)
+                    if (vm.lastCheckedMs > 0) Text(checkedText(vm.lastCheckedMs, now, null), style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+        // Successful reads are described above; show only problems and "no new post".
+        if (vm.message.isNotEmpty() && !vm.message.startsWith("New post")) Hint(vm.message)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (w.postUrl.isNotEmpty()) OutlinedButton({ ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(w.postUrl)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }) { Text("Open post") }
             if (w.intro.isNotEmpty()) OutlinedButton({ showNotes = !showNotes }) { Text(if (showNotes) "Hide notes" else "This week's notes") }
@@ -85,7 +98,7 @@ fun RadiogramScreen(vm: RadiogramViewModel, mem: MemoryViewModel, onBack: () -> 
         if (showNotes) Surface(tonalElevation = 2.dp, shape = MaterialTheme.shapes.medium) { Text(w.intro, Modifier.padding(12.dp), style = MaterialTheme.typography.bodyMedium) }
 
         // ---- next up ----
-        if (next != null) Surface(color = MaterialTheme.colorScheme.primaryContainer, shape = MaterialTheme.shapes.medium, modifier = Modifier.fillMaxWidth()) {
+        if (state == WeekState.Active && next != null) Surface(color = MaterialTheme.colorScheme.primaryContainer, shape = MaterialTheme.shapes.medium, modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(if (next.startMs <= now) "On air now" else "Next · " + countdown(next.startMs - now), style = MaterialTheme.typography.labelLarge)
                 Text("${tz.dayLabel(next.startMs)} · ${tz.hhmm(next.startMs)}–${hhmmEnd(tz, next)} ${tz.name}", fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -102,7 +115,18 @@ fun RadiogramScreen(vm: RadiogramViewModel, mem: MemoryViewModel, onBack: () -> 
         HorizontalDivider()
 
         // ---- the week, by day ----
-        view.broadcasts.groupBy { tz.at(it.startMs).toLocalDate() }.forEach { (day, list) ->
+        if (state == WeekState.NoPost) {
+            w.slots.forEach { sl ->
+                Surface(shape = MaterialTheme.shapes.medium, tonalElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                        Text("${sl.day.getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.getDefault())} ${sl.timeRange.take(2)}:${sl.timeRange.substring(2, 4)}–${sl.timeRange.substring(5, 7)}:${sl.timeRange.substring(7)} UTC",
+                            fontSize = 17.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("${sl.kHz} kHz · ${sl.transmitter}", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+        }
+        else view.broadcasts.groupBy { tz.at(it.startMs).toLocalDate() }.forEach { (day, list) ->
             Text(tz.dayLabel(list.first().startMs), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
             list.forEach { b ->
                 val done = b.endMs <= now
@@ -166,4 +190,11 @@ private fun countdown(ms: Long): String {
 private fun dateRange(a: LocalDate, b: LocalDate): String {
     fun d(x: LocalDate) = "${x.dayOfMonth} ${x.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)}"
     return "${d(a)}–${d(b)} ${b.year}"
+}
+
+private fun checkedText(checkedMs: Long, nowMs: Long, nextInMs: Long?): String {
+    fun span(ms: Long): String { val m = ms / 60_000L; return when { m < 1 -> "just now"; m < 60 -> "$m min"; m < 2880 -> "${m / 60} h"; else -> "${m / 1440} days" } }
+    val ago = span(nowMs - checkedMs)
+    val last = if (checkedMs <= 0) "Not checked yet." else if (ago == "just now") "Last checked just now." else "Last checked $ago ago."
+    return if (nextInMs == null) last else "$last Next automatic check in ${span(nextInMs)}."
 }

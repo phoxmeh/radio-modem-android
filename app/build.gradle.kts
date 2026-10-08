@@ -44,6 +44,7 @@ dependencies {
     implementation("com.google.oboe:oboe:1.11.0")
     implementation("com.github.mik3y:usb-serial-for-android:3.11.0")
     implementation("com.tom-roush:pdfbox-android:2.0.27.0")  // text from NOAA's schedule PDF (Apache 2.0)
+    implementation("androidx.work:work-runtime-ktx:2.11.2")  // checks for the weekly Shortwave Radiogram post in the background
     implementation("cz.adaptech.tesseract4android:tesseract4android:4.9.0")  // OCR for the Shortwave Radiogram schedule image (Apache 2.0)
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20240303")

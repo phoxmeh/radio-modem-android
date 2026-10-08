@@ -74,6 +74,7 @@ class AppSettings private constructor(ctx: Context) {
     var showWaterfall by flag("show_waterfall", true)
     var waterfallDp by num("wf_dp2", 230f)
     var radiogramLeadMin by num("radiogram_lead", 10f)    // minutes before a Shortwave Radiogram transmission
+    var radiogramUsed by flag("radiogram_used", false)   // background checks for the weekly post only start once the screen has been opened
     var faxAdjustOpen by flag("fax_adjust_open", true)   // slant/shift rows under the fax picture
     var faxAutoSlant by flag("fax_auto_slant", true)
     var faxAutoStopLines by num("fax_auto_stop", 400f)   // auto slant stops refining after this many lines

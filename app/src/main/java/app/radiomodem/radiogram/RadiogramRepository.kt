@@ -12,8 +12,13 @@ import java.net.URL
 import java.time.DayOfWeek
 import java.time.LocalDate
 
-/** The week as it should be shown now: placed on the calendar, and whether it was carried forward from an older post. */
-class WeekView(val week: RadiogramWeek, val broadcasts: List<RadiogramBroadcast>, val projected: Boolean, val start: LocalDate)
+/** Where the schedule stands: this week's post is current, its week has finished and the next post is not out, or nothing has been read yet. */
+enum class WeekState { Active, WaitingForNextPost, NoPost }
+
+/** The posted week placed on the calendar. Nothing is carried forward: until a new post arrives the old dates stay. */
+class WeekView(val week: RadiogramWeek, val broadcasts: List<RadiogramBroadcast>, val state: WeekState)
+
+class RefreshResult(val message: String, val newPost: Boolean)
 
 /**
  * The weekly schedule. A bundled copy of the table is always available; refreshing reads the latest post from the
@@ -31,14 +36,17 @@ class RadiogramRepository(private val ctx: Context) {
         return RadiogramWeek("Bundled schedule", null, start, start.plusDays(7), slots, "bundled")
     }
 
-    suspend fun refresh(): String = withContext(Dispatchers.IO) {
+    suspend fun refresh(): RefreshResult = withContext(Dispatchers.IO) {
         val feed = FEEDS.firstNotNullOfOrNull { runCatching { RadiogramFeed.parse(String(get(it, 3_000_000), Charsets.UTF_8)) }.getOrNull()?.takeIf { p -> p.isNotEmpty() } }
-            ?: return@withContext "Could not reach swradiogram.net."
+            ?: return@withContext RefreshResult("Could not reach swradiogram.net.", false)
         val post = feed.firstOrNull { RadiogramParser.parseTitle(it.title) != null }
-            ?: return@withContext "No schedule post found in the feed."
+            ?: return@withContext RefreshResult("No schedule post found in the feed.", false)
         val dates = RadiogramParser.parseTitle(post.title)!!
         val cur = load()
-        if (cur.postUrl == post.link && cur.rowsFrom == "image") return@withContext "Already current: program ${dates.program ?: "?"}."
+        meta.edit().putLong("checkedAt", System.currentTimeMillis()).apply()
+        // Only a post for a later week than the one held counts as new; the old week's dates stay until then.
+        if (cur.postUrl.isNotEmpty() && (cur.postUrl == post.link || !dates.start.isAfter(cur.start)) && (cur.rowsFrom == "image" || cur.postUrl == post.link))
+            return@withContext RefreshResult("No new post yet. The latest is program ${cur.program ?: "?"}, ${shortRange(cur.start, cur.end)}.", false)
 
         var slots = cur.slots; var from = "previous"; var note = ""
         val url = post.scheduleImageUrl
@@ -53,11 +61,22 @@ class RadiogramRepository(private val ctx: Context) {
         val week = RadiogramWeek(post.title, dates.program, dates.start, dates.end, slots, from, post.link, post.intro,
             RadiogramParser.parseLineup(post.text), System.currentTimeMillis())
         file.writeText(toJson(week).toString())
-        buildString {
-            append("Program ${dates.program ?: "?"}, ${dates.start.dayOfMonth} ${dates.start.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)}–${dates.end.dayOfMonth} ${dates.end.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)}: ")
-            append(if (from == "image") "table read from the post's picture." else "using the last known table. $note")
-        }
+        meta.edit().putLong("newPostAt", System.currentTimeMillis()).apply()
+        RefreshResult(
+            "New post: program ${dates.program ?: "?"}, ${shortRange(dates.start, dates.end)}: " +
+                if (from == "image") "table read from the post's picture." else "using the last known table. $note",
+            true,
+        )
     }
+
+    private fun shortRange(a: LocalDate, b: LocalDate): String {
+        fun d(x: LocalDate) = "${x.dayOfMonth} ${x.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)}"
+        return "${d(a)}–${d(b)}"
+    }
+
+    private val meta = ctx.getSharedPreferences("radiogram_meta", Context.MODE_PRIVATE)
+    /** When the feed was last checked successfully (even if nothing new was there). */
+    fun lastCheckedMs(): Long = meta.getLong("checkedAt", 0)
 
     private fun get(url: String, limit: Int): ByteArray {
         val c = URL(url).openConnection() as HttpURLConnection
@@ -74,17 +93,15 @@ class RadiogramRepository(private val ctx: Context) {
     companion object {
         private val FEEDS = listOf("https://swradiogram.net/rss", "https://swradiogram.tumblr.com/rss")
 
-        /**
-         * The week to show at [nowMs]: the posted week, or, once it is over and the next post is not out yet, the same
-         * table carried forward by whole weeks.
-         */
+        /** The posted week on the calendar, and whether it is still current. */
         fun view(week: RadiogramWeek, nowMs: Long): WeekView {
-            var start = week.start
-            var b = RadiogramParser.place(week.slots, start)
-            var projected = false
-            var guard = 0
-            while (b.isNotEmpty() && nowMs > b.last().endMs && guard++ < 520) { start = start.plusWeeks(1); b = RadiogramParser.place(week.slots, start); projected = true }
-            return WeekView(week, b, projected, start)
+            val b = RadiogramParser.place(week.slots, week.start)
+            val state = when {
+                week.postUrl.isEmpty() -> WeekState.NoPost
+                b.isNotEmpty() && nowMs > b.last().endMs -> WeekState.WaitingForNextPost
+                else -> WeekState.Active
+            }
+            return WeekView(week, b, state)
         }
 
         fun toJson(w: RadiogramWeek) = JSONObject().apply {
