@@ -131,3 +131,28 @@ class RadiogramFeedTest {
         assertFalse(p.intro.contains("<"))
     }
 }
+
+class RadiogramNewPostTest {
+    private val posts = RadiogramFeed.parse(javaClass.getResource("/radiogram_feed_470.xml")!!.readText())
+
+    @Test fun theNewestPostIsReadAsTheNextWeek() {
+        val t = RadiogramParser.parseTitle(posts[0].title)!!
+        assertEquals(470, t.program)
+        assertEquals(LocalDate.of(2026, 10, 8), t.start)
+        assertEquals(LocalDate.of(2026, 10, 15), t.end)
+        assertNotNull(posts[0].scheduleImageUrl)
+        assertTrue(LocalDate.of(2026, 10, 8).isAfter(RadiogramParser.parseTitle(posts[1].title)!!.start))
+    }
+}
+
+class RadiogramFeedChoiceTest {
+    @Test fun theFeedWithTheNewestPostWinsWhenOneCopyLags() {
+        val stale = RadiogramFeed.parse(javaClass.getResource("/radiogram_feed.xml")!!.readText())       // ends at program 469
+        val fresh = RadiogramFeed.parse(javaClass.getResource("/radiogram_feed_470.xml")!!.readText())    // has program 470
+        assertEquals(LocalDate.of(2026, 10, 1), RadiogramFeed.newestStart(stale))
+        assertEquals(LocalDate.of(2026, 10, 8), RadiogramFeed.newestStart(fresh))
+        val best = listOf(stale, fresh).maxByOrNull { RadiogramFeed.newestStart(it)!!.toEpochDay() }!!
+        assertTrue(best[0].title.contains("470"))
+        assertNull(RadiogramFeed.newestStart(emptyList()))
+    }
+}

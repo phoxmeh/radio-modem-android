@@ -37,12 +37,26 @@ class RadiogramRepository(private val ctx: Context) {
     }
 
     suspend fun refresh(): RefreshResult = withContext(Dispatchers.IO) {
-        val feed = FEEDS.firstNotNullOfOrNull { runCatching { RadiogramFeed.parse(String(get(it, 3_000_000), Charsets.UTF_8)) }.getOrNull()?.takeIf { p -> p.isNotEmpty() } }
-            ?: return@withContext RefreshResult("Could not reach swradiogram.net.", false)
+        val cur = load()
+        // For a while after a new post, some of the site's servers still return the old feed while others return the new
+        // one, and a kept-alive connection sticks to one of them. So: fresh connections, both addresses, a few tries,
+        // stopping as soon as a newer post than the one held is seen, and trusting whichever feed has the newest post.
+        var best: List<RadiogramPost>? = null
+        attempts@ for (attempt in 1..4) {
+            for (url in FEEDS) {
+                val posts = runCatching { RadiogramFeed.parse(String(get(url, 3_000_000), Charsets.UTF_8)) }
+                    .onFailure { Log.w("Radiogram", "feed $url failed", it) }.getOrNull()?.takeIf { it.isNotEmpty() } ?: continue
+                Log.d("Radiogram", "try $attempt $url: ${posts.size} posts, newest \"${posts.first().title.take(60)}\"")
+                if ((RadiogramFeed.newestStart(posts)?.toEpochDay() ?: Long.MIN_VALUE) > (best?.let { RadiogramFeed.newestStart(it)?.toEpochDay() } ?: Long.MIN_VALUE)) best = posts
+                val s = RadiogramFeed.newestStart(best ?: posts)
+                if (cur.postUrl.isNotEmpty() && s != null && s.isAfter(cur.start)) break@attempts
+            }
+            if (attempt < 4) kotlinx.coroutines.delay(800)
+        }
+        val feed = best ?: return@withContext RefreshResult("Could not reach swradiogram.net.", false)
         val post = feed.firstOrNull { RadiogramParser.parseTitle(it.title) != null }
             ?: return@withContext RefreshResult("No schedule post found in the feed.", false)
         val dates = RadiogramParser.parseTitle(post.title)!!
-        val cur = load()
         meta.edit().putLong("checkedAt", System.currentTimeMillis()).apply()
         // Only a post for a later week than the one held counts as new; the old week's dates stay until then.
         if (cur.postUrl.isNotEmpty() && (cur.postUrl == post.link || !dates.start.isAfter(cur.start)) && (cur.rowsFrom == "image" || cur.postUrl == post.link))
@@ -82,7 +96,12 @@ class RadiogramRepository(private val ctx: Context) {
         val c = URL(url).openConnection() as HttpURLConnection
         c.connectTimeout = 15_000; c.readTimeout = 20_000
         c.setRequestProperty("User-Agent", "RadioModem/0.1 (Android; schedule reader)")
+        // The site serves a copy that can lag a new post by a long time unless the request asks for exactly this type.
+        c.setRequestProperty("Accept", "application/rss+xml")
+        c.setRequestProperty("Cache-Control", "no-cache")
+        c.setRequestProperty("Connection", "close")   // a new connection each time, so a lagging server is not reused
         try {
+            Log.d("Radiogram", "GET $url -> ${c.responseCode}, date=${c.getHeaderField("Date")} age=${c.getHeaderField("Age")} cache=${c.getHeaderField("Cache-Control")} via=${c.getHeaderField("Via")} server=${c.getHeaderField("Server")}")
             if (c.responseCode !in 200..299) error("HTTP ${c.responseCode}")
             val out = java.io.ByteArrayOutputStream()
             c.inputStream.use { i -> val buf = ByteArray(16384); while (true) { val n = i.read(buf); if (n < 0) break; out.write(buf, 0, n); if (out.size() > limit) error("too large") } }
@@ -91,7 +110,7 @@ class RadiogramRepository(private val ctx: Context) {
     }
 
     companion object {
-        private val FEEDS = listOf("https://swradiogram.net/rss", "https://swradiogram.tumblr.com/rss")
+        private val FEEDS = listOf("https://swradiogram.tumblr.com/rss", "https://swradiogram.net/rss")
 
         /** The posted week on the calendar, and whether it is still current. */
         fun view(week: RadiogramWeek, nowMs: Long): WeekView {

@@ -22,6 +22,10 @@ class RadiogramPost(val title: String, val link: String, val publishedMs: Long, 
 }
 
 object RadiogramFeed {
+    /** The week start of the newest schedule post in a feed. */
+    fun newestStart(posts: List<RadiogramPost>): java.time.LocalDate? =
+        posts.mapNotNull { RadiogramParser.parseTitle(it.title)?.start }.maxOrNull()
+
     fun parse(xml: String): List<RadiogramPost> =
         Regex("<item>(.*?)</item>", RegexOption.DOT_MATCHES_ALL).findAll(xml).mapNotNull { m ->
             val body = m.groupValues[1]
