@@ -49,7 +49,7 @@ class RadiogramRepository(private val ctx: Context) {
                 Log.d("Radiogram", "try $attempt $url: ${posts.size} posts, newest \"${posts.first().title.take(60)}\"")
                 if ((RadiogramFeed.newestStart(posts)?.toEpochDay() ?: Long.MIN_VALUE) > (best?.let { RadiogramFeed.newestStart(it)?.toEpochDay() } ?: Long.MIN_VALUE)) best = posts
                 val s = RadiogramFeed.newestStart(best ?: posts)
-                if (cur.postUrl.isNotEmpty() && s != null && s.isAfter(cur.start)) break@attempts
+                if (s != null && (cur.postUrl.isEmpty() || s.isAfter(cur.start))) break@attempts   // newer than what is held
             }
             if (attempt < 4) kotlinx.coroutines.delay(800)
         }

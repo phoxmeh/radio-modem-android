@@ -21,6 +21,8 @@ class MainActivity : ComponentActivity() {
     private val audioModel by viewModels<AudioViewModel>()
     private val memModel by viewModels<MemoryViewModel>()
     private val rigModel by viewModels<RigViewModel>()
+    /** A screen to open on arrival, e.g. from a notification (intent extra "route"). */
+    private var openRoute by androidx.compose.runtime.mutableStateOf<String?>(null)
     private var micGranted by androidx.compose.runtime.mutableStateOf(false)
     private val usbAttached = object : android.content.BroadcastReceiver() {
         override fun onReceive(c: android.content.Context, i: android.content.Intent) { rigModel.autoConnect() }
@@ -29,6 +31,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        app.radiomodem.radiogram.RadiogramPoller.schedule(this)  // keeps the weekly-post check queued (a force-stop clears it)
         val audio = audioModel
         val permission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
             micGranted = ok
@@ -71,7 +74,7 @@ class MainActivity : ComponentActivity() {
         androidx.core.content.ContextCompat.registerReceiver(this, usbAttached,
             android.content.IntentFilter(android.hardware.usb.UsbManager.ACTION_USB_DEVICE_ATTACHED),
             androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED)
-        setContent { RadioApp(audio, rigModel, memModel, files, micGranted) }
+        setContent { RadioApp(audio, rigModel, memModel, files, micGranted, openRoute) { openRoute = null } }
     }
 
     override fun onNewIntent(intent: android.content.Intent) {
@@ -81,6 +84,7 @@ class MainActivity : ComponentActivity() {
 
     // Dev hook: adb shell am start -n app.radiomodem/.MainActivity --es wav /path/readable/by/app.wav
     private fun handleIntent(intent: android.content.Intent) {
+        intent.getStringExtra("route")?.let { openRoute = it }
         // Optional: --es modem MFSK32 selects a decoder before the file plays (e.g. "BPSK31", "Olivia 16/500").
         intent.getStringExtra("modem")?.let { n -> app.radiomodem.Modems.idOf(n).takeIf { it >= 0 }?.let { audioModel.selectModem(it) } }
         if (intent.hasExtra("carrier")) audioModel.tuneTo(intent.getFloatExtra("carrier", 1000f))  // --ef carrier 1500

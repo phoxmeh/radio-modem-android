@@ -112,6 +112,12 @@ fun RadiogramScreen(vm: RadiogramViewModel, mem: MemoryViewModel, onBack: () -> 
 
         ChoiceRow("Remind me before a transmission", listOf(5, 10, 15, 30).map { it.toString() to "$it minutes before" }, vm.leadMin.toString(),
             subtitle = if (vm.canBeExact()) null else "Approximate: allow Alarms & reminders for on-time alerts") { vm.setLead(it.toInt()) }
+        SettingSwitch("Tell me when a new schedule is posted", "A notification with the next transmission, usually on Thursday evening", settings.radiogramNotify) { on ->
+            settings.radiogramNotify = on
+            if (on && Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                pending = null; notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
         HorizontalDivider()
 
         // ---- the week, by day ----

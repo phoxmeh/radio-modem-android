@@ -50,9 +50,41 @@ object RadiogramPoller {
     class PollWorker(private val ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
         override suspend fun doWork(): Result {
             val repo = RadiogramRepository(ctx)
-            repo.refresh()
+            val r = repo.refresh()
+            if (r.newPost && AppSettings.get(ctx).radiogramNotify) notifyNewSchedule(ctx, repo.load())
             schedule(ctx)
             return Result.success()
         }
+    }
+
+    private const val CHANNEL = "radiogram_schedule"
+
+    /** "New schedule posted" with the next transmission, so the user knows when to tune in. Tapping opens the schedule. */
+    private fun notifyNewSchedule(ctx: Context, week: RadiogramWeek) {
+        if (!androidx.core.app.NotificationManagerCompat.from(ctx).areNotificationsEnabled()) return
+        val now = System.currentTimeMillis()
+        val next = RadiogramParser.place(week.slots, week.start).firstOrNull { it.endMs > now }
+        val fmt = java.time.format.DateTimeFormatter.ofPattern("EEE d MMM HH:mm", java.util.Locale.getDefault())
+        fun at(ms: Long, zone: java.time.ZoneId) = fmt.format(java.time.Instant.ofEpochMilli(ms).atZone(zone))
+        val nextText = if (next == null) "No transmissions left this week." else
+            "Next: ${at(next.startMs, java.time.ZoneId.systemDefault())} local (${at(next.startMs, java.time.ZoneOffset.UTC).takeLast(5)} UTC), ${next.kHz} kHz, ${next.transmitter}."
+        val nm = ctx.getSystemService(android.app.NotificationManager::class.java)
+        nm.createNotificationChannel(android.app.NotificationChannel(CHANNEL, "New Shortwave Radiogram schedule", android.app.NotificationManager.IMPORTANCE_DEFAULT))
+        val open = android.app.PendingIntent.getActivity(
+            ctx, 2, android.content.Intent(ctx, app.radiomodem.MainActivity::class.java).putExtra("route", "radiogram")
+                .addFlags(android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP or android.content.Intent.FLAG_ACTIVITY_NEW_TASK),
+            android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT,
+        )
+        val head = "Program ${week.program ?: "?"}, ${week.start.dayOfMonth} ${week.start.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)}–" +
+            "${week.end.dayOfMonth} ${week.end.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)}"
+        val unread = if (week.rowsFrom == "image") "" else "\nThe times could not be re-read from the picture, so check them against the post."
+        val n = androidx.core.app.NotificationCompat.Builder(ctx, CHANNEL)
+            .setSmallIcon(android.R.drawable.stat_sys_headset)
+            .setContentTitle("New Shortwave Radiogram schedule")
+            .setContentText("$head. $nextText")
+            .setStyle(androidx.core.app.NotificationCompat.BigTextStyle().bigText("$head.\n$nextText$unread"))
+            .setContentIntent(open).setAutoCancel(true).setCategory(androidx.core.app.NotificationCompat.CATEGORY_EVENT)
+            .build()
+        nm.notify(7001, n)
     }
 }

@@ -44,6 +44,7 @@ import java.io.File
 fun RadioApp(
     audio: AudioViewModel = viewModel(), rig: RigViewModel = viewModel(), mem: MemoryViewModel = viewModel(),
     files: FileActions = FileActions(), micGranted: Boolean = true,
+    openRoute: String? = null, onRouteOpened: () -> Unit = {},
 ) {
     val ctx = LocalContext.current
     val settings = AppSettings.get(ctx)
@@ -63,6 +64,8 @@ fun RadioApp(
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             var stack by rememberSaveable { mutableStateOf(if (settings.onboardingDone) "main" else "main,help") }
             var logPath by rememberSaveable { mutableStateOf("") }
+            // A notification can ask for a screen (e.g. the new Shortwave Radiogram schedule).
+            LaunchedEffect(openRoute) { if (openRoute != null) { stack = "main,$openRoute"; onRouteOpened() } }
             val current = stack.substringAfterLast(',')
             fun push(screen: String) { stack = "$stack,$screen" }
             fun pop() { stack = if (',' in stack) stack.substringBeforeLast(',') else "main" }
