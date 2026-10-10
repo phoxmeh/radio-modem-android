@@ -39,6 +39,7 @@ Requirements: Android SDK (compileSdk 37), NDK 30.0.16248370, CMake 3.31.6, JDK 
 ./gradlew :app:testDebugUnitTest      # Kotlin unit tests
 tests/run_host_tests.sh               # native DSP tests (g++ only, no device)
 tools/sstv_crosscheck.py              # SSTV decoder against an independent encoder (pip install PySSTV pillow numpy)
+g++ -std=c++17 -O2 -Iapp/src/main/cpp tests/sstv_weak.cpp app/src/main/cpp/sstv_demod.cpp -o /tmp/sstv_weak && /tmp/sstv_weak   # SSTV weak-signal benchmark (noise, fading, impulses)
 ```
 
 ## Layout
@@ -55,7 +56,8 @@ tools/sstv_crosscheck.py              # SSTV decoder against an independent enco
 
 `sstv_demod.cpp` finds a transmission by its VIS header (or, if that was missed, by four sync pulses at a mode's line interval, so a picture can be joined part-way), reads the mode from it, takes the receiver's tuning error from
 the header's 1900 Hz leader, and then aligns every line from its own sync pulse, so clock error and drift cannot skew the
-picture. Pictures appear in the feed like MFSK pictures. Mode timings follow N7CXI's specification, checked against
+picture. Pictures appear in the feed like MFSK pictures. Headers, sync pulses and the pixel averaging window are measured with spectral methods and adapt to the
+noise on each line, so pictures hold sync down to about -1.5 dB in-band SNR on generated signals. Mode timings follow N7CXI's specification, checked against
 slowrx. It is tested against a transmit generator written from the specification, against PySSTV (an independent
 encoder) with noise, tuning error and clock error, and against third-party recordings. The other modes (Robot 24 and the black-and-white ones, Martin M3/M4, Wraase, Pasokon) are reported when seen (by name where known) but not decoded.
 

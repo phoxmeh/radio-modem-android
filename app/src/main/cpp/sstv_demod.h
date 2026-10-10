@@ -48,14 +48,19 @@ public:
     };
 
 private:
-    static constexpr double kRate = 22050.0;  // working rate; everything is timed in these samples
+    static constexpr double kRate = 24000.0;  // working rate (half of the usual 48 kHz); everything is timed in these samples
     enum State { Idle, AwaitSync, Image };
     static const Spec &spec(int mode);
 
     void sample(float x);
     void onSample();
     bool freqAt(long idx, int half, double &f) const;
-    bool freqSpan(long lo, long hi, double &f) const;   // frequency over samples lo..hi inclusive
+    bool freqSpan(long lo, long hi, double &f) const;   // frequency over samples lo..hi inclusive (mean phase advance)
+    // Frequency of the strongest tone between fLo and fHi in a Hann-windowed span centred on `center`: a spectral
+    // peak, which stays accurate at signal-to-noise ratios where the mean phase advance is pulled toward the centre.
+    bool peakFreq(long center, int half, double fLo, double fHi, double step, double &f) const;
+    // Power at one frequency (Hz) in the same kind of window.
+    double tonePower(long center, int half, double hz) const;
     void huntVis();
     void huntSync();
     void tryJoin();
@@ -63,24 +68,31 @@ private:
     void startPicture(int mode, double leaderHz, long stopCenter);
     void seekFirstSync();
     void imageStep();
+    // How much of the signal around `c` is the 1200 Hz sync tone rather than picture tones (0..1; above 0.5 = sync).
+    double syncMetric(long c, int half, bool fast = false) const;   // fast: fewer tones, for the idle search
+    int syncHalf(int mode) const;   // window half-length for syncMetric, from the mode's pulse length
     long findCrossing(long lo, long hi, int minRun, long expect, int syncSamples) const;
+    double lineNoise() const;   // scatter (Hz) of the frequency estimates inside the line's own sync pulse
+    double noiseHz_ = -1;       // smoothed over lines; < 0 until the first line
     void renderLine(int line);
     void finish(const char *why);
     void trim();
 
     int inRate_, sel_;
     // resampler to kRate
-    std::vector<float> preTaps_, preBuf_;
-    int prePos_ = 0;
+    std::vector<float> preTaps_, preBuf_;   // anti-alias filter; preBuf_ holds the history twice so a window is contiguous
+    int prePos_ = 0, preCount_ = 0;
     double resPos_ = 0, resStep_ = 1;
     float resPrev_ = 0;
     // baseband
     std::vector<float> lp_;
-    std::vector<double> bi_, bq_;
+    std::vector<float> bi_, bq_;   // history twice over, see preBuf_
     int bufPos_ = 0;
-    double nco_ = 0, prevI_ = 0, prevQ_ = 0;
+    double nr_ = 1, ni_ = 0;        // the mixing oscillator, advanced by a rotation each sample
+    double prevI_ = 0, prevQ_ = 0;
     // stored phase advance per sample (index total_ - stored count .. total_ - 1)
-    std::vector<float> cr_, ci_;
+    std::vector<float> cr_, ci_;    // conj(previous) * current baseband sample
+    std::vector<float> zr_, zi_;    // the baseband samples themselves
     long base_ = 0, total_ = 0;
 
     State state_ = Idle;
@@ -91,12 +103,13 @@ private:
     // header-less starts: recent sync pulses (end sample, length in samples) and the current low run
     struct Pulse { long end; int len; };
     std::vector<Pulse> pulses_;
-    int sLow_ = 0;
+    int sLow_ = 0, sGap_ = 0;
+    long sNext_ = 0;   // next sample at which huntSync() looks
     // picture in progress
     int mode_ = 0;
     double shift_ = 0;
     long stopCenter_ = 0, scanPos_ = 0;
-    int lowRun_ = 0;
+    int lowRun_ = 0, gap_ = 0;
     long curSync_ = 0;
     double lHat_ = 0;
     int lineIdx_ = 0, misses_ = 0, rowsRendered_ = 0;
