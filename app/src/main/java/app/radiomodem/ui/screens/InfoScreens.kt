@@ -76,6 +76,7 @@ fun AboutScreen(onBack: () -> Unit) {
             "fldigi — Dave Freese W1HKJ and contributors (GPLv3). PSK, QPSK, MFSK and weather-fax demodulators, the Olivia receiver wrapper, varicode tables, Viterbi decoder and interleaver are ported from it.",
             "flrig — Dave Freese W1HKJ and contributors (GPLv3). The Yaesu FT-891, FT-991A and FTdx10 modes, bandwidths and CAT command sets are taken from its rig classes.",
             "Olivia / MFSK library — Pawel Jalocha SP9VRC, vendored unchanged via fldigi.",
+            "slowrx — Oona Räisänen OH2EIQ (ISC licence). The SSTV decoder follows its structure and mode tables; the mode timings are from J. L. Barber N7CXI.",
             "gMFSK — Tomi Manninen OH2BNS, the origin of much of fldigi's modem code.",
             "usb-serial-for-android — Mike Wakerly and contributors (MIT). USB serial CAT.",
             "Oboe — Google (Apache 2.0). Low-latency audio capture.",

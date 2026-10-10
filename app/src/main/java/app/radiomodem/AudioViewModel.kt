@@ -37,6 +37,8 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
         )
         const val MAX_HZ = 4000f
         const val FAX_CENTER_HZ = 1900f
+        /** Middle of the SSTV tones (1200 sync .. 2300 white). */
+        const val SSTV_CENTER_HZ = 1700f
         const val HISTORY = 1024
         const val MIN_SPAN_HZ = 250f
     }
@@ -89,7 +91,9 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
         logger.note("mode ${Modems.all[id].name}")
         stamper.reset()
         val enteringFax = Modems.all[id].family == "WEFAX" && Modems.all[modemId].family != "WEFAX"
+        val enteringSstv = Modems.all[id].family == "SSTV" && Modems.all[modemId].family != "SSTV"
         modemId = id; Dsp.setModem(id, rxHz); Dsp.setSquelch(squelch)
+        if (enteringSstv) tuneTo(SSTV_CENTER_HZ)  // SSTV is read from fixed tones; the marker just shows where its band sits
         if (Modems.all[id].family == "WEFAX") {
             if (enteringFax) tuneTo(FAX_CENTER_HZ)  // the fax subcarrier sits at 1900 Hz when tuned USB at assigned - 1.9 kHz
             resetFaxState()
@@ -268,7 +272,7 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
 
     fun saveImage(item: RxItem.Image): android.net.Uri? {
         val bmp = item.bitmap ?: return null
-        val uri = FaxSaver.savePng(getApplication(), bmp, item.rows, "mfsk")
+        val uri = FaxSaver.savePng(getApplication(), bmp, item.rows, if (isSstv) "sstv" else "mfsk")
         if (uri != null) { item.saved = true; logger.note("picture saved (${item.width}x${item.height})") }
         return uri
     }
@@ -304,7 +308,8 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
     }
     fun zoomFull() { viewSpanHz = MAX_HZ; viewStartHz = 0f }
     /** Centre of the usual SSB audio passband (1900 Hz for weather fax); the waterfall marks it. */
-    val referenceHz get() = if (isFax) FAX_CENTER_HZ else 1500f
+    val referenceHz get() = if (isFax) FAX_CENTER_HZ else if (isSstv) SSTV_CENTER_HZ else 1500f
+    val isSstv get() = Modems.all[modemId].family == "SSTV"
 
     var binHz = 48000f / Dsp.FFT_SIZE; private set
     private var width = (MAX_HZ / binHz).toInt()
@@ -461,7 +466,7 @@ class AudioViewModel(app: Application) : AndroidViewModel(app) {
                     if (Dsp.readSpectrum(bins) > 0) pushRow()
                     val t = Dsp.decode()
                     if (t.isNotEmpty()) appendText(t)
-                    if (Modems.all[modemId].family == "MFSK") pollPicture()
+                    if (Modems.all[modemId].family.let { it == "MFSK" || it == "SSTV" }) pollPicture()
                     if (isFax) pollFax()
                     quality = Dsp.quality()
                     Dsp.level().let { inputPeak = it[0]; inputRms = it[1] }

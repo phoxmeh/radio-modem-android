@@ -5,6 +5,7 @@
 #include "mfsk_demod.h"
 #include "olivia_demod.h"
 #include "wefax_demod.h"
+#include "sstv_demod.h"
 #include <cstring>
 #include <memory>
 #include <mutex>
@@ -22,6 +23,7 @@ std::unique_ptr<MfskDemod> gMfsk;
 int gPicBase = 0;
 std::unique_ptr<OliviaDemod> gOlivia;
 std::unique_ptr<WefaxDemod> gFax;
+std::unique_ptr<SstvDemod> gSstv;
 // Fax settings survive decoder re-creation (e.g. when the audio source restarts).
 double gFaxLpm = 0, gFaxSlant = 0, gFaxShift = 0;
 int gFaxFilter = -1;
@@ -98,7 +100,9 @@ JNIEXPORT void JNICALL Java_app_radiomodem_Dsp_setModem(JNIEnv *, jobject, jint 
     gCarrier = carrierHz;
     gPsk.reset();
     if (gMfsk) gPicBase += gMfsk->picturesStarted();
+    if (gSstv) gPicBase += gSstv->picturesStarted();
     gMfsk.reset();
+    gSstv.reset();
     gOlivia.reset();
     gFax.reset();
     gFaxLpm = gFaxSlant = gFaxShift = 0; gFaxFilter = -1; gFaxManual = false;  // gFaxAuto is a preference: kept
@@ -118,7 +122,7 @@ JNIEXPORT jstring JNICALL Java_app_radiomodem_Dsp_decode(JNIEnv *env, jobject) {
     static float chunk[4800];
     std::lock_guard<std::mutex> l(gModemMutex);
     if (!gAudio.running()) return env->NewStringUTF("");
-    if (!gPsk && !gMfsk && !gOlivia && !gFax) {
+    if (!gPsk && !gMfsk && !gOlivia && !gFax && !gSstv) {
         if (gModemId < 6) {
             gPsk = std::make_unique<PskDemod>(gAudio.sampleRate(), (PskDemod::Baud)(gModemId % 3), gCarrier, gModemId >= 3);
             gPsk->setSquelch(gSquelch);
@@ -127,6 +131,9 @@ JNIEXPORT jstring JNICALL Java_app_radiomodem_Dsp_decode(JNIEnv *env, jobject) {
             gMfsk = std::make_unique<MfskDemod>(gAudio.sampleRate(), (MfskDemod::Mode)(gModemId - 6), gCarrier);
             gMfsk->setSquelch(gSquelch);
             gMfsk->setReverse(gReverse); gMfsk->setAfc(gAfc);
+        } else if (gModemId >= 40) {
+            // 40 = automatic, 41..45 = Martin M1, M2, Scottie S1, S2, Robot 36
+            gSstv = std::make_unique<SstvDemod>(gAudio.sampleRate(), gModemId == 40 ? -1 : gModemId - 41);
         } else if (gModemId >= 38) {
             gFax = std::make_unique<WefaxDemod>(gAudio.sampleRate(), gModemId == 38 ? 576 : 288, gCarrier);
             if (gFaxFilter >= 0) gFax->setFilter(gFaxFilter);
@@ -150,6 +157,7 @@ JNIEXPORT jstring JNICALL Java_app_radiomodem_Dsp_decode(JNIEnv *env, jobject) {
         if (gPsk) gPsk->process(chunk, n, text);
         else if (gMfsk) gMfsk->process(chunk, n, text);
         else if (gOlivia) gOlivia->process(chunk, n, text);
+        else if (gSstv) gSstv->process(chunk, n, text);
         else gFax->process(chunk, n);
     }
     // AFC moves the carrier inside the decoder; remember it so a re-created decoder starts where it was.
@@ -241,7 +249,8 @@ JNIEXPORT jbyteArray JNICALL Java_app_radiomodem_Dsp_picPoll(JNIEnv *env, jobjec
     std::lock_guard<std::mutex> l(gModemMutex);
     static std::vector<uint8_t> buf;
     buf.clear();
-    if (gMfsk && gMfsk->pollPicture(buf) >= sizeof(int32_t)) {
+    const size_t got = gMfsk ? gMfsk->pollPicture(buf) : gSstv ? gSstv->pollPicture(buf) : 0;
+    if (got >= sizeof(int32_t)) {
         int32_t id; std::memcpy(&id, buf.data(), sizeof id);
         id += gPicBase;
         std::memcpy(buf.data(), &id, sizeof id);

@@ -13,5 +13,6 @@ add_library(radiodsp SHARED
     interleave.cpp
     mfsk_demod.cpp
     olivia_demod.cpp
-    wefax_demod.cpp)
+    wefax_demod.cpp
+    sstv_demod.cpp)
 target_link_libraries(radiodsp oboe::oboe log)

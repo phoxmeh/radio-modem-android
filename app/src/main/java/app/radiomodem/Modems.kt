@@ -18,6 +18,9 @@ object Modems {
         mfsk("MFSK32", 256, 16), mfsk("MFSK64", 128, 16), mfsk("MFSK128", 64, 16),
     ) + olivia() + listOf(
         ModemInfo("WEFAX 576", "WEFAX", 800f), ModemInfo("WEFAX 288", "WEFAX", 800f),
+        // SSTV occupies 1200..2300 Hz whatever the carrier, so the "bandwidth" is that span.
+        ModemInfo("SSTV Auto", "SSTV", 1300f), ModemInfo("Martin M1", "SSTV", 1300f), ModemInfo("Martin M2", "SSTV", 1300f),
+        ModemInfo("Scottie S1", "SSTV", 1300f), ModemInfo("Scottie S2", "SSTV", 1300f), ModemInfo("Robot 36", "SSTV", 1300f),
     )
 
     // Ordered to match native id = 13 + toneIdx * 5 + bwIdx.
@@ -26,22 +29,24 @@ object Modems {
     }
     fun oliviaId(toneIdx: Int, bwIdx: Int) = OLIVIA_BASE + toneIdx * 5 + bwIdx
     fun supportsReverse(family: String) = family == "QPSK" || family == "MFSK" || family == "Olivia"
-    fun supportsAfc(family: String) = family != "Olivia"
+    fun supportsAfc(family: String) = family != "Olivia" && family != "SSTV"
 
     /** MFSK16, MFSK32, MFSK64, MFSK128: the modes fldigi gives a picture mode. */
     val PICTURE_MODES = setOf(8, 10, 11, 12)
 
     /** Decoder families in the order shown in the modem picker. */
-    val families = listOf("BPSK", "QPSK", "MFSK", "Olivia", "WEFAX")
+    val families = listOf("BPSK", "QPSK", "MFSK", "Olivia", "WEFAX", "SSTV")
 
     /** The variant selected when you first switch to a family. */
     fun familyDefault(family: String) = when (family) {
         "BPSK" -> idOf("BPSK31"); "QPSK" -> idOf("QPSK31"); "MFSK" -> idOf("MFSK16")
-        "Olivia" -> oliviaId(2, 2); else -> WEFAX_576
+        "Olivia" -> oliviaId(2, 2); "SSTV" -> SSTV_AUTO; else -> WEFAX_576
     }
 
     const val WEFAX_576 = 38
     const val WEFAX_288 = 39
+    /** 40 = pick the mode from the VIS header; 41..45 = Martin M1/M2, Scottie S1/S2, Robot 36. */
+    const val SSTV_AUTO = 40
     /** Bare "WEFAX" (used by the starter lists) means IOC 576, the usual HF broadcast format. */
     fun idOf(name: String?) = all.indexOfFirst { it.name == (if (name == "WEFAX") "WEFAX 576" else name) }
 }

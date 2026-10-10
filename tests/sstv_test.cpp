@@ -1,0 +1,211 @@
+// SSTV receiver tests with a transmit generator written straight from the mode specifications (N7CXI), independent of
+// the decoder's tables: VIS header, line layouts, FM (1500 Hz black .. 2300 Hz white, 1200 Hz sync).
+#include "sstv_demod.h"
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <random>
+#include <string>
+#include <vector>
+
+static const int kRate = 48000;
+
+struct Tx {
+    std::vector<float> out;
+    double phase = 0, tAccum = 0, offset = 0, scale = 1.0;  // offset: receiver tuning error in Hz, scale: clock error
+    void tone(double hz, double ms) {
+        tAccum += ms * 1e-3 * scale * kRate;
+        const long target = (long)std::llround(tAccum), n = target - (long)out.size();
+        for (long i = 0; i < n; ++i) { phase += 2 * M_PI * (hz + offset) / kRate; out.push_back((float)(0.5 * std::cos(phase))); }
+    }
+    static double px(int v) { return 1500.0 + 800.0 * v / 255.0; }
+    void vis(int code) {
+        tone(1900, 300); tone(1200, 10); tone(1900, 300); tone(1200, 30);
+        int ones = 0;
+        for (int b = 0; b < 7; ++b) { const int bit = (code >> b) & 1; ones += bit; tone(bit ? 1100 : 1300, 30); }
+        tone(ones & 1 ? 1100 : 1300, 30);   // even parity
+        tone(1200, 30);
+    }
+};
+
+struct Img { int w, h; std::vector<uint8_t> rgb; uint8_t *at(int x, int y) { return &rgb[((size_t)y * w + x) * 3]; } };
+
+// Blocks of 8x8 so Robot's shared chroma does not matter; a gradient bar gives smooth values.
+static Img makeImage(int w, int h) {
+    Img im{w, h, std::vector<uint8_t>((size_t)w * h * 3)};
+    for (int y = 0; y < h; ++y) for (int x = 0; x < w; ++x) {
+        uint8_t *p = im.at(x, y);
+        if (y < h / 4) { p[0] = (uint8_t)(x * 255 / (w - 1)); p[1] = (uint8_t)(x * 255 / (w - 1)); p[2] = (uint8_t)(x * 255 / (w - 1)); }
+        else { const int bx = x / 16, by = y / 16; p[0] = (uint8_t)(40 + 170 * ((bx + by) % 2)); p[1] = (uint8_t)(30 + 40 * (bx % 5)); p[2] = (uint8_t)(220 - 35 * (by % 6)); }
+    }
+    return im;
+}
+
+static void martin(Tx &t, Img &im, double pixelMs) {
+    for (int y = 0; y < im.h; ++y) {
+        t.tone(1200, 4.862); t.tone(1500, 0.572);
+        for (int c : {1, 2, 0}) {   // green, blue, red
+            for (int x = 0; x < im.w; ++x) t.tone(Tx::px(im.at(x, y)[c]), pixelMs);
+            t.tone(1500, 0.572);
+        }
+    }
+}
+
+static void scottie(Tx &t, Img &im, double pixelMs) {
+    for (int y = 0; y < im.h; ++y) {
+        t.tone(1500, 1.5); for (int x = 0; x < im.w; ++x) t.tone(Tx::px(im.at(x, y)[1]), pixelMs);   // separator, green
+        t.tone(1500, 1.5); for (int x = 0; x < im.w; ++x) t.tone(Tx::px(im.at(x, y)[2]), pixelMs);   // separator, blue
+        t.tone(1200, 9); t.tone(1500, 1.5);                                                          // sync, porch
+        for (int x = 0; x < im.w; ++x) t.tone(Tx::px(im.at(x, y)[0]), pixelMs);                      // red
+    }
+}
+
+static void robot36(Tx &t, Img &im) {
+    auto clip = [](double v) { return (int)std::min(255.0, std::max(0.0, v)); };
+    for (int y = 0; y < im.h; ++y) {
+        t.tone(1200, 9); t.tone(1500, 3);
+        auto Y = [&](int x) { const uint8_t *p = im.at(x, y); return 0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2]; };
+        for (int x = 0; x < im.w; ++x) t.tone(Tx::px(clip(Y(x))), 88.0 / im.w);
+        const bool ry = y % 2 == 0;
+        t.tone(ry ? 1500 : 2300, 4.5); t.tone(1900, 1.5);
+        for (int x = 0; x < im.w; x += 2) {   // 160 chroma samples
+            const uint8_t *p = im.at(x, y); const double yy = Y(x);
+            const double v = ry ? (p[0] - yy) / 1.4 + 127.5 : (p[2] - yy) / 1.78 + 127.5;
+            t.tone(Tx::px(clip(v)), 44.0 / 160);
+        }
+    }
+}
+
+enum { M1, M2, S1, S2, R36 };
+static const char *kNames[] = {"Martin M1", "Martin M2", "Scottie S1", "Scottie S2", "Robot 36"};
+static const int kVis[] = {44, 40, 60, 56, 8};
+static const int kLines[] = {256, 256, 256, 256, 240};
+
+static Tx transmit(int mode, Img &im, double offset = 0, double scale = 1.0) {
+    Tx t; t.offset = offset; t.scale = scale;
+    t.tone(1900, 200);
+    t.vis(kVis[mode]);
+    switch (mode) {
+        case M1: martin(t, im, 0.4576); break;
+        case M2: martin(t, im, 0.2288); break;
+        case S1: scottie(t, im, 0.4320); break;
+        case S2: scottie(t, im, 0.2752); break;
+        default: robot36(t, im);
+    }
+    t.tone(1900, 300);
+    for (int i = 0; i < kRate / 2; ++i) t.out.push_back(0.f);
+    return t;
+}
+
+struct Result { std::vector<std::vector<uint8_t>> pics; std::vector<int> ids, w, h, states; std::string text; };
+
+static Result decode(const std::vector<float> &sig, int selection = -1) {
+    SstvDemod d(kRate, selection);
+    Result r; std::vector<uint8_t> buf;
+    for (size_t i = 0; i < sig.size(); i += 480) {
+        d.process(&sig[i], (int)std::min<size_t>(480, sig.size() - i), r.text);
+        buf.clear();
+        if (d.pollPicture(buf)) {
+            int32_t h[7]; memcpy(h, buf.data(), sizeof h);
+            if (r.ids.empty() || r.ids.back() != h[0]) { r.ids.push_back(h[0]); r.w.push_back(h[1]); r.h.push_back(h[2]); r.states.push_back(0); r.pics.emplace_back((size_t)h[1] * h[2] * 3, 0); }
+            memcpy(&r.pics.back()[(size_t)h[4] * h[1] * 3], buf.data() + sizeof h, (size_t)h[5] * h[1] * 3);
+            r.states.back() = h[6];
+        }
+    }
+    return r;
+}
+
+static double meanError(Img &ref, const std::vector<uint8_t> &got, int fromRow = 0, int toRow = -1) {
+    if (toRow < 0) toRow = ref.h;
+    double e = 0; long n = 0;
+    for (int y = fromRow; y < toRow; ++y) for (int x = 4; x < ref.w - 4; ++x) for (int c = 0; c < 3; ++c) { e += std::abs((int)got[((size_t)y * ref.w + x) * 3 + c] - (int)ref.at(x, y)[c]); ++n; }
+    return e / n;
+}
+
+static bool check(bool c, const char *what) { printf("  %-64s %s\n", what, c ? "PASS" : "FAIL"); return c; }
+
+int main() {
+    bool ok = true;
+    const int w = 320;
+    for (int m = M1; m <= R36; ++m) {
+        Img im = makeImage(w, kLines[m]);
+        {
+            Tx t = transmit(m, im);
+            Result r = decode(t.out);
+            double e = r.pics.empty() ? 999 : meanError(im, r.pics[0]);
+            printf("%-10s clean: %zu picture(s), mean error %.1f/255, text:%s", kNames[m], r.pics.size(), e, r.text.c_str());
+            ok &= check(r.pics.size() == 1 && r.states[0] == 2 && r.w[0] == w && r.h[0] == kLines[m], "one finished picture of the right size");
+            ok &= check(e < (m == R36 ? 14.0 : 6.0), "image matches (mean error)");
+            ok &= check(r.text.find(kNames[m]) != std::string::npos, "mode named from the VIS header");
+        }
+        {
+            Tx t = transmit(m, im, 70);   // receiver 70 Hz off tune
+            for (auto &x : t.out) (void)x;
+            Result r = decode(t.out);
+            double e = r.pics.empty() ? 999 : meanError(im, r.pics[0]);
+            printf("%-10s tuned +70 Hz: error %.1f\n", kNames[m], e);
+            ok &= check(!r.pics.empty() && e < (m == R36 ? 16.0 : 8.0), "tuning error corrected from the header leader");
+        }
+        {
+            Tx t = transmit(m, im, 0, 1.004);   // sender's clock 0.4% slow: lines are 0.4% longer than nominal
+            Result r = decode(t.out);
+            double e = r.pics.empty() ? 999 : meanError(im, r.pics[0]);
+            printf("%-10s clock 0.4%% slow: error %.1f\n", kNames[m], e);
+            ok &= check(!r.pics.empty() && e < (m == R36 ? 18.0 : 14.0), "line timing follows each sync pulse");
+        }
+        {
+            Tx t = transmit(m, im);
+            std::mt19937 rng(7); std::normal_distribution<float> nd(0.f, 0.15f);
+            for (auto &x : t.out) x += nd(rng);
+            Result r = decode(t.out);
+            double e = r.pics.empty() ? 999 : meanError(im, r.pics[0]);
+            printf("%-10s noise 0.15: error %.1f\n", kNames[m], e);
+            ok &= check(!r.pics.empty() && e < (m == R36 ? 30.0 : 20.0), "decodes through noise");
+        }
+    }
+
+    printf("Selection and rejection:\n");
+    {
+        Img im = makeImage(w, 256);
+        Tx t = transmit(M1, im);
+        Result r = decode(t.out, SstvDemod::S1);
+        ok &= check(r.pics.empty() && r.text.find("Martin M1 detected, but Scottie S1 is selected") != std::string::npos, "a different mode than the selected one is ignored and reported");
+        r = decode(t.out, SstvDemod::M1);
+        ok &= check(r.pics.size() == 1, "the selected mode decodes");
+        // PD120 (VIS 95) is recognised but not supported.
+        Tx p; p.tone(1900, 200); p.vis(95); p.tone(1500, 2000);
+        r = decode(p.out);
+        ok &= check(r.pics.empty() && r.text.find("PD120: not supported") != std::string::npos, "an unsupported mode (PD120) is named, not decoded");
+        std::mt19937 rng(3); std::normal_distribution<float> nd(0.f, 0.2f);
+        std::vector<float> n(kRate * 20); for (auto &x : n) x = nd(rng);
+        r = decode(n);
+        ok &= check(r.pics.empty() && r.text.empty(), "noise alone produces nothing");
+        // Header with a wrong parity bit must not start a picture.
+        Tx b; b.tone(1900, 200); b.tone(1900, 300); b.tone(1200, 10); b.tone(1900, 300); b.tone(1200, 30);
+        for (int bit : {0, 0, 1, 1, 0, 1, 0}) b.tone(bit ? 1100 : 1300, 30);
+        b.tone(1300, 30); /* parity should be 1100 */ b.tone(1200, 30); b.tone(1500, 3000);
+        r = decode(b.out);
+        ok &= check(r.pics.empty(), "a header with bad parity is rejected");
+    }
+    printf("Sequences and dropouts:\n");
+    {
+        Img a = makeImage(w, 256), c = makeImage(w, 240);
+        Tx t1 = transmit(M2, a), t2 = transmit(R36, c);
+        std::vector<float> both = t1.out; both.insert(both.end(), t2.out.begin(), t2.out.end());
+        Result r = decode(both);
+        ok &= check(r.pics.size() == 2 && r.ids[0] != r.ids[1], "two pictures in a row are separate");
+        ok &= check(r.pics.size() == 2 && meanError(a, r.pics[0]) < 6.0 && meanError(c, r.pics[1]) < 14.0, "both decode correctly");
+
+        Img im = makeImage(w, 256);
+        Tx t = transmit(M1, im);
+        const size_t from = (size_t)(30.0 * kRate), to = from + (size_t)(1.5 * kRate);
+        for (size_t i = from; i < to && i < t.out.size(); ++i) t.out[i] = 0.f;   // a 1.5 s fade, about 3 lines
+        r = decode(t.out);
+        ok &= check(r.pics.size() == 1 && r.states[0] == 2, "a short fade does not end the picture");
+        const int lostFrom = 30 * 1000 / 446, lostTo = lostFrom + 5;
+        ok &= check(!r.pics.empty() && meanError(im, r.pics[0], lostTo + 2, 256) < 6.0, "lines after the fade are aligned again");
+        ok &= check(!r.pics.empty() && meanError(im, r.pics[0], 0, lostFrom - 2) < 6.0, "lines before the fade are fine");
+    }
+    printf(ok ? "SSTV: all passed\n" : "SSTV: FAILURES\n");
+    return ok ? 0 : 1;
+}

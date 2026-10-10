@@ -16,11 +16,16 @@ import app.radiomodem.schedule.FaxStations
  *    the end of 2026 (PNS 26-48).
  */
 object SeedMemories {
-    const val VERSION = 5  // 5: Shortwave Radiogram entries (4: entries use the rig's default mode and bandwidth)
+    const val VERSION = 6  // 6: SSTV calling frequencies, 5: Shortwave Radiogram entries (4: entries use the rig's default mode and bandwidth)
 
     private fun psk(band: String, dialKhz: Double, note: String = "") = Memory(
         name = "$band PSK31", group = "PSK31 calling", freqHz = Math.round(dialKhz * 1000), mode = "",
         modem = "BPSK31", carrierHz = 1000, notes = note, seedKey = "psk31-$band",
+    )
+
+    private fun sstv(name: String, dialKhz: Double, mode: String, note: String) = Memory(
+        name = name, group = "SSTV", freqHz = Math.round(dialKhz * 1000), mode = mode, modem = "SSTV Auto", carrierHz = 1700,
+        notes = note, seedKey = "sstv-${dialKhz}",
     )
 
     private fun kHz(v: Double) = if (v == Math.floor(v)) v.toLong().toString() else v.toString().trimEnd('0')
@@ -50,5 +55,13 @@ object SeedMemories {
         psk("30m", 10142.150), psk("20m", 14070.150), psk("17m", 18100.150),
         psk("15m", 21080.150), psk("12m", 24920.150), psk("10m", 28120.150),
     ) + FaxStations.all.flatMap { entries(it) } +
-        app.radiomodem.radiogram.RadiogramEntries.memories(app.radiomodem.radiogram.RadiogramEntries.bundledSlots, seeds = true)
+        app.radiomodem.radiogram.RadiogramEntries.memories(app.radiomodem.radiogram.RadiogramEntries.bundledSlots, seeds = true) + listOf(
+        sstv("SSTV · 20 m · 14.230 MHz", 14230.0, "", "The main SSTV calling frequency (USB). Martin M1, Scottie S1 and Robot 36 are the usual modes."),
+        sstv("SSTV · 15 m · 21.340 MHz", 21340.0, "", "SSTV calling frequency (USB)."),
+        sstv("SSTV · 10 m · 28.680 MHz", 28680.0, "", "SSTV calling frequency (USB)."),
+        sstv("SSTV · 40 m · 7.171 MHz", 7171.0, "LSB", "SSTV calling frequency, lower sideband by convention below 10 MHz."),
+        sstv("SSTV · 80 m · 3.845 MHz", 3845.0, "LSB", "SSTV calling frequency, lower sideband by convention below 10 MHz."),
+        sstv("SSTV · 2 m · 145.500 MHz", 145500.0, "FM", "VHF SSTV calling frequency (FM)."),
+        sstv("SSTV · ISS · 145.800 MHz", 145800.0, "FM", "ARISS SSTV downlink from the International Space Station during events (FM). PD120 or PD180 are typical there; only Martin, Scottie and Robot 36 decode so far."),
+    )
 }

@@ -11,7 +11,7 @@ tested.
 
 | Area | Details |
 |---|---|
-| Modes | BPSK31/63/125, QPSK31/63/125, MFSK4/8/16/31/32/64/128 (including pictures), Olivia (4–64 tones × 125–2000 Hz), weather fax (IOC 576 and 288) |
+| Modes | BPSK31/63/125, QPSK31/63/125, MFSK4/8/16/31/32/64/128 (including pictures), Olivia (4–64 tones × 125–2000 Hz), weather fax (IOC 576 and 288), SSTV (Martin M1/M2, Scottie S1/S2, Robot 36, with automatic mode detection from the VIS header) |
 | Waterfall | Sharp zero-padded spectrum, frequency ruler, bright modem passband with the rest dimmed, uniform zoom, tap/drag/step buttons for the carrier, auto brightness |
 | Weather fax | Automatic APT start/stop and phasing, AFC, auto slant (frozen after N lines), manual slant/shift, save/share |
 | MFSK pictures | Decoded inline in the text feed and saved to Pictures/RadioModem |
@@ -38,6 +38,7 @@ Requirements: Android SDK (compileSdk 37), NDK 30.0.16248370, CMake 3.31.6, JDK 
 ./gradlew :app:assembleDebug          # app/build/outputs/apk/debug/app-debug.apk
 ./gradlew :app:testDebugUnitTest      # Kotlin unit tests
 tests/run_host_tests.sh               # native DSP tests (g++ only, no device)
+tools/sstv_crosscheck.py              # SSTV decoder against an independent encoder (pip install PySSTV pillow numpy)
 ```
 
 ## Layout
@@ -49,6 +50,15 @@ tests/run_host_tests.sh               # native DSP tests (g++ only, no device)
 - `tools/flrig_extract.py` – lifts mode and bandwidth tables from flrig's rig classes; the CAT commands are hand-written
   in `tools/rigs/*.commands.json`. `tools/fetch_schedule_snapshot.py` refreshes the schedule snapshot.
 - `tests/` – host tests with transmit generators mirrored from fldigi.
+
+## SSTV
+
+`sstv_demod.cpp` finds a transmission by its VIS header, reads the mode from it, takes the receiver's tuning error from
+the header's 1900 Hz leader, and then aligns every line from its own sync pulse, so clock error and drift cannot skew the
+picture. Pictures appear in the feed like MFSK pictures. Mode timings follow N7CXI's specification, checked against
+slowrx. It is tested against a transmit generator written from the specification, against PySSTV (an independent
+encoder) with noise, tuning error and clock error, and against third-party recordings. Not yet supported: the PD modes,
+Robot 72, Scottie DX, and starting without a VIS header.
 
 ## Shortwave Radiogram schedule
 

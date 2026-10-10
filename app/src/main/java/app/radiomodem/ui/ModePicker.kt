@@ -11,7 +11,7 @@ import app.radiomodem.AudioViewModel
 import app.radiomodem.Modems
 
 /**
- * Family buttons (BPSK, QPSK, MFSK, Olivia, WEFAX) with the selected family's variants underneath.
+ * Family buttons (BPSK, QPSK, MFSK, Olivia, WEFAX, SSTV) with the selected family's variants underneath.
  * Used at the top of the Modem drawer and in the toolbar's mode sheet. `onPicked` fires after a variant is chosen.
  */
 @OptIn(ExperimentalLayoutApi::class)
@@ -51,7 +51,7 @@ private fun VariantPicker(audio: AudioViewModel, family: String, onPicked: () ->
             }
         }
         else -> {
-            Text(if (family == "MFSK") "Variant" else "Baud rate", style = MaterialTheme.typography.labelMedium)
+            Text(if (family == "MFSK") "Variant" else if (family == "SSTV") "Mode" else "Baud rate", style = MaterialTheme.typography.labelMedium)
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Modems.all.forEachIndexed { id, m ->
                     if (m.family == family) FilterChip(audio.modemId == id, { pick(id) }, { Text(m.name.removePrefix(family)) })
