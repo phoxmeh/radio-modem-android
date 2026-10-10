@@ -76,10 +76,25 @@ static void robot36(Tx &t, Img &im) {
     }
 }
 
-enum { M1, M2, S1, S2, R36 };
-static const char *kNames[] = {"Martin M1", "Martin M2", "Scottie S1", "Scottie S2", "Robot 36"};
-static const int kVis[] = {44, 40, 60, 56, 8};
-static const int kLines[] = {256, 256, 256, 256, 240};
+// PD: sync 20 ms, porch 2.08 ms, then the even row's luminance, R-Y and B-Y (both averaged over the two rows), the odd row's luminance.
+static void pd(Tx &t, Img &im, double pixelMs) {
+    auto clip = [](double v) { return (int)std::min(255.0, std::max(0.0, v)); };
+    auto Y = [&](int x, int y) { const uint8_t *p = im.at(x, y); return 0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2]; };
+    for (int y = 0; y < im.h; y += 2) {
+        t.tone(1200, 20); t.tone(1500, 2.08);
+        for (int x = 0; x < im.w; ++x) t.tone(Tx::px(clip(Y(x, y))), pixelMs);
+        for (int x = 0; x < im.w; ++x) { double v = 0; for (int r : {y, y + 1}) v += (im.at(x, r)[0] - Y(x, r)) / 1.4 + 127.5; t.tone(Tx::px(clip(v / 2)), pixelMs); }
+        for (int x = 0; x < im.w; ++x) { double v = 0; for (int r : {y, y + 1}) v += (im.at(x, r)[2] - Y(x, r)) / 1.78 + 127.5; t.tone(Tx::px(clip(v / 2)), pixelMs); }
+        for (int x = 0; x < im.w; ++x) t.tone(Tx::px(clip(Y(x, y + 1))), pixelMs);
+    }
+}
+
+enum { M1, M2, S1, S2, R36, PD50, PD90, PD120, PD160, PD180, PD240, PD290 };
+static const char *kNames[] = {"Martin M1", "Martin M2", "Scottie S1", "Scottie S2", "Robot 36", "PD50", "PD90", "PD120", "PD160", "PD180", "PD240", "PD290"};
+static const int kVis[] = {44, 40, 60, 56, 8, 93, 99, 95, 98, 96, 97, 94};
+static const int kLines[] = {256, 256, 256, 256, 240, 256, 256, 496, 400, 496, 496, 616};
+static const int kWidth[] = {320, 320, 320, 320, 320, 320, 320, 640, 512, 640, 640, 800};
+static const double kPd[] = {0.286, 0.532, 0.19, 0.382, 0.286, 0.382, 0.286};
 
 static Tx transmit(int mode, Img &im, double offset = 0, double scale = 1.0) {
     Tx t; t.offset = offset; t.scale = scale;
@@ -90,7 +105,8 @@ static Tx transmit(int mode, Img &im, double offset = 0, double scale = 1.0) {
         case M2: martin(t, im, 0.2288); break;
         case S1: scottie(t, im, 0.4320); break;
         case S2: scottie(t, im, 0.2752); break;
-        default: robot36(t, im);
+        case R36: robot36(t, im); break;
+        default: pd(t, im, kPd[mode - PD50]);
     }
     t.tone(1900, 300);
     for (int i = 0; i < kRate / 2; ++i) t.out.push_back(0.f);
@@ -126,56 +142,57 @@ static bool check(bool c, const char *what) { printf("  %-64s %s\n", what, c ? "
 
 int main() {
     bool ok = true;
-    const int w = 320;
-    for (int m = M1; m <= R36; ++m) {
+    for (int m = M1; m <= PD290; ++m) {
+        const int w = kWidth[m];
         Img im = makeImage(w, kLines[m]);
+        const bool full = m <= R36 || m == PD90 || m == PD120;   // the long modes get the clean case only, to keep the run short
         {
             Tx t = transmit(m, im);
             Result r = decode(t.out);
             double e = r.pics.empty() ? 999 : meanError(im, r.pics[0]);
             printf("%-10s clean: %zu picture(s), mean error %.1f/255, text:%s", kNames[m], r.pics.size(), e, r.text.c_str());
             ok &= check(r.pics.size() == 1 && r.states[0] == 2 && r.w[0] == w && r.h[0] == kLines[m], "one finished picture of the right size");
-            ok &= check(e < (m == R36 ? 14.0 : 6.0), "image matches (mean error)");
+            ok &= check(e < (m == R36 ? 14.0 : m >= PD50 ? 9.0 : 6.0), "image matches (mean error)");
             ok &= check(r.text.find(kNames[m]) != std::string::npos, "mode named from the VIS header");
         }
-        {
+        if (full) {
             Tx t = transmit(m, im, 70);   // receiver 70 Hz off tune
             for (auto &x : t.out) (void)x;
             Result r = decode(t.out);
             double e = r.pics.empty() ? 999 : meanError(im, r.pics[0]);
             printf("%-10s tuned +70 Hz: error %.1f\n", kNames[m], e);
-            ok &= check(!r.pics.empty() && e < (m == R36 ? 16.0 : 8.0), "tuning error corrected from the header leader");
+            ok &= check(!r.pics.empty() && e < (m == R36 ? 16.0 : m >= PD50 ? 12.0 : 8.0), "tuning error corrected from the header leader");
         }
-        {
+        if (full) {
             Tx t = transmit(m, im, 0, 1.004);   // sender's clock 0.4% slow: lines are 0.4% longer than nominal
             Result r = decode(t.out);
             double e = r.pics.empty() ? 999 : meanError(im, r.pics[0]);
             printf("%-10s clock 0.4%% slow: error %.1f\n", kNames[m], e);
-            ok &= check(!r.pics.empty() && e < (m == R36 ? 18.0 : 14.0), "line timing follows each sync pulse");
+            ok &= check(!r.pics.empty() && e < (m == R36 ? 10.0 : 8.0), "line timing follows each sync pulse");
         }
-        {
+        if (full) {
             Tx t = transmit(m, im);
             std::mt19937 rng(7); std::normal_distribution<float> nd(0.f, 0.15f);
             for (auto &x : t.out) x += nd(rng);
             Result r = decode(t.out);
             double e = r.pics.empty() ? 999 : meanError(im, r.pics[0]);
             printf("%-10s noise 0.15: error %.1f\n", kNames[m], e);
-            ok &= check(!r.pics.empty() && e < (m == R36 ? 30.0 : 20.0), "decodes through noise");
+            ok &= check(!r.pics.empty() && e < (m == R36 ? 30.0 : m >= PD50 ? 34.0 : 20.0), "decodes through noise");
         }
     }
 
     printf("Selection and rejection:\n");
     {
-        Img im = makeImage(w, 256);
+        Img im = makeImage(320, 256);
         Tx t = transmit(M1, im);
         Result r = decode(t.out, SstvDemod::S1);
         ok &= check(r.pics.empty() && r.text.find("Martin M1 detected, but Scottie S1 is selected") != std::string::npos, "a different mode than the selected one is ignored and reported");
         r = decode(t.out, SstvDemod::M1);
         ok &= check(r.pics.size() == 1, "the selected mode decodes");
-        // PD120 (VIS 95) is recognised but not supported.
-        Tx p; p.tone(1900, 200); p.vis(95); p.tone(1500, 2000);
+        // Robot 72 (VIS 12) is recognised but not supported.
+        Tx p; p.tone(1900, 200); p.vis(12); p.tone(1500, 2000);
         r = decode(p.out);
-        ok &= check(r.pics.empty() && r.text.find("PD120: not supported") != std::string::npos, "an unsupported mode (PD120) is named, not decoded");
+        ok &= check(r.pics.empty() && r.text.find("Robot 72: not supported") != std::string::npos, "an unsupported mode (Robot 72) is named, not decoded");
         std::mt19937 rng(3); std::normal_distribution<float> nd(0.f, 0.2f);
         std::vector<float> n(kRate * 20); for (auto &x : n) x = nd(rng);
         r = decode(n);
@@ -189,14 +206,14 @@ int main() {
     }
     printf("Sequences and dropouts:\n");
     {
-        Img a = makeImage(w, 256), c = makeImage(w, 240);
+        Img a = makeImage(320, 256), c = makeImage(320, 240);
         Tx t1 = transmit(M2, a), t2 = transmit(R36, c);
         std::vector<float> both = t1.out; both.insert(both.end(), t2.out.begin(), t2.out.end());
         Result r = decode(both);
         ok &= check(r.pics.size() == 2 && r.ids[0] != r.ids[1], "two pictures in a row are separate");
         ok &= check(r.pics.size() == 2 && meanError(a, r.pics[0]) < 6.0 && meanError(c, r.pics[1]) < 14.0, "both decode correctly");
 
-        Img im = makeImage(w, 256);
+        Img im = makeImage(320, 256);
         Tx t = transmit(M1, im);
         const size_t from = (size_t)(30.0 * kRate), to = from + (size_t)(1.5 * kRate);
         for (size_t i = from; i < to && i < t.out.size(); ++i) t.out[i] = 0.f;   // a 1.5 s fade, about 3 lines

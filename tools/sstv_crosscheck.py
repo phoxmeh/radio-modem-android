@@ -7,7 +7,13 @@ decodes the WAV with the host build of the decoder and prints the mean pixel err
 import subprocess, sys, os, wave, tempfile
 import numpy as np
 from PIL import Image, ImageDraw
-from pysstv.color import MartinM1, MartinM2, ScottieS1, ScottieS2, Robot36
+from pysstv.color import MartinM1, MartinM2, ScottieS1, ScottieS2, Robot36, PD90, PD120, PD160, PD180, PD240
+
+# PySSTV has no PD50 or PD290; they differ from PD90 only in size and timing.
+class PD50(PD90):
+    VIS_CODE = 0x5D; PIXEL = 0.286
+class PD290(PD90):
+    VIS_CODE = 0x5E; WIDTH = 800; HEIGHT = 616; PIXEL = 0.286
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, '..', 'app', 'src', 'main', 'cpp')
@@ -44,8 +50,10 @@ def ppm(path):
         return np.frombuffer(f.read(), dtype=np.uint8).reshape(h, w, 3)
 
 def main():
-    modes = [('Martin M1', MartinM1, 0), ('Martin M2', MartinM2, 1), ('Scottie S1', ScottieS1, 2), ('Scottie S2', ScottieS2, 3), ('Robot 36', Robot36, 4)]
+    modes = [('Martin M1', MartinM1, 0), ('Martin M2', MartinM2, 1), ('Scottie S1', ScottieS1, 2), ('Scottie S2', ScottieS2, 3), ('Robot 36', Robot36, 4),
+             ('PD50', PD50, 5), ('PD90', PD90, 6), ('PD120', PD120, 7), ('PD160', PD160, 8), ('PD180', PD180, 9), ('PD240', PD240, 10), ('PD290', PD290, 11)]
     cases = [('clean', 0, 0, 0), ('noise 0.15', 0.15, 0, 0), ('tuned +60 Hz', 0, 60, 0), ('clock +500 ppm', 0, 0, 500)]
+    if os.environ.get('QUICK'): cases = cases[:1]
     only = sys.argv[1:] 
     ok = True
     with tempfile.TemporaryDirectory() as tmp:
@@ -64,7 +72,7 @@ def main():
                 if not files: print(f'{name:11s} {cname:15s} FAIL (no picture) {out.stdout.strip()[-80:]}'); ok = False; continue
                 got = ppm(os.path.join(tmp, files[0])).astype(float)
                 err = np.abs(got - ref).mean()
-                lim = {'clean': 22, 'noise 0.15': 40, 'tuned +60 Hz': 22, 'clock +500 ppm': 25}[cname]
+                lim = {'clean': 22, 'noise 0.15': 40, 'tuned +60 Hz': 22, 'clock +500 ppm': 25}[cname] + (15 if name.startswith('PD') else 0)
                 good = got.shape == ref.shape and err < lim
                 ok &= good
                 print(f'{name:11s} {cname:15s} {"PASS" if good else "FAIL"}  mean error {err:5.1f}/255  ({got.shape[1]}x{got.shape[0]})')

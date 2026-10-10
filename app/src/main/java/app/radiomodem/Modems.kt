@@ -21,6 +21,8 @@ object Modems {
         // SSTV occupies 1200..2300 Hz whatever the carrier, so the "bandwidth" is that span.
         ModemInfo("SSTV Auto", "SSTV", 1300f), ModemInfo("Martin M1", "SSTV", 1300f), ModemInfo("Martin M2", "SSTV", 1300f),
         ModemInfo("Scottie S1", "SSTV", 1300f), ModemInfo("Scottie S2", "SSTV", 1300f), ModemInfo("Robot 36", "SSTV", 1300f),
+        ModemInfo("PD50", "SSTV", 1300f), ModemInfo("PD90", "SSTV", 1300f), ModemInfo("PD120", "SSTV", 1300f), ModemInfo("PD160", "SSTV", 1300f),
+        ModemInfo("PD180", "SSTV", 1300f), ModemInfo("PD240", "SSTV", 1300f), ModemInfo("PD290", "SSTV", 1300f),
     )
 
     // Ordered to match native id = 13 + toneIdx * 5 + bwIdx.
@@ -45,7 +47,7 @@ object Modems {
 
     const val WEFAX_576 = 38
     const val WEFAX_288 = 39
-    /** 40 = pick the mode from the VIS header; 41..45 = Martin M1/M2, Scottie S1/S2, Robot 36. */
+    /** 40 = pick the mode from the VIS header; 41..45 = Martin M1/M2, Scottie S1/S2, Robot 36; 46..52 = PD50/90/120/160/180/240/290. */
     const val SSTV_AUTO = 40
     /** Bare "WEFAX" (used by the starter lists) means IOC 576, the usual HF broadcast format. */
     fun idOf(name: String?) = all.indexOfFirst { it.name == (if (name == "WEFAX") "WEFAX 576" else name) }

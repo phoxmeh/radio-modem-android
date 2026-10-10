@@ -16,7 +16,7 @@ import app.radiomodem.schedule.FaxStations
  *    the end of 2026 (PNS 26-48).
  */
 object SeedMemories {
-    const val VERSION = 6  // 6: SSTV calling frequencies, 5: Shortwave Radiogram entries (4: entries use the rig's default mode and bandwidth)
+    const val VERSION = 7  // 7: ISS note, 6: SSTV calling frequencies, 5: Shortwave Radiogram entries (4: entries use the rig's default mode and bandwidth)
 
     private fun psk(band: String, dialKhz: Double, note: String = "") = Memory(
         name = "$band PSK31", group = "PSK31 calling", freqHz = Math.round(dialKhz * 1000), mode = "",
@@ -62,6 +62,6 @@ object SeedMemories {
         sstv("SSTV · 40 m · 7.171 MHz", 7171.0, "LSB", "SSTV calling frequency, lower sideband by convention below 10 MHz."),
         sstv("SSTV · 80 m · 3.845 MHz", 3845.0, "LSB", "SSTV calling frequency, lower sideband by convention below 10 MHz."),
         sstv("SSTV · 2 m · 145.500 MHz", 145500.0, "FM", "VHF SSTV calling frequency (FM)."),
-        sstv("SSTV · ISS · 145.800 MHz", 145800.0, "FM", "ARISS SSTV downlink from the International Space Station during events (FM). PD120 or PD180 are typical there; only Martin, Scottie and Robot 36 decode so far."),
+        sstv("SSTV · ISS · 145.800 MHz", 145800.0, "FM", "ARISS SSTV downlink from the International Space Station during events (FM). PD120 or PD180 are typical there."),
     )
 }
