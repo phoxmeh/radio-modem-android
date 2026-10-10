@@ -7,7 +7,7 @@ decodes the WAV with the host build of the decoder and prints the mean pixel err
 import subprocess, sys, os, wave, tempfile
 import numpy as np
 from PIL import Image, ImageDraw
-from pysstv.color import MartinM1, MartinM2, ScottieS1, ScottieS2, Robot36, PD90, PD120, PD160, PD180, PD240
+from pysstv.color import MartinM1, MartinM2, ScottieS1, ScottieS2, Robot36, ScottieDX, PD90, PD120, PD160, PD180, PD240
 
 # PySSTV has no PD50 or PD290; they differ from PD90 only in size and timing.
 class PD50(PD90):
@@ -50,7 +50,7 @@ def ppm(path):
         return np.frombuffer(f.read(), dtype=np.uint8).reshape(h, w, 3)
 
 def main():
-    modes = [('Martin M1', MartinM1, 0), ('Martin M2', MartinM2, 1), ('Scottie S1', ScottieS1, 2), ('Scottie S2', ScottieS2, 3), ('Robot 36', Robot36, 4),
+    modes = [('Martin M1', MartinM1, 0), ('Martin M2', MartinM2, 1), ('Scottie S1', ScottieS1, 2), ('Scottie S2', ScottieS2, 3), ('Robot 36', Robot36, 4), ('Scottie DX', ScottieDX, 12),
              ('PD50', PD50, 5), ('PD90', PD90, 6), ('PD120', PD120, 7), ('PD160', PD160, 8), ('PD180', PD180, 9), ('PD240', PD240, 10), ('PD290', PD290, 11)]
     cases = [('clean', 0, 0, 0), ('noise 0.15', 0.15, 0, 0), ('tuned +60 Hz', 0, 60, 0), ('clock +500 ppm', 0, 0, 500)]
     if os.environ.get('QUICK'): cases = cases[:1]

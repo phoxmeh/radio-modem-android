@@ -29,7 +29,7 @@ uint8_t clip8(double v) { return (uint8_t)std::min(255.0, std::max(0.0, v)); }
 static SstvDemod::Spec makeMartin(const char *name, int vis, double pixel) {
     const double scan = 320 * pixel, porch = 0.572e-3, sep = 0.572e-3, sync = 4.862e-3;
     SstvDemod::Spec s{};
-    s.name = name; s.vis = vis; s.width = 320; s.lines = 256; s.syncLen = sync; s.robot = false; s.rowsPerLine = 1;
+    s.name = name; s.vis = vis; s.width = 320; s.lines = 256; s.syncLen = sync; s.robot = false; s.yuv = false; s.rowsPerLine = 1;
     // Channel order on air: green, blue, red.
     s.ch[0] = {1, porch, scan, 320};
     s.ch[1] = {2, porch + scan + sep, scan, 320};
@@ -44,7 +44,7 @@ static SstvDemod::Spec makeMartin(const char *name, int vis, double pixel) {
 static SstvDemod::Spec makeScottie(const char *name, int vis, double pixel) {
     const double scan = 320 * pixel, porch = 1.5e-3, sep = 1.5e-3, sync = 9e-3;
     SstvDemod::Spec s{};
-    s.name = name; s.vis = vis; s.width = 320; s.lines = 256; s.syncLen = sync; s.robot = false; s.rowsPerLine = 1;
+    s.name = name; s.vis = vis; s.width = 320; s.lines = 256; s.syncLen = sync; s.robot = false; s.yuv = false; s.rowsPerLine = 1;
     // On air: separator, green, separator, blue, SYNC, porch, red. So green and blue come before their line's sync.
     s.ch[0] = {1, -sync - 2 * scan - sep, scan, 320};
     s.ch[1] = {2, -sync - scan, scan, 320};
@@ -58,7 +58,7 @@ static SstvDemod::Spec makeScottie(const char *name, int vis, double pixel) {
 
 static SstvDemod::Spec makeRobot36() {
     SstvDemod::Spec s{};
-    s.name = "Robot 36"; s.vis = 8; s.width = 320; s.lines = 240; s.syncLen = 9e-3; s.robot = true; s.rowsPerLine = 1;
+    s.name = "Robot 36"; s.vis = 8; s.width = 320; s.lines = 240; s.syncLen = 9e-3; s.robot = true; s.yuv = false; s.rowsPerLine = 1;
     s.ch[0] = {0, 3e-3, 88e-3, 320};                  // Y
     s.sepStart = 3e-3 + 88e-3; s.sepLen = 4.5e-3;     // 1500 Hz: next is R-Y (even lines); 2300 Hz: B-Y (odd)
     s.ch[1] = {1, 3e-3 + 88e-3 + 4.5e-3 + 1.5e-3, 44e-3, 160};  // chroma, half horizontal resolution
@@ -69,12 +69,27 @@ static SstvDemod::Spec makeRobot36() {
     return s;
 }
 
+// Robot 72: every line has luminance (138 ms) and both colour differences (69 ms each, half horizontal resolution),
+// each preceded by a 4.5 ms separator (1500 Hz before R-Y, 2300 Hz before B-Y) and a 1.5 ms porch.
+static SstvDemod::Spec makeRobot72() {
+    SstvDemod::Spec s{};
+    s.name = "Robot 72"; s.vis = 12; s.width = 320; s.lines = 240; s.syncLen = 9e-3; s.robot = false; s.yuv = true; s.rowsPerLine = 1;
+    s.ch[0] = {0, 3e-3, 138e-3, 320};
+    s.ch[1] = {1, 3e-3 + 138e-3 + 4.5e-3 + 1.5e-3, 69e-3, 160};
+    s.ch[2] = {2, 3e-3 + 138e-3 + 4.5e-3 + 1.5e-3 + 69e-3 + 4.5e-3 + 1.5e-3, 69e-3, 160};
+    s.nch = 3;
+    s.rowEnd = s.ch[2].start + 69e-3;
+    s.lineTime = 300e-3;
+    s.firstSyncEndDelay = 0;
+    return s;
+}
+
 // PD modes (Paul Dunphy, PD-xxx): one sync pulse per two image rows. The frame is sync (20 ms), porch (2.08 ms), then four
 // scans back to back: luminance of the even row, R-Y, B-Y (both shared by the two rows), luminance of the odd row.
 static SstvDemod::Spec makePD(const char *name, int vis, int width, int lines, double pixel) {
     const double scan = width * pixel, porch = 2.08e-3, sync = 20e-3;
     SstvDemod::Spec s{};
-    s.name = name; s.vis = vis; s.width = width; s.lines = lines; s.syncLen = sync; s.robot = false; s.rowsPerLine = 2;
+    s.name = name; s.vis = vis; s.width = width; s.lines = lines; s.syncLen = sync; s.robot = false; s.yuv = true; s.rowsPerLine = 2;
     s.ch[0] = {0, porch, scan, width};
     s.ch[1] = {1, porch + scan, scan, width};
     s.ch[2] = {2, porch + 2 * scan, scan, width};
@@ -93,6 +108,7 @@ const SstvDemod::Spec &SstvDemod::spec(int mode) {
         makePD("PD50", 93, 320, 256, 0.286e-3), makePD("PD90", 99, 320, 256, 0.532e-3), makePD("PD120", 95, 640, 496, 0.19e-3),
         makePD("PD160", 98, 512, 400, 0.382e-3), makePD("PD180", 96, 640, 496, 0.286e-3), makePD("PD240", 97, 640, 496, 0.382e-3),
         makePD("PD290", 94, 800, 616, 0.286e-3),
+        makeRobot72(), makeScottie("Scottie DX", 76, 1.08e-3),
     };
     return specs[mode];
 }
@@ -228,7 +244,7 @@ void SstvDemod::huntVis() {
         for (int m = 0; m < kModeCount; ++m) if (spec(m).vis == vis) mode = m;
         char msg[96];
         if (mode < 0) {
-            const char *known = vis == 76 ? "Scottie DX" : vis == 12 ? "Robot 72" : vis == 36 ? "Martin M3" : vis == 32 ? "Martin M4" :
+            const char *known = vis == 36 ? "Martin M3" : vis == 32 ? "Martin M4" :
                                 vis == 2 ? "Robot 8 b/w" : vis == 4 ? "Robot 24" : vis == 6 ? "Robot 12 b/w" : nullptr;
             std::snprintf(msg, sizeof msg, "\nSSTV VIS %d%s%s: not supported yet\n", vis, known ? " " : "", known ? known : "");
         } else if (sel_ >= 0 && sel_ != mode) {
@@ -466,7 +482,9 @@ void SstvDemod::renderLine(int line) {
         return;
     }
     uint8_t *dst = &rgb_[(size_t)line * W * 3];
-    if (!sp.robot) {
+    if (sp.yuv) {
+        yuv(dst, plane[0].data(), plane[1].data(), plane[2].data());   // Robot 72
+    } else if (!sp.robot) {
         for (int x = 0; x < W; ++x)
             for (int c = 0; c < sp.nch; ++c) dst[x * 3 + sp.ch[c].plane] = clip8(plane[c][x]);
     } else {

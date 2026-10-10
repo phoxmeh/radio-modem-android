@@ -132,7 +132,7 @@ JNIEXPORT jstring JNICALL Java_app_radiomodem_Dsp_decode(JNIEnv *env, jobject) {
             gMfsk->setSquelch(gSquelch);
             gMfsk->setReverse(gReverse); gMfsk->setAfc(gAfc);
         } else if (gModemId >= 40) {
-            // 40 = automatic, 41..52 = Martin M1, M2, Scottie S1, S2, Robot 36, PD50, PD90, PD120, PD160, PD180, PD240, PD290
+            // 40 = automatic, 41..52 = Martin M1, M2, Scottie S1, S2, Robot 36, PD50, PD90, PD120, PD160, PD180, PD240, PD290, Robot 72, Scottie DX
             gSstv = std::make_unique<SstvDemod>(gAudio.sampleRate(), gModemId == 40 ? -1 : gModemId - 41);
         } else if (gModemId >= 38) {
             gFax = std::make_unique<WefaxDemod>(gAudio.sampleRate(), gModemId == 38 ? 576 : 288, gCarrier);

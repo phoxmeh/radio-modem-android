@@ -53,8 +53,10 @@ private fun VariantPicker(audio: AudioViewModel, family: String, onPicked: () ->
         else -> {
             Text(if (family == "MFSK") "Variant" else if (family == "SSTV") "Mode" else "Baud rate", style = MaterialTheme.typography.labelMedium)
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Modems.all.forEachIndexed { id, m ->
-                    if (m.family == family) FilterChip(audio.modemId == id, { pick(id) }, { Text(m.name.removePrefix(family)) })
+                val order = if (family == "SSTV") Modems.sstvPickerOrder.map { Modems.idOf(it) } else Modems.all.indices.filter { Modems.all[it].family == family }
+                order.forEach { id ->
+                    val m = Modems.all[id]
+                    FilterChip(audio.modemId == id, { pick(id) }, { Text(m.name.removePrefix(family)) })
                 }
             }
         }

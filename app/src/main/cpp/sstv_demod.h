@@ -1,5 +1,5 @@
 #pragma once
-// SSTV receiver: Martin M1/M2, Scottie S1/S2, Robot 36 and PD50..PD290, with automatic mode detection from the VIS header.
+// SSTV receiver: Martin M1/M2, Scottie S1/S2/DX, Robot 36/72 and PD50..PD290, with automatic mode detection from the VIS header.
 //
 // Frequency modulation: 1500 Hz is black, 2300 Hz white, 1200 Hz is the line sync, 1900 Hz the header leader.
 // The audio is mixed to baseband around 1900 Hz and the phase advance between samples is stored; frequency at any
@@ -20,8 +20,8 @@
 
 class SstvDemod {
 public:
-    static constexpr int kModeCount = 12;
-    enum Mode { M1 = 0, M2, S1, S2, R36, PD50, PD90, PD120, PD160, PD180, PD240, PD290 };
+    static constexpr int kModeCount = 14;
+    enum Mode { M1 = 0, M2, S1, S2, R36, PD50, PD90, PD120, PD160, PD180, PD240, PD290, R72, SDX };
 
     // selection: -1 = any supported mode (from the VIS header), otherwise a Mode to accept (others are reported and ignored).
     SstvDemod(int inputRate, int selection);
@@ -41,7 +41,9 @@ public:
     struct Spec {
         const char *name; int vis, width, lines;
         double syncLen, lineTime, rowEnd, firstSyncEndDelay;
-        bool robot; int rowsPerLine;   // PD modes send two image rows per sync pulse
+        bool robot;            // Robot 36: one colour difference per line, alternating
+        bool yuv;              // luminance, R-Y and B-Y on every line (Robot 72)
+        int rowsPerLine;       // PD modes send two image rows per sync pulse
         Channel ch[4]; int nch; double sepStart, sepLen;
     };
 

@@ -23,7 +23,12 @@ object Modems {
         ModemInfo("Scottie S1", "SSTV", 1300f), ModemInfo("Scottie S2", "SSTV", 1300f), ModemInfo("Robot 36", "SSTV", 1300f),
         ModemInfo("PD50", "SSTV", 1300f), ModemInfo("PD90", "SSTV", 1300f), ModemInfo("PD120", "SSTV", 1300f), ModemInfo("PD160", "SSTV", 1300f),
         ModemInfo("PD180", "SSTV", 1300f), ModemInfo("PD240", "SSTV", 1300f), ModemInfo("PD290", "SSTV", 1300f),
+        ModemInfo("Robot 72", "SSTV", 1300f), ModemInfo("Scottie DX", "SSTV", 1300f),
     )
+
+    /** SSTV variants in the order shown in the picker (the list above is fixed by the native ids). */
+    val sstvPickerOrder = listOf("SSTV Auto", "Martin M1", "Martin M2", "Scottie S1", "Scottie S2", "Scottie DX", "Robot 36", "Robot 72",
+        "PD50", "PD90", "PD120", "PD160", "PD180", "PD240", "PD290")
 
     // Ordered to match native id = 13 + toneIdx * 5 + bwIdx.
     private fun olivia() = oliviaTones.flatMap { t ->
@@ -47,7 +52,7 @@ object Modems {
 
     const val WEFAX_576 = 38
     const val WEFAX_288 = 39
-    /** 40 = pick the mode from the VIS header; 41..45 = Martin M1/M2, Scottie S1/S2, Robot 36; 46..52 = PD50/90/120/160/180/240/290. */
+    /** 40 = pick the mode from the VIS header; 41..45 = Martin M1/M2, Scottie S1/S2, Robot 36; 46..52 = PD50/90/120/160/180/240/290; 53 = Robot 72; 54 = Scottie DX. */
     const val SSTV_AUTO = 40
     /** Bare "WEFAX" (used by the starter lists) means IOC 576, the usual HF broadcast format. */
     fun idOf(name: String?) = all.indexOfFirst { it.name == (if (name == "WEFAX") "WEFAX 576" else name) }

@@ -6,11 +6,12 @@ import org.junit.Test
 class ModemsTest {
     // The list order is the id contract with jni_bridge.cpp (gModemId): 0-5 PSK, 6-12 MFSK.
     @Test fun idsMatchNativeLayout() {
-        assertEquals(53, Modems.all.size)
+        assertEquals(55, Modems.all.size)
         assertEquals(0, Modems.idOf("BPSK31")); assertEquals(3, Modems.idOf("QPSK31"))
         assertEquals(6, Modems.idOf("MFSK4")); assertEquals(12, Modems.idOf("MFSK128"))
         assertEquals(38, Modems.idOf("WEFAX 576")); assertEquals(39, Modems.idOf("WEFAX 288"))
-        assertEquals(40, Modems.idOf("SSTV Auto")); assertEquals(41, Modems.idOf("Martin M1")); assertEquals(45, Modems.idOf("Robot 36")); assertEquals(46, Modems.idOf("PD50")); assertEquals(52, Modems.idOf("PD290"))
+        assertEquals(40, Modems.idOf("SSTV Auto")); assertEquals(41, Modems.idOf("Martin M1")); assertEquals(45, Modems.idOf("Robot 36")); assertEquals(46, Modems.idOf("PD50")); assertEquals(52, Modems.idOf("PD290")); assertEquals(53, Modems.idOf("Robot 72")); assertEquals(54, Modems.idOf("Scottie DX"))
+        assertEquals(Modems.all.filter { it.family == "SSTV" }.map { it.name }.toSet(), Modems.sstvPickerOrder.toSet())
         assertEquals(38, Modems.idOf("WEFAX"))  // bare name used by the starter lists
         assertEquals(-1, Modems.idOf("nonsense"))
         // Olivia ids: 13 + toneIdx * 5 + bwIdx

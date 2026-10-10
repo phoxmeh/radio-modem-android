@@ -11,7 +11,7 @@ tested.
 
 | Area | Details |
 |---|---|
-| Modes | BPSK31/63/125, QPSK31/63/125, MFSK4/8/16/31/32/64/128 (including pictures), Olivia (4–64 tones × 125–2000 Hz), weather fax (IOC 576 and 288), SSTV (Martin M1/M2, Scottie S1/S2, Robot 36, PD50/90/120/160/180/240/290, with automatic mode detection from the VIS header) |
+| Modes | BPSK31/63/125, QPSK31/63/125, MFSK4/8/16/31/32/64/128 (including pictures), Olivia (4–64 tones × 125–2000 Hz), weather fax (IOC 576 and 288), SSTV (Martin M1/M2, Scottie S1/S2/DX, Robot 36/72, PD50/90/120/160/180/240/290, with automatic mode detection from the VIS header) |
 | Waterfall | Sharp zero-padded spectrum, frequency ruler, bright modem passband with the rest dimmed, uniform zoom, tap/drag/step buttons for the carrier, auto brightness |
 | Weather fax | Automatic APT start/stop and phasing, AFC, auto slant (frozen after N lines), manual slant/shift, save/share |
 | MFSK pictures | Decoded inline in the text feed and saved to Pictures/RadioModem |
@@ -57,7 +57,7 @@ tools/sstv_crosscheck.py              # SSTV decoder against an independent enco
 the header's 1900 Hz leader, and then aligns every line from its own sync pulse, so clock error and drift cannot skew the
 picture. Pictures appear in the feed like MFSK pictures. Mode timings follow N7CXI's specification, checked against
 slowrx. It is tested against a transmit generator written from the specification, against PySSTV (an independent
-encoder) with noise, tuning error and clock error, and against third-party recordings. Not yet supported: Robot 72 and Scottie DX.
+encoder) with noise, tuning error and clock error, and against third-party recordings. The other modes (Robot 24 and the black-and-white ones, Martin M3/M4, Wraase, Pasokon) are reported when seen (by name where known) but not decoded.
 
 ## Shortwave Radiogram schedule
 
