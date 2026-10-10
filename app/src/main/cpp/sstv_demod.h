@@ -61,7 +61,7 @@ private:
     void startPicture(int mode, double leaderHz, long stopCenter);
     void seekFirstSync();
     void imageStep();
-    long findCrossing(long lo, long hi, int minRun) const;
+    long findCrossing(long lo, long hi, int minRun, long expect, int syncSamples) const;
     void renderLine(int line);
     void finish(const char *why);
     void trim();

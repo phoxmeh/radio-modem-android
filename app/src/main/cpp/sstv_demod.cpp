@@ -353,20 +353,27 @@ void SstvDemod::seekFirstSync() {
     if (total_ - stopCenter_ > limit) finish("no sync after the header");
 }
 
-// First low-to-high crossing in [lo, hi] closest to... the caller passes a window around where it expects the sync.
-long SstvDemod::findCrossing(long lo, long hi, int minRun) const {
+// The best low-to-high crossing in [lo, hi] for a sync pulse expected to end at `expect`: close to it, preceded by a
+// stretch of 1200 Hz about as long as a sync pulse (noise that splits a pulse leaves shorter stretches).
+long SstvDemod::findCrossing(long lo, long hi, int minRun, long expect, int syncSamples) const {
     const double thr = kSyncHz + 150 + shift_;
     const int h = 5;
-    long best = -1, bestCenter = (lo + hi) / 2;
+    long best = -1;
+    double bestCost = 1e18;
     double prev;
     if (!freqAt(lo - 1, h, prev)) return -1;
+    const int maxRun = (int)(1.4 * syncSamples);
     for (long i = lo; i <= hi; ++i) {
         double f;
-        if (!freqAt(i, h, f)) return best;
+        if (!freqAt(i, h, f)) break;
         if (f >= thr && prev < thr) {
             int run = 0;
-            for (long j = i - 1; j >= i - minRun - 1; --j) { double g; if (!freqAt(j, h, g) || g >= thr) break; ++run; }
-            if (run >= minRun && (best < 0 || std::labs(i - bestCenter) < std::labs(best - bestCenter))) best = i;
+            for (long j = i - 1; j >= i - maxRun - 1; --j) { double g; if (!freqAt(j, h, g) || g >= thr) break; ++run; }
+            if (run >= minRun) {
+                const double shortfall = std::max(0.0, 0.75 * syncSamples - run);
+                const double cost = (double)std::labs(i - expect) + shortfall;
+                if (cost < bestCost) { bestCost = cost; best = i; }
+            }
         }
         prev = f;
     }
@@ -385,21 +392,30 @@ void SstvDemod::imageStep() {
             rowRendered_ = true;
             if (lineIdx_ == sp.lines / sp.rowsPerLine - 1) { finish(nullptr); return; }
         }
-        // Where the next line's sync should end, and a little room either side.
+        // Where the next line's sync should end, and room either side. After missed pulses the room grows, so a
+        // line start that has drifted can be found again.
         const long expect = curSync_ + (long)std::lround(lHat_ * kRate);
-        const long window = (long)(0.006 * kRate);
+        const long gate = (long)(std::max(0.002, 0.006 * sp.lineTime) * kRate);   // how far a believable pulse can be from the prediction
+        const long window = std::max((long)(0.006 * kRate), gate + (long)(0.002 * kRate)) + (long)(0.004 * kRate) * std::min(misses_, 10);
         if (total_ <= expect + window + h + 2) return;
-        const long found = findCrossing(expect - window, expect + window, (int)(0.5 * sp.syncLen * kRate));
-        if (found >= 0) {
-            const double measured = (double)(found - curSync_) / kRate;
-            lHat_ += 0.3 * (measured - lHat_);
-            lHat_ = std::min(sp.lineTime * 1.015, std::max(sp.lineTime * 0.985, lHat_));
+        const int syncSamples = (int)std::lround(sp.syncLen * kRate);
+        const long found = findCrossing(expect - window, expect + window, (int)(0.5 * syncSamples), expect, syncSamples);
+        const bool inGate = found >= 0 && std::labs(found - expect) <= gate;
+        if (found >= 0 && (inGate || misses_ >= 3)) {
+            if (inGate) {   // an edge far from the prediction is more likely noise than a change of line time
+                const double measured = (double)(found - curSync_) / kRate;
+                lHat_ += 0.3 * (measured - lHat_);
+                lHat_ = std::min(sp.lineTime * 1.015, std::max(sp.lineTime * 0.985, lHat_));
+            }
             curSync_ = found;
             misses_ = 0;
         } else {
             curSync_ = expect;   // keep going on the predicted position through a fade
             if (++misses_ >= 12) { finish("lost sync"); return; }
         }
+#ifdef SSTV_TRACE
+        fprintf(stderr, "TRACE line %d found=%d offset=%ld lHat=%.5f misses=%d\n", lineIdx_, found >= 0, found >= 0 ? found - expect : 0L, lHat_, misses_);
+#endif
         ++lineIdx_;
         rowRendered_ = false;
     }

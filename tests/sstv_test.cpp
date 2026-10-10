@@ -3,6 +3,7 @@
 #include "sstv_demod.h"
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <random>
 #include <string>
@@ -140,9 +141,11 @@ static double meanError(Img &ref, const std::vector<uint8_t> &got, int fromRow =
 
 static bool check(bool c, const char *what) { printf("  %-64s %s\n", what, c ? "PASS" : "FAIL"); return c; }
 
-int main() {
+int main(int argc, char **argv) {
     bool ok = true;
+    const char *only = argc > 1 ? argv[1] : nullptr;   // run one mode's cases only (for investigating)
     for (int m = M1; m <= PD290; ++m) {
+        if (only && std::string(only) != kNames[m]) continue;
         const int w = kWidth[m];
         Img im = makeImage(w, kLines[m]);
         const bool full = m <= R36 || m == PD90 || m == PD120;   // the long modes get the clean case only, to keep the run short
@@ -177,6 +180,7 @@ int main() {
             Result r = decode(t.out);
             double e = r.pics.empty() ? 999 : meanError(im, r.pics[0]);
             printf("%-10s noise 0.15: error %.1f\n", kNames[m], e);
+            if (getenv("SSTV_ROWS") && !r.pics.empty()) { printf("  rows with error > 45:"); for (int y = 0; y < im.h; ++y) { const double ry = meanError(im, r.pics[0], y, y + 1); if (ry > 45) printf(" %d(%.0f)", y, ry); } printf("\n"); }
             ok &= check(!r.pics.empty() && e < (m == R36 ? 30.0 : m >= PD50 ? 34.0 : 20.0), "decodes through noise");
         }
     }
