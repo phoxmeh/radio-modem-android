@@ -53,12 +53,11 @@ tools/sstv_crosscheck.py              # SSTV decoder against an independent enco
 
 ## SSTV
 
-`sstv_demod.cpp` finds a transmission by its VIS header, reads the mode from it, takes the receiver's tuning error from
+`sstv_demod.cpp` finds a transmission by its VIS header (or, if that was missed, by four sync pulses at a mode's line interval, so a picture can be joined part-way), reads the mode from it, takes the receiver's tuning error from
 the header's 1900 Hz leader, and then aligns every line from its own sync pulse, so clock error and drift cannot skew the
 picture. Pictures appear in the feed like MFSK pictures. Mode timings follow N7CXI's specification, checked against
 slowrx. It is tested against a transmit generator written from the specification, against PySSTV (an independent
-encoder) with noise, tuning error and clock error, and against third-party recordings. Not yet supported: Robot 72, Scottie DX, and
-starting without a VIS header.
+encoder) with noise, tuning error and clock error, and against third-party recordings. Not yet supported: Robot 72 and Scottie DX.
 
 ## Shortwave Radiogram schedule
 

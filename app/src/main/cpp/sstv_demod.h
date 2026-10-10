@@ -9,6 +9,9 @@
 // leader's frequency also gives the receiver's tuning error, applied to the whole picture. After that every line is
 // aligned from its own sync pulse (its trailing edge), so clock errors and drift cannot skew the picture.
 //
+// A transmission whose header was missed is picked up from its sync pulses: four pulses of the same length at a line
+// interval that matches a mode start the picture at the latest of them (the top of the picture is then missing).
+//
 // Mode timings follow N7CXI's "Proposal for SSTV Mode Specifications" (2000) and were cross-checked against the
 // slowrx decoder (windytan, ISC licence), whose structure this follows.
 #include <cstdint>
@@ -52,6 +55,9 @@ private:
     bool freqAt(long idx, int half, double &f) const;
     bool freqSpan(long lo, long hi, double &f) const;   // frequency over samples lo..hi inclusive
     void huntVis();
+    void huntSync();
+    void tryJoin();
+    void joinPicture(int mode, long lastSyncEnd, double meanInterval, double shift);
     void startPicture(int mode, double leaderHz, long stopCenter);
     void seekFirstSync();
     void imageStep();
@@ -80,6 +86,10 @@ private:
     struct Tone { long at; double f; };
     std::vector<Tone> tones_;
     double nextTone_ = 0;
+    // header-less starts: recent sync pulses (end sample, length in samples) and the current low run
+    struct Pulse { long end; int len; };
+    std::vector<Pulse> pulses_;
+    int sLow_ = 0;
     // picture in progress
     int mode_ = 0;
     double shift_ = 0;
@@ -88,6 +98,7 @@ private:
     long curSync_ = 0;
     double lHat_ = 0;
     int lineIdx_ = 0, misses_ = 0, rowsRendered_ = 0;
+    int exposed_ = 0;   // rows shown to the caller: those drawn from a sync pulse that was actually heard, or confirmed by a later one
     bool rowRendered_ = false;
     std::vector<uint8_t> rgb_;
     std::vector<float> chromaR_, chromaB_;  // Robot: latest R-Y and B-Y per pixel

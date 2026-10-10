@@ -162,7 +162,7 @@ bool SstvDemod::freqSpan(long lo, long hi, double &f) const {
 
 void SstvDemod::onSample() {
     switch (state_) {
-        case Idle: huntVis(); break;
+        case Idle: huntVis(); huntSync(); break;
         case AwaitSync: seekFirstSync(); break;
         case Image: imageStep(); break;
     }
@@ -245,13 +245,79 @@ void SstvDemod::huntVis() {
     }
 }
 
+// ---- header-less starts ---------------------------------------------------------------------------------------
+// A sync pulse is a stretch of 1200 Hz between 3 and 26 ms (longer is the header's own tones) whose end is the first
+// sample back above the sync threshold.
+void SstvDemod::huntSync() {
+    double f;
+    const long c = total_ - 1 - 5;
+    if (!freqAt(c, 5, f)) return;
+    if (f < kSyncHz + 150) { ++sLow_; return; }
+    const int len = sLow_;
+    sLow_ = 0;
+    if (len < (int)(0.003 * kRate) || len > (int)(0.026 * kRate)) return;
+    pulses_.push_back({c, len});
+    if (pulses_.size() > 8) pulses_.erase(pulses_.begin());
+    tryJoin();
+}
+
+void SstvDemod::tryJoin() {
+    const int need = 4;
+    if ((int)pulses_.size() < need) return;
+    const Pulse *p = &pulses_[pulses_.size() - need];
+    double d[need - 1], D = 0, meanLen = 0;
+    for (int i = 0; i < need - 1; ++i) { d[i] = (double)(p[i + 1].end - p[i].end); D += d[i]; }
+    D /= need - 1;
+    for (int i = 0; i < need; ++i) meanLen += p[i].len;
+    meanLen /= need;
+    double spread = 0;
+    for (int i = 0; i < need - 1; ++i) spread = std::max(spread, std::fabs(d[i] - D));
+    int best = -1;
+    double bestRel = 1e9;
+    for (int m = 0; m < kModeCount; ++m) {
+        if (sel_ >= 0 && m != sel_) continue;
+        const Spec &sp = spec(m);
+        const double L = sp.lineTime * kRate, rel = std::fabs(D - L) / L;
+        if (rel > 0.012 || spread > 0.0015 * kRate + 0.001 * L) continue;
+        if (std::fabs(meanLen - sp.syncLen * kRate) > 0.4 * sp.syncLen * kRate) continue;
+        if (rel < bestRel) { bestRel = rel; best = m; }
+    }
+    if (best < 0) return;
+    // Tuning error from the sync tone itself (it should sit at 1200 Hz).
+    double fs = 0; int nf = 0;
+    for (int i = 0; i < need; ++i) { double f; if (freqAt(p[i].end - p[i].len / 2, 4, f)) { fs += f; ++nf; } }
+    double shift = nf ? fs / nf - kSyncHz : 0;
+    if (std::fabs(shift) > 150) shift = 0;
+    joinPicture(best, p[need - 1].end, D, shift);
+}
+
+void SstvDemod::joinPicture(int mode, long lastSyncEnd, double meanInterval, double shift) {
+    const Spec &sp = spec(mode);
+    mode_ = mode;
+    shift_ = shift;
+    ++pictureId_;
+    picState_ = 1;
+    rowsReported_ = 0; rowsRendered_ = 0; exposed_ = 0;
+    rgb_.assign((size_t)sp.width * sp.lines * 3, 0);
+    chromaR_.assign(sp.width, 128.f); chromaB_.assign(sp.width, 128.f);
+    lineIdx_ = 0; misses_ = 0; rowRendered_ = false;
+    lHat_ = std::min(sp.lineTime * 1.015, std::max(sp.lineTime * 0.985, meanInterval / kRate));
+    curSync_ = lastSyncEnd;
+    stopCenter_ = lastSyncEnd;
+    state_ = Image;
+    tones_.clear(); pulses_.clear(); sLow_ = 0;
+    char msg[96];
+    std::snprintf(msg, sizeof msg, "\nSSTV %s (no header; joined from its sync pulses)\n", sp.name);
+    if (out_) *out_ += msg;
+}
+
 void SstvDemod::startPicture(int mode, double leaderHz, long stopCenter) {
     const Spec &sp = spec(mode);
     mode_ = mode;
     shift_ = leaderHz - kCenter;
     ++pictureId_;
     picState_ = 1;
-    rowsReported_ = 0; rowsRendered_ = 0;
+    rowsReported_ = 0; rowsRendered_ = 0; exposed_ = 0;
     rgb_.assign((size_t)sp.width * sp.lines * 3, 0);
     chromaR_.assign(sp.width, 128.f); chromaB_.assign(sp.width, 128.f);
     lineIdx_ = 0; misses_ = 0; rowRendered_ = false;
@@ -261,7 +327,7 @@ void SstvDemod::startPicture(int mode, double leaderHz, long stopCenter) {
     scanPos_ = sp.firstSyncEndDelay > 0 ? stopCenter + (long)((0.015 + sp.firstSyncEndDelay - 0.09) * kRate) : stopCenter;
     lowRun_ = 0;
     state_ = AwaitSync;
-    tones_.clear();
+    tones_.clear(); pulses_.clear(); sLow_ = 0;
 }
 
 // The end of the first sync pulse: the first low-to-high crossing of the sync threshold after the header.
@@ -380,6 +446,7 @@ void SstvDemod::renderLine(int line) {
         yuv(&rgb_[(size_t)(2 * line) * W * 3], plane[0].data(), plane[1].data(), plane[2].data());
         yuv(&rgb_[(size_t)(2 * line + 1) * W * 3], plane[3].data(), plane[1].data(), plane[2].data());
         rowsRendered_ = 2 * line + 2;
+        if (misses_ == 0) exposed_ = rowsRendered_;
         return;
     }
     uint8_t *dst = &rgb_[(size_t)line * W * 3];
@@ -397,22 +464,23 @@ void SstvDemod::renderLine(int line) {
         yuv(dst, plane[0].data(), chromaR_.data(), chromaB_.data());
     }
     rowsRendered_ = line + 1;
+    if (misses_ == 0) exposed_ = rowsRendered_;
 }
 
 void SstvDemod::finish(const char *why) {
     picState_ = 2;
     char msg[96];
-    if (why) { std::snprintf(msg, sizeof msg, "\nSSTV picture ended: %s (%d of %d lines)\n", why, rowsRendered_, spec(mode_).lines); if (out_) *out_ += msg; }
-    else if (out_) *out_ += "\nSSTV picture complete\n";
+    if (why) { std::snprintf(msg, sizeof msg, "\nSSTV picture ended: %s (%d of %d lines)\n", why, exposed_, spec(mode_).lines); if (out_) *out_ += msg; }
+    else { exposed_ = rowsRendered_; if (out_) *out_ += "\nSSTV picture complete\n"; }
     state_ = Idle;
-    tones_.clear();
+    tones_.clear(); pulses_.clear(); sLow_ = 0;
     nextTone_ = (double)total_;
 }
 
 size_t SstvDemod::pollPicture(std::vector<uint8_t> &out) {
     if (pictureId_ == 0) return 0;
     const Spec &sp = spec(mode_);
-    const int rowsDone = std::min(rowsRendered_, sp.lines);
+    const int rowsDone = std::min(exposed_, sp.lines);
     const int first = rowsReported_, count = std::max(0, rowsDone - rowsReported_);
     const size_t start = out.size(), rowBytes = (size_t)sp.width * 3;
     int32_t header[7] = {pictureId_, sp.width, sp.lines, 1, first, count, picState_};

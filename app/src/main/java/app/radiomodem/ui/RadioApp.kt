@@ -332,7 +332,7 @@ private fun ModemDrawer(audio: AudioViewModel, settings: AppSettings) = Column(
         "SSTV" -> {
             Hint("Auto reads the mode from the picture's header, so any supported mode starts by itself. Pick a specific mode to ignore the others. " +
                 "Tune USB (LSB below 10 MHz by convention) so the tones sit between 1100 and 2300 Hz on the waterfall; a small tuning error is corrected from the header. " +
-                "Pictures appear in the feed as they arrive. Header-less starts are not supported yet.")
+                "Pictures appear in the feed as they arrive. If the header was missed, decoding starts by itself after four line sync pulses; the top of that picture is then missing.")
             Text("${Modems.all[audio.modemId].name} · tones 1200–2300 Hz")
         }
         else -> {

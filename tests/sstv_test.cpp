@@ -35,7 +35,7 @@ static Img makeImage(int w, int h) {
     Img im{w, h, std::vector<uint8_t>((size_t)w * h * 3)};
     for (int y = 0; y < h; ++y) for (int x = 0; x < w; ++x) {
         uint8_t *p = im.at(x, y);
-        if (y < h / 4) { p[0] = (uint8_t)(x * 255 / (w - 1)); p[1] = (uint8_t)(x * 255 / (w - 1)); p[2] = (uint8_t)(x * 255 / (w - 1)); }
+        if (y < h / 4) { p[0] = (uint8_t)(x * 255 / (w - 1)); p[1] = (uint8_t)(255 - x * 255 / (w - 1)); p[2] = (uint8_t)(y * 4 * 200 / h + x * 55 / (w - 1)); }   // varies with y too, so a vertical offset can be found
         else { const int bx = x / 16, by = y / 16; p[0] = (uint8_t)(40 + 170 * ((bx + by) % 2)); p[1] = (uint8_t)(30 + 40 * (bx % 5)); p[2] = (uint8_t)(220 - 35 * (by % 6)); }
     }
     return im;
@@ -181,6 +181,44 @@ int main() {
         }
     }
 
+    printf("Header-less starts (the header and the first lines are cut off):\n");
+    {
+        static const double kLine[] = {446.446, 226.798, 428.22, 277.69, 150, 388.16, 703.04, 508.48, 804.416, 754.24, 1000, 937.28};
+        for (int m = M1; m <= PD290; ++m) {
+            Img im = makeImage(kWidth[m], kLines[m]);
+            Tx t = transmit(m, im);
+            // The header ends 1.11 s in; start 5.3 lines later, in the middle of a line.
+            const size_t cut = (size_t)((1.11 + 5.3 * kLine[m] * 1e-3) * kRate);
+            std::vector<float> sig(t.out.begin() + cut, t.out.end());
+            Result r = decode(sig);
+            bool named = r.text.find(std::string("SSTV ") + kNames[m] + " (no header") != std::string::npos;
+            double best = 999; int bestOff = -1;
+            if (!r.pics.empty() && r.w[0] == kWidth[m])
+                for (int off = 0; off <= 20; ++off) {
+                    // decoded row k corresponds to source row off + k; compare the first 40 decoded rows
+                    double e = 0; long n = 0;
+                    for (int y = 2; y < 40 && off + y < kLines[m]; ++y) for (int x = 4; x < kWidth[m] - 4; ++x) for (int c = 0; c < 3; ++c) {
+                        e += std::abs((int)r.pics[0][((size_t)y * kWidth[m] + x) * 3 + c] - (int)im.at(x, off + y)[c]); ++n; }
+                    if (n && e / n < best) { best = e / n; bestOff = off; }
+                }
+            printf("%-10s joined=%d, top %d rows missing, mean error %.1f\n", kNames[m], (int)named, bestOff, best);
+            ok &= check(named && r.pics.size() == 1, "mode recognised from the sync pulses alone");
+            ok &= check(best < (m == R36 ? 16.0 : m >= PD50 ? 11.0 : 9.0), "the picture that follows is correct");
+        }
+        // A selected mode joins only its own pulses.
+        Img im = makeImage(320, 256);
+        Tx t = transmit(M1, im);
+        std::vector<float> sig(t.out.begin() + (size_t)(3.0 * kRate), t.out.end());
+        Result r = decode(sig, SstvDemod::M1);
+        ok &= check(r.pics.size() == 1, "a selected mode starts without a header");
+        r = decode(sig, SstvDemod::S1);
+        ok &= check(r.pics.empty(), "a different selected mode does not");
+        // Three sync pulses are not enough; neither are pulses at the wrong interval.
+        Tx p3; for (int i = 0; i < 3; ++i) { p3.tone(1200, 4.862); p3.tone(1900, 446.446 - 4.862); }
+        ok &= check(decode(p3.out).pics.empty(), "three pulses do not start a picture");
+        Tx odd; for (int i = 0; i < 8; ++i) { odd.tone(1200, 9); odd.tone(1900, 333 - 9); }
+        ok &= check(decode(odd.out).pics.empty(), "pulses at no mode's line interval do not start one");
+    }
     printf("Selection and rejection:\n");
     {
         Img im = makeImage(320, 256);
